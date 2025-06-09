@@ -1,0 +1,257 @@
+﻿$PBExportHeader$dw_entrystatus.srd
+release 12;
+datawindow(units=0 timer_interval=0 color=1073741824 brushmode=0 transparency=0 gradient.angle=0 gradient.color=8421504 gradient.focus=0 gradient.repetition.count=0 gradient.repetition.length=100 gradient.repetition.mode=0 gradient.scale=100 gradient.spread=100 gradient.transparency=0 picture.blur=0 picture.clip.bottom=0 picture.clip.left=0 picture.clip.right=0 picture.clip.top=0 picture.mode=0 picture.scale.x=100 picture.scale.y=100 picture.transparency=0 processing=0 HTMLDW=no print.printername="" print.documentname="" print.orientation = 0 print.margin.left = 110 print.margin.right = 110 print.margin.top = 96 print.margin.bottom = 96 print.paper.source = 0 print.paper.size = 0 print.canusedefaultprinter=yes print.prompt=no print.buttons=no print.preview.buttons=no print.cliptext=no print.overrideprintjob=no print.collate=yes print.background=no print.preview.background=no print.preview.outline=yes hidegrayline=no showbackcoloronxp=no picture.file="" )
+header(height=340 color="536870912" transparency="0" gradient.color="8421504" gradient.transparency="0" gradient.angle="0" brushmode="0" gradient.repetition.mode="0" gradient.repetition.count="0" gradient.repetition.length="100" gradient.focus="0" gradient.scale="100" gradient.spread="100" )
+summary(height=0 color="536870912" transparency="0" gradient.color="8421504" gradient.transparency="0" gradient.angle="0" brushmode="0" gradient.repetition.mode="0" gradient.repetition.count="0" gradient.repetition.length="100" gradient.focus="0" gradient.scale="100" gradient.spread="100" )
+footer(height=0 color="536870912" transparency="0" gradient.color="8421504" gradient.transparency="0" gradient.angle="0" brushmode="0" gradient.repetition.mode="0" gradient.repetition.count="0" gradient.repetition.length="100" gradient.focus="0" gradient.scale="100" gradient.spread="100" )
+detail(height=84 color="536870912" transparency="0" gradient.color="8421504" gradient.transparency="0" gradient.angle="0" brushmode="0" gradient.repetition.mode="0" gradient.repetition.count="0" gradient.repetition.length="100" gradient.focus="0" gradient.scale="100" gradient.spread="100" )
+table(column=(type=char(10) updatewhereclause=yes name=module dbname="module" )
+ column=(type=char(11) updatewhereclause=yes name=section dbname="section" )
+ column=(type=char(42) updatewhereclause=yes name=disc dbname="disc" )
+ column=(type=number updatewhereclause=yes name=nor dbname="nor" )
+ column=(type=datetime updatewhereclause=yes name=last_dt dbname="last_dt" )
+ retrieve="select module,section,disc,nor,last_dt from 
+(select 'Finance' module,'Master' section,'Ledger' disc,count(*) nor,max(ACLEDGER_ENTRY_DT) last_dt from fb_acledger
+ union all
+select 'Finance' module,'Master' section,'Sub Ledger' disc,count(*) nor,max(ACSUBLEDGER_ENTRY_DT) last_dt from fb_acsubledger
+ union all 
+select 'Finance' module,'Master' section,'Expense Sub Head' disc,count(*) nor,max(EACSUBHEAD_ENTRY_DT) last_dt from fb_expenseacsubhead
+ union all  
+select 'Finance' module,'Master' section,'Fixed Assets' disc,count(*) nor,max(FA_ENTRY_DT) last_dt from FB_FIXED_ASSETS
+ union all  
+select 'Finance' module,'Transaction' section,'Voucher - '||decode(substr(vh_vou_type,1,1),'B','Bank','C','Cash','JV') disc,count(*) nor,max(vh_vou_date) last_dt 
+  from fb_vou_head 
+ group by 'Voucher - '||decode(substr(vh_vou_type,1,1),'B','Bank','C','Cash','JV') 
+union all
+select 'Budget' module,'Transaction' section,'Salary Budget' disc,count(*) nor,max(MSAB_ENTRY_DT) last_dt from FB_MONTHLYSALARYBUDGET 
+union all 
+select 'Budget' module,'Transaction' section,'Weages Budget' disc,count(*) nor,max(MWB_ENTRY_DT) last_dt from fb_monthlywagesbudget 
+union all 
+select 'Budget' module,'Transaction' section,'Store Budget' disc,count(*) nor,max(MSB_ENTRY_DT) last_dt from FB_MONTHLYSTOREBUDGET 
+union all 
+select 'Budget' module,'Transaction' section,'Others Budget' disc,count(*) nor,max(MOB_ENTRY_DT) last_dt from FB_MONTHLYOTHERSBUDGET 
+union all 
+select 'Budget' module,'Transaction' section,'Tea Made Budget' disc,count(*) nor,max(MTMB_ENTRY_DT) last_dt from FB_MONTHLYTEAMADEBUDGET 
+union all 
+select 'Budget' module,'Transaction' section,'Yearly Area Budget' disc,count(*) nor,max(YT_ENTRY_DT) last_dt from FB_YEARLYAREA
+union all
+select 'Purchase' module,'Master' section,'Store Category' disc,count(*) nor,max(SPC_ENTRY_DT) last_dt from fb_storeproductcategory
+ union all
+select 'Purchase' module,'Master' section,'Store Product' disc,count(*) nor,max(SP_ENTRY_DT) last_dt from  fb_storeproduct 
+ union all
+select 'Purchase' module,'Master' section,'Supplier' disc,count(*) nor,max(SUP_ENTRY_DT) last_dt from  fb_supplier 
+union all
+select 'Purchase' module,'Transaction' section,'Indent - '||decode(INDENT_HOLOCALFLAG,'1','HO','Local') disc,count(*) nor,max(INDENT_ENTRY_DT) last_dt from  fb_indent 
+group by 'Indent - '||decode(INDENT_HOLOCALFLAG,'1','HO','Local')
+union all
+select 'Purchase' module,'Transaction' section,'Invoice - HO' disc,count(*) nor,max(HOPI_ENTRY_DT) last_dt from  fb_hopurchaseinvoice 
+union all
+select 'Purchase' module,'Transaction' section,'Purchase Order - Local' disc,count(*) nor,max(LPO_ENTRY_DT) last_dt from  fb_localpurchaseorder 
+union all
+select 'Purchase' module,'Transaction' section,'Invoice - Local' disc,count(*) nor,max(LPI_ENTRY_DT) last_dt from  fb_localpurchaseinvoice 
+union all
+select 'Purchase' module,'Transaction' section,'Indent - Cancellation' disc,count(*) nor,max(INDENT_ENTRY_DT) last_dt from  fb_indentcancel 
+union all
+select 'Inventory' module,'Master' section,'Cost Centre' disc,count(*) nor,max(CC_ENTRY_DT) last_dt from fb_costcentre	
+union all
+select 'Inventory' module,'Transaction' section,'Issue' disc,count(*) nor,max(PRIS_ENTRY_DT) last_dt from fb_productissue
+union all
+select 'Inventory' module,'Transaction' section,'Stock Transfer' disc,count(*) nor,max(PRIS_ENTRY_DT) last_dt from fb_producttransfer
+union all
+select 'Inventory' module,'Transaction' section,'Store Product' disc,count(*) nor,max(SA_ENTRY_DT) last_dt from fb_stores_adjustment
+union all
+select 'Inventory' module,'Transaction' section,'Return To Store' disc,count(*) nor,max(PRET_ENTRY_DT) last_dt from FB_PRODUCTRETURN
+union all
+select 'Inventory' module,'Transaction' section,'Return To Supplier' disc,count(*) nor,max(SPR_ENTRY_DT) last_dt from fb_supproductreturn
+union all
+select 'Inventory' module,'Transaction' section,'Disposal Of Fixed Assets' disc,count(*) nor,max(FAS_ENTRY_DT) last_dt from fb_Assets_scrap
+union all
+select 'Dispatch' module,'Master' section,'Broker' disc,count(*) nor,max(BROK_ENTRY_DT) last_dt from fb_broker
+union all
+select 'Dispatch' module,'Master' section,'City' disc,count(*) nor,max(CITY_ENTRY_DT) last_dt from fb_city
+union all
+select 'Dispatch' module,'Master' section,'Warehouse' disc,count(*) nor,max(WARE_ENTRY_DT) last_dt from  fb_warehouse
+union all
+select 'Dispatch' module,'Master' section,'Customer' disc,count(*) nor,max(CUS_ENTRY_DT) last_dt from  fb_customer
+union all
+select 'Dispatch' module,'Master' section,'Garden Master' disc,count(*) nor,max(UNIT_ENTRY_DT) last_dt from fb_gardenmaster
+union all
+select 'Dispatch' module,'Master' section,'Parameter Master' disc,count(*) nor,max(PD_ENTRY_DT) last_dt from fb_param_detail
+union all
+select 'Dispatch' module,'Master' section,'Transporter' disc,count(*) nor,max(TRANSP_ENTRY_DT) last_dt from fb_transport
+union all
+select 'Dispatch' module,'Transaction' section,'Dispatch Advice' disc,count(*) nor,max(ADVICE_ENTRY_DT) last_dt from fb_advice
+union all
+select 'Dispatch' module,'Transaction' section,'Dispatch Invoice' disc,count(*) nor,max(SI_ENTRY_DT) last_dt from fb_saleinvoice
+union all
+select 'Dispatch' module,'Transaction' section,'Tax Invoice' disc,count(*) nor,max(TI_ENTRY_DT) last_dt from fb_taxinvhdr
+union all
+select 'Dispatch' module,'Transaction' section,'Sample Dispatch' disc,count(*) nor,max(SD_ENTRY_DT) last_dt from fb_sample_dispatch 
+union all
+select 'Production' module,'Master' section,'Tea Grade' disc,count(*) nor,max(TMP_ENTRY_DT) last_dt from fb_teamadeproduct 
+union all
+select 'Production' module,'Master' section,'Machinery && Grid' disc,count(*) nor,max(MAC_ENTRY_DT) last_dt from  fb_machine
+union all
+select 'Production' module,'Master' section,'Consumption Master' disc,count(*) nor,max(CT_ENTRY_DT) last_dt from  fb_consumptiontype
+union all
+select 'Production' module,'Master' section,'Tea Category' disc,count(*) nor,max(TPC_ENTRY_DT) last_dt from  fb_teamadeproductcategory
+union all
+select 'Production' module,'Transaction' section,'Grid/Own Gen Set Readings' disc,count(*) nor,max(PEG_ENTRY_DT) last_dt from  fb_pegeneration
+union all
+select 'Production' module,'Transaction' section,'Green Leaf Transaction' disc,count(*) nor,max(GT_ENTRY_DT) last_dt from  fb_gltransaction
+union all
+select 'Production' module,'Transaction' section,'Leaf Analysis Details' disc,count(*) nor,max(LA_ENTRY_DT) last_dt from  fb_leafanalysis
+union all
+select 'Production' module,'Transaction' section,'Machine Consumption Reading' disc,count(*) nor,max(DDP_ENTRY_DT) last_dt from  fb_dailydryerproduct
+union all
+select 'Production' module,'Transaction' section,'Production At Other Estate - Category Wise' disc,count(*) nor,max(DDP_DT) last_dt from  fb_dailydryerunsorted
+union all
+select 'Production' module,'Transaction' section,decode(gwtm.gwtm_type,'O','Production At Other Estate','N','Production At Own Estate','Excess') disc,count(*) nor,max(GLFP_PLUCKINGDATE) last_dt from fb_glforproduction glfp,fb_gardenwiseteamade gwtm
+where glfp.glfp_pk=gwtm.glfp_pk group by decode(gwtm.gwtm_type,'O','Production At Other Estate','N','Production At Own Estate','Excess') 
+union all
+select 'Production' module,'Transaction' section,'Made Tea Transfer' disc,count(*) nor,max(PT_ENTRY_DT) last_dt from  fb_packteatransfer
+union all
+select 'Production' module,'Transaction' section,'Sorting' disc,count(*) nor,max(DTMP_ENTRY_DT) last_dt from  fb_dailysortedteamadeproduct
+union all
+select 'Production' module,'Transaction' section,'Pack Tea Detail' disc,count(*) nor,max(DTP_DATE) last_dt from  fb_dailyteapacked
+union all
+select 'Production' module,'Transaction' section,'Excess Made Tea' disc,count(*) nor,max(ET_ENTRY_DT) last_dt from  fb_excess_tea
+union all
+select 'Production' module,'Transaction' section,'Reprocessed Tea' disc,count(*) nor,max(RT_ENTRY_DT) last_dt from  fb_reprocess_tea
+union all
+select 'Production' module,'Transaction' section,'Made Tea Receive' disc,count(*) nor,max(PT_ENTRY_DT) last_dt from  fb_packteatransfer
+union all
+select 'Field' module,'Master' section,'Division Master' disc,count(*) nor,max(FIELD_ENTRY_DT) last_dt from  fb_field
+union all
+select 'Field' module,'Master' section,'Section' disc,count(*) nor,max(SECTION_ENTRY_DT) last_dt from  fb_section
+union all
+select 'Field' module,'Master' section,'Plantation' disc,count(*) nor,max(SECTION_ENTRY_DT) last_dt from  fb_sectionplantation
+union all
+select 'Field' module,'Master' section,'Section Uprooting' disc,count(*) nor,max(SU_ENTRY_DT) last_dt from  fb_sectionuproot
+union all
+select 'Field' module,'Master' section,'Nursery Details' disc,count(*) nor,max(NURSERY_ENTRY_DT) last_dt from  fb_locationnursery 
+union all
+select 'Field' module,'Transaction' section,'Section Planting' disc,count(*) nor,max(SECTION_ENTRY_DT) last_dt from  fb_sectionplantation
+union all
+select 'Field' module,'Transaction' section,'Plant Stage' disc,count(*) nor,max(SS_ENTRY_DT) last_dt from  fb_sectionstage
+union all
+select 'Field' module,'Transaction' section,'Counting' disc,count(*) nor,max(SECPLANT_ENTRY_DT) last_dt from  fb_sectionplantcount where SECPLANT_TYPE = 'Counting'
+union all
+select 'Field' module,'Transaction' section,'Infilling' disc,count(*) nor,max(SECPLANT_ENTRY_DT) last_dt from  fb_sectionplantcount where SECPLANT_TYPE = 'Infilling'
+union all
+select 'Field' module,'Transaction' section,'Soil Analysis' disc,count(*) nor,max(SOIL_ENTRY_DT) last_dt from  fb_soilanalysis
+union all
+select 'Field' module,'Transaction' section,decode(MFWD_TYPE,'Foilaring','Foilaring','Manuring','Manuring','Weeding') disc,count(*) nor,max(MFWD_ENTRY_DT) last_dt from  fb_manfolweeddetails
+group by decode(MFWD_TYPE,'Foilaring','Foilaring','Manuring','Manuring','Weeding')
+union all
+select 'Field' module,'Transaction' section,'Shade Tea Planting' disc,count(*) nor,max(SHADE_ENTRY_DT) last_dt from  fb_sectionshade
+union all
+select 'Field' module,'Transaction' section,'Plucking Round' disc,count(*) nor,max(SPR_ENTRY_DT) last_dt from  fb_sectionpluckinground 
+union all
+select 'Field' module,'Transaction' section,'Uprooting' disc,count(*) nor,max(SU_ENTRY_DT) last_dt from  fb_sectionuproot
+union all
+select 'Field' module,'Transaction' section,'Plant Infection' disc,count(*) nor,max(INFECT_ENTRY_DT) last_dt from   fb_plantinfection
+union all
+select 'Field' module,'Transaction' section,'Pruning' disc,count(*) nor,max(PRUN_ENTRY_DT) last_dt from   fb_pruningsession
+union all
+select 'Field' module,'Transaction' section,'Weather Report' disc,count(*) nor,max(WR_ENTRY_DT) last_dt from  fb_weatherreport
+union all
+select 'Field' module,'Transaction' section,'Nursery Plants Details' disc,count(*) nor,max(NURSERY_ENTRY_DT) last_dt from  fb_nurserydetails
+union all
+select 'HR' module,'Master' section,'Employee Details' disc,count(*) nor,max(EMP_ENTRY_DT) last_dt from  fb_employee
+union all
+select 'HR' module,'Master' section,'Employee Spouse' disc,count(*) nor,max(EMPS_ENTRY_DT) last_dt from  fb_empspouse
+union all
+select 'HR' module,'Master' section,'Census Record (Employee)' disc,count(*) nor,max(EMPD_ENTRY_DT) last_dt from  FB_EMPDEPENDENTS
+union all
+select 'HR' module,'Master' section,'Allowance && Deductions' disc,count(*) nor,max(EAD_ENTRYDATE) last_dt from  fb_empallowancededuction 
+union all
+select 'HR' module,'Master' section,'P. Tax Slab' disc,count(*) nor,max(EPD_ENTRY_DT) last_dt from  fb_empptaxdeduction 
+union all
+select 'HR' module,'Master' section,'Bonus Period' disc,count(*) nor,max(LBS_ENTRY_DT) last_dt from  fb_labbonusseason
+union all
+select 'HR' module,'Transaction' section,'Employee Attendance' disc,count(*) nor,max(EATTEN_ENTRY_DT) last_dt from  fb_empattendance
+union all
+select 'HR' module,'Transaction' section,'Advance Entry' disc,count(*) nor,max(EMP_ENTRY_DT) last_dt from  fb_empadvance
+union all
+select 'HR' module,'Transaction' section,'Over Time' disc,count(*) nor,max(EMP_ENTRY_DT) last_dt from  fb_overtime a,fb_employee b
+where a.OT_EMP_ID=b.EMP_ID and EMP_TYPE not in ('LP','LT','LO')
+union all
+select 'HR' module,'Transaction' section,'Electric,Advance and Ration Deduction' disc,count(*) nor,max(EWD_ENTRY_DT) last_dt from  fb_empwisededuction
+union all
+select 'HR' module,'Transaction' section,'Process - Bonus' disc,count(*) nor,max(EBP_ENTRY_DT) last_dt from   fb_empbonusperiod
+union all
+select 'Labour' module,'Master' section,'Pay Book' disc,count(*) nor,max(LS_ENTRY_DT) last_dt from  fb_laboursheet
+union all 
+select 'Labour' module,'Master' section,decode(EMP_TYPE,'LP','Labour - Permanent','LT','Labour - Temprory','LO','Labour - Out Side') disc,count(*) nor,max(EMP_ENTRY_DT) last_dt from  fb_employee
+where EMP_TYPE in ('LP','LT','LO') group by decode(EMP_TYPE,'LP','Labour - Permanent','LT','Labour - Temprory','LO','Labour - Out Side')
+union all 
+select 'Labour' module,'Master' section,'Census Record (Labour)' disc,count(*) nor,max(CHILD_ENTRY_DT) last_dt from  fb_labourdependent 
+union all 
+select 'Labour' module,'Master' section,'Payment Period' disc,count(*) nor,max(LWW_ENTRY_DT) last_dt from  fb_labourwagesweek 
+union all 
+select 'Labour' module,'Master' section,'Kamjari Codes' disc,count(*) nor,max(KAMSUB_ENTRY_DT) last_dt from  fb_kamsubhead 
+union all 
+select 'Labour' module,'Master' section,'Kamjari Task' disc,count(*) nor,max(TASK_ENTRY_DT) last_dt from  fb_task
+union all 
+select 'Labour' module,'Master' section,'Ration Chart' disc,count(*) nor,max(LRC_ENTRY_DT) last_dt from  fb_labourrationchart 
+union all 
+select 'Labour' module,'Master' section,'Cash Plucking Rate' disc,count(*) nor,max(CP_ENTRY_DT) last_dt from  fb_cashpluckingrate 
+union all 
+select 'Labour' module,'Master' section,'Food Compensation Rate' disc,count(*) nor,max(FC_ENTRY_DT) last_dt from  fb_foodcomprate 
+union all 
+select 'Labour' module,'Master' section,'Ration Period' disc,count(*) nor,max(RPFW_ENTRY_DT) last_dt from  fb_rationperiodforweek 
+union all 
+select 'Labour' module,'Master' section,'LWW Period' disc,count(*) nor,max(LLS_ENTRY_DT) last_dt from  fb_lablwwseason 
+union all 
+select 'Labour' module,'Master' section,'Bonus Period' disc,count(*) nor,max(LBS_ENTRY_DT) last_dt from  fb_labbonusseason
+union all 
+select 'Labour' module,'Transaction' section,'Labour Attendance' disc,count(*) nor,max(LDA_ENTRY_DT) last_dt from  fb_labourdailyattendance
+union all 
+select 'Labour' module,'Master' section,'Holiday List' disc,count(*) nor,max(FH_ENTRY_DT) last_dt from  fb_holiday
+union all 
+select 'Labour' module,'Master' section,'Labour Incentive' disc,count(*) nor,max(INC_ENTRY_DT) last_dt from  fb_incentive
+union all 
+select 'Labour' module,'Master' section,'Labour Spouse' disc,count(*) nor,max(SPOUSE_ENTRY_DT) last_dt from  fb_labourspouse 
+union all 
+select 'Labour' module,'Transaction' section,'Labour Advance' disc,count(*) nor,max(LA_ENTRY_DT) last_dt from  fb_labouradvance 
+union all 
+select 'Labour' module,'Transaction' section,'Electricity Deduction' disc,count(*) nor,max(EDG_ENTRY_DT) last_dt from  fb_electricdedgroup 
+union all 
+select 'Labour' module,'Transaction' section,'Over Time' disc,count(*) nor,max(OT_ENTRY_DT) last_dt from  fb_overtime 
+union all 
+select 'Labour' module,'Transaction' section,'Process - LWW' disc,count(*) nor,max(LLP_ENTRY_DT) last_dt from  fb_lablwwperiod 
+union all 
+select 'Labour' module,'Transaction' section,'Process - Bonus' disc,count(*) nor,max(LBP_ENTRY_DT) last_dt from   fb_labbonusperiod
+union all 
+select 'Labour' module,'Transaction' section,'Advance Deduction' disc,count(*) nor,max(LAD_DATE) last_dt from   fb_labadvancededuction)
+where module=:ra_module
+
+
+
+" arguments=(("ra_module", string))  sort="section A " )
+text(band=header alignment="2" text="Luxmi Tea Co." border="0" color="33554432" x="18" y="36" height="64" width="361" html.valueishtml="0"  name=t_7 visible="1"  font.face="Times New Roman" font.height="-10" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="2" background.color="1073741824" background.transparency="0" background.gradient.color="8421504" background.gradient.transparency="0" background.gradient.angle="0" background.brushmode="0" background.gradient.repetition.mode="0" background.gradient.repetition.count="0" background.gradient.repetition.length="100" background.gradient.focus="0" background.gradient.scale="100" background.gradient.spread="100" tooltip.backcolor="134217752" tooltip.delay.initial="0" tooltip.delay.visible="32000" tooltip.enabled="0" tooltip.hasclosebutton="0" tooltip.icon="0" tooltip.isbubble="0" tooltip.maxwidth="0" tooltip.textcolor="134217751" tooltip.transparency="0" transparency="0" )
+text(band=header alignment="0" text="Module" border="0" color="33554432" x="59" y="264" height="64" width="306" html.valueishtml="0"  name=t_1 visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" background.transparency="0" background.gradient.color="8421504" background.gradient.transparency="0" background.gradient.angle="0" background.brushmode="0" background.gradient.repetition.mode="0" background.gradient.repetition.count="0" background.gradient.repetition.length="100" background.gradient.focus="0" background.gradient.scale="100" background.gradient.spread="100" tooltip.backcolor="134217752" tooltip.delay.initial="0" tooltip.delay.visible="32000" tooltip.enabled="0" tooltip.hasclosebutton="0" tooltip.icon="0" tooltip.isbubble="0" tooltip.maxwidth="0" tooltip.textcolor="134217751" tooltip.transparency="0" transparency="0" )
+text(band=header alignment="0" text="Section" border="0" color="33554432" x="407" y="264" height="64" width="306" html.valueishtml="0"  name=t_2 visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" background.transparency="0" background.gradient.color="8421504" background.gradient.transparency="0" background.gradient.angle="0" background.brushmode="0" background.gradient.repetition.mode="0" background.gradient.repetition.count="0" background.gradient.repetition.length="100" background.gradient.focus="0" background.gradient.scale="100" background.gradient.spread="100" tooltip.backcolor="134217752" tooltip.delay.initial="0" tooltip.delay.visible="32000" tooltip.enabled="0" tooltip.hasclosebutton="0" tooltip.icon="0" tooltip.isbubble="0" tooltip.maxwidth="0" tooltip.textcolor="134217751" tooltip.transparency="0" transparency="0" )
+text(band=header alignment="1" text="Numberof record" border="0" color="33554432" x="1765" y="200" height="128" width="261" html.valueishtml="0"  name=t_4 visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" background.transparency="0" background.gradient.color="8421504" background.gradient.transparency="0" background.gradient.angle="0" background.brushmode="0" background.gradient.repetition.mode="0" background.gradient.repetition.count="0" background.gradient.repetition.length="100" background.gradient.focus="0" background.gradient.scale="100" background.gradient.spread="100" tooltip.backcolor="134217752" tooltip.delay.initial="0" tooltip.delay.visible="32000" tooltip.enabled="0" tooltip.hasclosebutton="0" tooltip.icon="0" tooltip.isbubble="0" tooltip.maxwidth="0" tooltip.textcolor="134217751" tooltip.transparency="0" transparency="0" )
+text(band=header alignment="2" text="Last Dateof record" border="0" color="33554432" x="2107" y="200" height="128" width="283" html.valueishtml="0"  name=t_5 visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" background.transparency="0" background.gradient.color="8421504" background.gradient.transparency="0" background.gradient.angle="0" background.brushmode="0" background.gradient.repetition.mode="0" background.gradient.repetition.count="0" background.gradient.repetition.length="100" background.gradient.focus="0" background.gradient.scale="100" background.gradient.spread="100" tooltip.backcolor="134217752" tooltip.delay.initial="0" tooltip.delay.visible="32000" tooltip.enabled="0" tooltip.hasclosebutton="0" tooltip.icon="0" tooltip.isbubble="0" tooltip.maxwidth="0" tooltip.textcolor="134217751" tooltip.transparency="0" transparency="0" )
+text(band=header alignment="0" text="Description" border="0" color="33554432" x="736" y="264" height="64" width="942" html.valueishtml="0"  name=t_3 visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" background.transparency="0" background.gradient.color="8421504" background.gradient.transparency="0" background.gradient.angle="0" background.brushmode="0" background.gradient.repetition.mode="0" background.gradient.repetition.count="0" background.gradient.repetition.length="100" background.gradient.focus="0" background.gradient.scale="100" background.gradient.spread="100" tooltip.backcolor="134217752" tooltip.delay.initial="0" tooltip.delay.visible="32000" tooltip.enabled="0" tooltip.hasclosebutton="0" tooltip.icon="0" tooltip.isbubble="0" tooltip.maxwidth="0" tooltip.textcolor="134217751" tooltip.transparency="0" transparency="0" )
+compute(band=header alignment="1" expression="today()"border="0" color="33554432" x="2075" y="32" height="72" width="293" format="dd/mm/yyyy" html.valueishtml="0"  name=date_1 visible="1"  font.face="Times New Roman" font.height="-10" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="2" background.color="1073741824" background.transparency="0" background.gradient.color="8421504" background.gradient.transparency="0" background.gradient.angle="0" background.brushmode="0" background.gradient.repetition.mode="0" background.gradient.repetition.count="0" background.gradient.repetition.length="100" background.gradient.focus="0" background.gradient.scale="100" background.gradient.spread="100" tooltip.backcolor="134217752" tooltip.delay.initial="0" tooltip.delay.visible="32000" tooltip.enabled="0" tooltip.hasclosebutton="0" tooltip.icon="0" tooltip.isbubble="0" tooltip.maxwidth="0" tooltip.textcolor="134217751" tooltip.transparency="0" transparency="0" )
+line(band=header x1="14" y1="328" x2="2368" y2="328"  name=l_1 visible="1" pen.style="0" pen.width="5" pen.color="33554432"  background.mode="2" background.color="1073741824" background.transparency="0" background.gradient.color="8421504" background.gradient.transparency="0" background.gradient.angle="0" background.brushmode="0" background.gradient.repetition.mode="0" background.gradient.repetition.count="0" background.gradient.repetition.length="100" background.gradient.focus="0" background.gradient.scale="100" background.gradient.spread="100" tooltip.backcolor="134217752" tooltip.delay.initial="0" tooltip.delay.visible="32000" tooltip.enabled="0" tooltip.hasclosebutton="0" tooltip.icon="0" tooltip.isbubble="0" tooltip.maxwidth="0" tooltip.textcolor="134217751" tooltip.transparency="0" )
+text(band=header alignment="2" text="Garden Data Status" border="0" color="33554432" x="869" y="28" height="72" width="645" html.valueishtml="0"  name=t_6 visible="1"  font.face="Times New Roman" font.height="-11" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="2" background.color="1073741824" background.transparency="0" background.gradient.color="8421504" background.gradient.transparency="0" background.gradient.angle="0" background.brushmode="0" background.gradient.repetition.mode="0" background.gradient.repetition.count="0" background.gradient.repetition.length="100" background.gradient.focus="0" background.gradient.scale="100" background.gradient.spread="100" tooltip.backcolor="134217752" tooltip.delay.initial="0" tooltip.delay.visible="32000" tooltip.enabled="0" tooltip.hasclosebutton="0" tooltip.icon="0" tooltip.isbubble="0" tooltip.maxwidth="0" tooltip.textcolor="134217751" tooltip.transparency="0" transparency="0" )
+column(band=detail id=1 alignment="0" tabsequence=32766 border="0" color="33554432" x="59" y="0" height="76" width="306" format="[general]" html.valueishtml="0"  name=module visible="1" edit.limit=0 edit.case=any edit.focusrectangle=no edit.autoselect=no  font.face="Times New Roman" font.height="-9" font.weight="400"  font.family="2" font.pitch="2" font.charset="0" background.mode="2" background.color="1073741824" background.transparency="0" background.gradient.color="8421504" background.gradient.transparency="0" background.gradient.angle="0" background.brushmode="0" background.gradient.repetition.mode="0" background.gradient.repetition.count="0" background.gradient.repetition.length="100" background.gradient.focus="0" background.gradient.scale="100" background.gradient.spread="100" tooltip.backcolor="134217752" tooltip.delay.initial="0" tooltip.delay.visible="32000" tooltip.enabled="0" tooltip.hasclosebutton="0" tooltip.icon="0" tooltip.isbubble="0" tooltip.maxwidth="0" tooltip.textcolor="134217751" tooltip.transparency="0" transparency="0" )
+column(band=detail id=2 alignment="0" tabsequence=32766 border="0" color="33554432" x="407" y="0" height="76" width="306" format="[general]" html.valueishtml="0"  name=section visible="1" edit.limit=0 edit.case=any edit.focusrectangle=no edit.autoselect=no  font.face="Times New Roman" font.height="-9" font.weight="400"  font.family="2" font.pitch="2" font.charset="0" background.mode="2" background.color="1073741824" background.transparency="0" background.gradient.color="8421504" background.gradient.transparency="0" background.gradient.angle="0" background.brushmode="0" background.gradient.repetition.mode="0" background.gradient.repetition.count="0" background.gradient.repetition.length="100" background.gradient.focus="0" background.gradient.scale="100" background.gradient.spread="100" tooltip.backcolor="134217752" tooltip.delay.initial="0" tooltip.delay.visible="32000" tooltip.enabled="0" tooltip.hasclosebutton="0" tooltip.icon="0" tooltip.isbubble="0" tooltip.maxwidth="0" tooltip.textcolor="134217751" tooltip.transparency="0" transparency="0" )
+column(band=detail id=3 alignment="0" tabsequence=32766 border="0" color="33554432" x="736" y="0" height="76" width="942" format="[general]" html.valueishtml="0"  name=disc visible="1" edit.limit=0 edit.case=any edit.focusrectangle=no edit.autoselect=no  font.face="Times New Roman" font.height="-9" font.weight="400"  font.family="2" font.pitch="2" font.charset="0" background.mode="2" background.color="1073741824" background.transparency="0" background.gradient.color="8421504" background.gradient.transparency="0" background.gradient.angle="0" background.brushmode="0" background.gradient.repetition.mode="0" background.gradient.repetition.count="0" background.gradient.repetition.length="100" background.gradient.focus="0" background.gradient.scale="100" background.gradient.spread="100" tooltip.backcolor="134217752" tooltip.delay.initial="0" tooltip.delay.visible="32000" tooltip.enabled="0" tooltip.hasclosebutton="0" tooltip.icon="0" tooltip.isbubble="0" tooltip.maxwidth="0" tooltip.textcolor="134217751" tooltip.transparency="0" transparency="0" )
+column(band=detail id=4 alignment="1" tabsequence=32766 border="0" color="33554432" x="1765" y="0" height="76" width="261" format="[general]" html.valueishtml="0"  name=nor visible="1" edit.limit=0 edit.case=any edit.focusrectangle=no edit.autoselect=no  font.face="Times New Roman" font.height="-9" font.weight="400"  font.family="2" font.pitch="2" font.charset="0" background.mode="2" background.color="1073741824" background.transparency="0" background.gradient.color="8421504" background.gradient.transparency="0" background.gradient.angle="0" background.brushmode="0" background.gradient.repetition.mode="0" background.gradient.repetition.count="0" background.gradient.repetition.length="100" background.gradient.focus="0" background.gradient.scale="100" background.gradient.spread="100" tooltip.backcolor="134217752" tooltip.delay.initial="0" tooltip.delay.visible="32000" tooltip.enabled="0" tooltip.hasclosebutton="0" tooltip.icon="0" tooltip.isbubble="0" tooltip.maxwidth="0" tooltip.textcolor="134217751" tooltip.transparency="0" transparency="0" )
+column(band=detail id=5 alignment="2" tabsequence=32766 border="0" color="33554432" x="2107" y="0" height="76" width="283" format="dd/mm/yyyy" html.valueishtml="0"  name=last_dt visible="1" edit.limit=0 edit.case=any edit.focusrectangle=no edit.autoselect=no  font.face="Times New Roman" font.height="-9" font.weight="400"  font.family="2" font.pitch="2" font.charset="0" background.mode="2" background.color="1073741824" background.transparency="0" background.gradient.color="8421504" background.gradient.transparency="0" background.gradient.angle="0" background.brushmode="0" background.gradient.repetition.mode="0" background.gradient.repetition.count="0" background.gradient.repetition.length="100" background.gradient.focus="0" background.gradient.scale="100" background.gradient.spread="100" tooltip.backcolor="134217752" tooltip.delay.initial="0" tooltip.delay.visible="32000" tooltip.enabled="0" tooltip.hasclosebutton="0" tooltip.icon="0" tooltip.isbubble="0" tooltip.maxwidth="0" tooltip.textcolor="134217751" tooltip.transparency="0" transparency="0" )
+htmltable(border="1" )
+htmlgen(clientevents="1" clientvalidation="1" clientcomputedfields="1" clientformatting="0" clientscriptable="0" generatejavascript="1" encodeselflinkargs="1" netscapelayers="0" pagingmethod=0 generatedddwframes="1" )
+xhtmlgen() cssgen(sessionspecific="0" )
+xmlgen(inline="0" )
+xsltgen()
+jsgen()
+export.xml(headgroups="1" includewhitespace="0" metadatatype=0 savemetadata=0 )
+import.xml()
+export.pdf(method=0 distill.custompostscript="0" xslfop.print="0" )
+export.xhtml()
+ 

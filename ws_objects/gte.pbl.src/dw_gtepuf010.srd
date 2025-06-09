@@ -1,0 +1,81 @@
+﻿$PBExportHeader$dw_gtepuf010.srd
+release 10.5;
+datawindow(units=0 timer_interval=0 color=67108864 processing=0 HTMLDW=no print.printername="" print.documentname="" print.orientation = 0 print.margin.left = 110 print.margin.right = 110 print.margin.top = 96 print.margin.bottom = 96 print.paper.source = 0 print.paper.size = 0 print.canusedefaultprinter=yes print.prompt=no print.buttons=no print.preview.buttons=no print.cliptext=no print.overrideprintjob=no print.collate=yes print.preview.outline=yes hidegrayline=no )
+header(height=428 color="536870912" )
+summary(height=0 color="536870912" )
+footer(height=84 color="536870912" )
+detail(height=84 color="536870912" )
+table(column=(type=char(1) updatewhereclause=yes name=rectype dbname="rectype" )
+ column=(type=char(25) updatewhereclause=yes name=indent_id dbname="fb_indent.indent_id" dbalias="a.indent_id" )
+ column=(type=datetime updatewhereclause=yes name=indent_date dbname="fb_indent.indent_date" dbalias="a.indent_date" )
+ column=(type=char(25) updatewhereclause=yes name=sp_id dbname="fb_indentdetails.sp_id" dbalias="b.sp_id" )
+ column=(type=char(213) updatewhereclause=yes name=sp_name dbname="sp_name" )
+ column=(type=number updatewhereclause=yes name=balance_qnty dbname="balance_qnty" )
+ column=(type=number updatewhereclause=yes name=cancelper_qnty dbname="cancelper_qnty" )
+ column=(type=number updatewhereclause=yes name=indent_qnty dbname="indent_qnty" )
+ column=(type=number updatewhereclause=yes name=recv_qnty dbname="recv_qnty" )
+ column=(type=number updatewhereclause=yes name=cncl_qnty dbname="cncl_qnty" )
+ column=(type=char(1) updatewhereclause=yes name=appr_flag dbname="appr_flag" values="Cancel	Y/Cancel	N" )
+ column=(type=char(37) updatewhereclause=yes name=rowid dbname="fb_indent.rowid" dbalias="a.rowid" )
+ column=(type=char(1) updatewhereclause=yes name=ind dbname="ind" )
+ retrieve=" select 'I' rectype,a.INDENT_ID, INDENT_DATE,b.SP_ID,initcap(decode(nvl(c.SSP_ID,'x'),'x',SP_NAME,d.SSP_NAME))||' ('||SP_UNIT||')' sp_name, 
+            (inddet_quantity-(nvl(inddet_receivedquantity,0)+nvl(inddet_cancelquantity,0))) balance_qnty,
+		 (inddet_quantity*(:ra_cncl_per/100))cancelper_qnty,
+            nvl(INDDET_QUANTITY,0)indent_qnty, nvl(INDDET_RECEIVEDQUANTITY,0)recv_qnty,nvl(INDDET_CANCELQUANTITY,0)cncl_qnty,
+             'N' appr_flag,a.rowid, 'N' ind
+   from fb_indent a,fb_indentdetails b,fb_storeproduct c,fb_storeproduct_std d
+where a.indent_id=b.INDENT_ID and b.SP_ID=c.SP_ID  and c.SSP_ID=d.ssp_id(+) and  (inddet_quantity-(nvl(inddet_receivedquantity,0)+nvl(inddet_cancelquantity,0)))>0 and
+            inddet_quantity-(nvl(inddet_receivedquantity,0)+nvl(inddet_cancelquantity,0))<=inddet_quantity*(:ra_cncl_per/100) and :ra_rectype='I'
+union all
+ select 'P' rectype,a.LPO_ID, LPO_DATE,b.SP_ID,initcap(decode(nvl(c.SSP_ID,'x'),'x',SP_NAME,d.SSP_NAME))||' ('||SP_UNIT||')' sp_name, 
+            (LPO_QUANTITY-(nvl(LPO_QUANTITYRECEIVED,0)+nvl(LPO_CANCELQUANTITY,0))) balance_qnty,
+		 (LPO_QUANTITY*(:ra_cncl_per/100))cancelper_qnty,
+            nvl(LPO_QUANTITY,0)indent_qnty, nvl(LPO_QUANTITYRECEIVED,0)recv_qnty,nvl(LPO_CANCELQUANTITY,0)cncl_qnty,
+             'N' appr_flag,a.rowid, 'N' ind
+   from FB_LOCALPURCHASEORDER a,FB_LPODETAILS b ,fb_storeproduct c,fb_storeproduct_std d
+where a.LPO_ID=b.LPO_ID and b.SP_ID=c.SP_ID  and c.SSP_ID=d.ssp_id(+) and  (LPO_QUANTITY-(nvl(LPO_QUANTITYRECEIVED,0)+nvl(LPO_CANCELQUANTITY,0)))>0 and
+            LPO_QUANTITY-(nvl(LPO_QUANTITYRECEIVED,0)+nvl(LPO_CANCELQUANTITY,0))<=LPO_QUANTITY*(:ra_cncl_per/100) and :ra_rectype='P'
+
+
+" arguments=(("ra_cncl_per", number),("ra_rectype", string))  sort="indent_date D indent_id A balance_qnty A " )
+text(band=header alignment="0" text="<--------------------------Quantity----------------------->" border="0" color="33554432" x="1847" y="232" height="64" width="1179" html.valueishtml="0"  name=t_1 visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+text(band=header alignment="0" text="<----------Indent/PO---------->          ID                      Date" border="0" color="33554432" x="37" y="288" height="128" width="677" html.valueishtml="0"  name=fb_indent_indent_id_t visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+text(band=header alignment="0" text="Name" border="0" color="33554432" x="1029" y="352" height="64" width="750" html.valueishtml="0"  name=fb_storeproduct_sp_name_t visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+text(band=header alignment="1" text="Indent/PO" border="0" color="33554432" x="1792" y="352" height="64" width="247" html.valueishtml="0"  name=indent_qnty_t visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+text(band=header alignment="1" text="Recveived" border="0" color="33554432" x="2048" y="352" height="64" width="247" html.valueishtml="0"  name=recv_qnty_t visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+text(band=header alignment="1" text="Cancel" border="0" color="33554432" x="2313" y="352" height="64" width="251" html.valueishtml="0"  name=cncl_qnty_t visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+text(band=header alignment="1" text="Balance" border="0" color="33554432" x="2583" y="352" height="64" width="242" html.valueishtml="0"  name=balance_qnty_t visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+compute(band=header alignment="1" expression="'As per~~r '+ string(ra_cncl_per,~"#,##0.00~")+' %'"border="0" color="33554432" x="2848" y="300" height="116" width="238" format="[GENERAL]" html.valueishtml="0"  name=compute_2 visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+text(band=header alignment="2" text="Sp Id" border="0" color="33554432" x="722" y="352" height="64" width="293" html.valueishtml="0"  name=sp_id_t visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+text(band=header alignment="0" text="Gtepuf010" border="0" color="33554432" x="23" y="92" height="64" width="247" html.valueishtml="0"  name=t_2 visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+line(band=header x1="23" y1="424" x2="3365" y2="424"  name=l_1 visible="1" pen.style="0" pen.width="5" pen.color="33554432"  background.mode="2" background.color="1073741824" )
+compute(band=header alignment="2" expression="'Auto Indent/PO Cancellation Detail As per Given Percentage '+ ra_cncl_per +'(%)'"border="0" color="33554432" x="891" y="12" height="64" width="1609" format="[GENERAL]" html.valueishtml="0"  name=compute_1 visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+text(band=header alignment="0" text="Luxmi Tea Co." border="0" color="33554432" x="23" y="12" height="64" width="649" html.valueishtml="0"  name=t_co visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+compute(band=header alignment="1" expression="today()"border="0" color="33554432" x="3031" y="12" height="72" width="334" format="[general]" html.valueishtml="0"  name=date_1 visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+column(band=detail id=3 alignment="2" tabsequence=32766 border="5" color="33554432" x="434" y="8" height="64" width="270" format="dd/mm/yyyy" html.valueishtml="0"  name=indent_date visible="1" edit.limit=0 edit.case=any edit.autoselect=yes edit.autohscroll=yes  font.face="Times New Roman" font.height="-9" font.weight="400"  font.family="2" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+column(band=detail id=5 alignment="0" tabsequence=32766 border="5" color="33554432" x="1029" y="8" height="64" width="750" format="[general]" html.valueishtml="0"  name=sp_name visible="1" edit.limit=200 edit.case=any edit.autoselect=yes edit.autohscroll=yes  font.face="Times New Roman" font.height="-9" font.weight="400"  font.family="2" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+column(band=detail id=8 alignment="1" tabsequence=32766 border="5" color="33554432" x="1792" y="8" height="64" width="242" format="#,##0.00" html.valueishtml="0"  name=indent_qnty visible="1" edit.limit=0 edit.case=any edit.autoselect=yes edit.autohscroll=yes  font.face="Times New Roman" font.height="-9" font.weight="400"  font.family="2" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+column(band=detail id=9 alignment="1" tabsequence=32766 border="5" color="33554432" x="2053" y="8" height="64" width="242" format="#,##0.00" html.valueishtml="0"  name=recv_qnty visible="1" edit.limit=0 edit.case=any edit.autoselect=yes edit.autohscroll=yes  font.face="Times New Roman" font.height="-9" font.weight="400"  font.family="2" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+column(band=detail id=10 alignment="1" tabsequence=32766 border="5" color="33554432" x="2313" y="8" height="64" width="251" format="#,##0.00" html.valueishtml="0"  name=cncl_qnty visible="1" edit.limit=0 edit.case=any edit.autoselect=yes edit.autohscroll=yes  font.face="Times New Roman" font.height="-9" font.weight="400"  font.family="2" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+column(band=detail id=6 alignment="1" tabsequence=32766 border="5" color="33554432" x="2583" y="8" height="64" width="242" format="#,##0.00" html.valueishtml="0"  name=balance_qnty visible="1" edit.limit=0 edit.case=any edit.autoselect=yes edit.autohscroll=yes  font.face="Times New Roman" font.height="-9" font.weight="400"  font.family="2" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+column(band=detail id=11 alignment="0" tabsequence=10 border="0" color="33554432" x="3118" y="12" height="64" width="256" format="[general]" html.valueishtml="0"  name=appr_flag visible="1" checkbox.text="Cancel" checkbox.on="Y" checkbox.off="N" checkbox.scale=no checkbox.threed=yes  font.face="Times New Roman" font.height="-9" font.weight="400"  font.family="2" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+column(band=detail id=7 alignment="1" tabsequence=32766 border="5" color="33554432" x="2843" y="8" height="64" width="242" format="#,##0.00" html.valueishtml="0"  name=cancelper_qnty visible="1" edit.limit=0 edit.case=any edit.autoselect=yes edit.autohscroll=yes  font.face="Times New Roman" font.height="-9" font.weight="400"  font.family="2" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+column(band=detail id=1 alignment="0" tabsequence=32766 border="0" color="33554432" x="3465" y="12" height="64" width="23" format="[general]" html.valueishtml="0"  name=rectype visible="0" edit.limit=0 edit.case=any edit.focusrectangle=no edit.autoselect=no  font.face="Times New Roman" font.height="-9" font.weight="400"  font.family="2" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+column(band=detail id=12 alignment="0" tabsequence=32766 border="0" color="33554432" x="3387" y="12" height="64" width="50" format="[general]" html.valueishtml="0"  name=rowid visible="0" edit.limit=0 edit.case=any edit.focusrectangle=no edit.autoselect=no  font.face="Times New Roman" font.height="-9" font.weight="400"  font.family="2" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+column(band=detail id=13 alignment="0" tabsequence=32766 border="0" color="33554432" x="3442" y="12" height="64" width="23" format="[general]" html.valueishtml="0"  name=ind visible="0" edit.limit=0 edit.case=any edit.focusrectangle=no edit.autoselect=no  font.face="Times New Roman" font.height="-9" font.weight="400"  font.family="2" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+column(band=detail id=4 alignment="2" tabsequence=32766 border="5" color="33554432" x="722" y="8" height="64" width="293" format="[general]" html.valueishtml="0"  name=sp_id visible="1" edit.limit=25 edit.case=any edit.autoselect=yes edit.autohscroll=yes  font.face="Times New Roman" font.height="-9" font.weight="400"  font.family="2" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+column(band=detail id=2 alignment="0" tabsequence=32766 border="5" color="33554432" x="23" y="8" height="64" width="389" format="[general]" html.valueishtml="0"  name=indent_id visible="1" edit.limit=25 edit.case=any edit.autoselect=yes edit.autohscroll=yes  font.face="Times New Roman" font.height="-9" font.weight="400"  font.family="2" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+compute(band=footer alignment="0" expression="'Page ' + page() + ' of ' + pageCount()"border="0" color="33554432" x="1664" y="4" height="72" width="599" format="[general]" html.valueishtml="0"  name=page_1 visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+compute(band=footer alignment="0" expression="'Total Records: ' +string(currentrow()) +' of ' +string(rowcount())"border="0" color="33554432" x="46" y="4" height="72" width="987" format="[GENERAL]" html.valueishtml="0"  name=compute_3 visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="2" background.color="67108864" )
+
+sparse(names="indent_id	indent_date	sp_id	sp_name")htmltable(border="1" )
+htmlgen(clientevents="1" clientvalidation="1" clientcomputedfields="1" clientformatting="0" clientscriptable="0" generatejavascript="1" encodeselflinkargs="1" netscapelayers="0" pagingmethod=0 generatedddwframes="1" )
+xhtmlgen() cssgen(sessionspecific="0" )
+xmlgen(inline="0" )
+xsltgen()
+jsgen()
+export.xml(headgroups="1" includewhitespace="0" metadatatype=0 savemetadata=0 )
+import.xml()
+export.pdf(method=0 distill.custompostscript="0" xslfop.print="0" )
+export.xhtml()
+ 

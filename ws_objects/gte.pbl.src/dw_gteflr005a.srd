@@ -1,0 +1,151 @@
+﻿$PBExportHeader$dw_gteflr005a.srd
+release 10.5;
+datawindow(units=0 timer_interval=0 color=1073741824 processing=0 HTMLDW=no print.printername="" print.documentname="" print.orientation = 0 print.margin.left = 110 print.margin.right = 110 print.margin.top = 96 print.margin.bottom = 96 print.paper.source = 0 print.paper.size = 0 print.canusedefaultprinter=yes print.prompt=no print.buttons=no print.preview.buttons=no print.cliptext=no print.overrideprintjob=no print.collate=yes print.preview.outline=yes hidegrayline=no )
+header(height=168 color="536870912" )
+summary(height=0 color="536870912" )
+footer(height=0 color="536870912" )
+detail(height=76 color="536870912" )
+table(column=(type=char(1) updatewhereclause=yes name=ty dbname="ty" )
+ column=(type=number updatewhereclause=yes name=so dbname="so" )
+ column=(type=char(18) updatewhereclause=yes name=recdesc dbname="recdesc" )
+ column=(type=number updatewhereclause=yes name=ctoday dbname="ctoday" )
+ column=(type=number updatewhereclause=yes name=ctodate dbname="ctodate" )
+ column=(type=number updatewhereclause=yes name=ltoday dbname="ltoday" )
+ column=(type=number updatewhereclause=yes name=ltodate dbname="ltodate" )
+ retrieve="select ty,so,recdesc,sum(ctoday) ctoday,sum(ctodate) ctodate,sum(ltoday) ltoday, sum(ltodate) ltodate
+from (         
+           SELECT  'A' ty, 10 so, 'Green Leaf' recdesc,
+                  sum(decode(sign(TASK_DATE - to_date(:ra_frdt,'dd/mm/yyyy')),-1,0,decode(sign(TASK_DATE - to_date(:ra_frdt,'dd/mm/yyyy')),1,0,(nvl(TASK_PMACOUNTTODAYTY,0) + nvl(TASK_PFACOUNTTODAYTY,0) + nvl(TASK_TMACOUNTTODAYTY,0) + nvl(TASK_TFACOUNTTODAYTY,0) + nvl(TASK_OMACOUNTTODAYTY,0) + nvl(TASK_OFACOUNTTODAYTY,0) + nvl(TASK_PMADCOUNTTODAYTY,0) + nvl(TASK_PFADCOUNTTODAYTY,0) + nvl(TASK_TMADCOUNTTODAYTY,0) + nvl(TASK_TFADCOUNTTODAYTY,0) + nvl(TASK_OMADCOUNTTODAYTY,0) + nvl(TASK_OFADCOUNTTODAYTY,0) + nvl(TASK_PMCCOUNTTODAYTY,0) + nvl(TASK_PFCCOUNTTODAYTY,0) + nvl(TASK_TMCCOUNTTODAYTY,0) + nvl(TASK_TFCCOUNTTODAYTY,0) + nvl(TASK_OMCCOUNTTODAYTY,0) + nvl(TASK_OFCCOUNTTODAYTY,0))))) ctoday, 
+                    sum(decode(sign(TASK_DATE - to_date(:ra_ysdt,'dd/mm/yyyy')),-1,0,decode(sign(TASK_DATE - to_date(:ra_frdt,'dd/mm/yyyy')),1,0,(nvl(TASK_PMACOUNTTODAYTY,0) + nvl(TASK_PFACOUNTTODAYTY,0) + nvl(TASK_TMACOUNTTODAYTY,0) + nvl(TASK_TFACOUNTTODAYTY,0) + nvl(TASK_OMACOUNTTODAYTY,0) + nvl(TASK_OFACOUNTTODAYTY,0) + nvl(TASK_PMADCOUNTTODAYTY,0) + nvl(TASK_PFADCOUNTTODAYTY,0) + nvl(TASK_TMADCOUNTTODAYTY,0) + nvl(TASK_TFADCOUNTTODAYTY,0) + nvl(TASK_OMADCOUNTTODAYTY,0) + nvl(TASK_OFADCOUNTTODAYTY,0) + nvl(TASK_PMCCOUNTTODAYTY,0) + nvl(TASK_PFCCOUNTTODAYTY,0) + nvl(TASK_TMCCOUNTTODAYTY,0) + nvl(TASK_TFCCOUNTTODAYTY,0) + nvl(TASK_OMCCOUNTTODAYTY,0) + nvl(TASK_OFCCOUNTTODAYTY,0))))) ctodate,
+                 sum(decode(sign(TASK_DATE - to_date(:ra_ly_frdt,'dd/mm/yyyy')),-1,0,decode(sign(TASK_DATE - to_date(:ra_ly_frdt,'dd/mm/yyyy')),1,0,(nvl(TASK_PMACOUNTTODAYTY,0) + nvl(TASK_PFACOUNTTODAYTY,0) + nvl(TASK_TMACOUNTTODAYTY,0) + nvl(TASK_TFACOUNTTODAYTY,0) + nvl(TASK_OMACOUNTTODAYTY,0) + nvl(TASK_OFACOUNTTODAYTY,0) + nvl(TASK_PMADCOUNTTODAYTY,0) + nvl(TASK_PFADCOUNTTODAYTY,0) + nvl(TASK_TMADCOUNTTODAYTY,0) + nvl(TASK_TFADCOUNTTODAYTY,0) + nvl(TASK_OMADCOUNTTODAYTY,0) + nvl(TASK_OFADCOUNTTODAYTY,0) + nvl(TASK_PMCCOUNTTODAYTY,0) + nvl(TASK_PFCCOUNTTODAYTY,0) + nvl(TASK_TMCCOUNTTODAYTY,0) + nvl(TASK_TFCCOUNTTODAYTY,0) + nvl(TASK_OMCCOUNTTODAYTY,0) + nvl(TASK_OFCCOUNTTODAYTY,0))))) ltoday, 
+                    sum(decode(sign(TASK_DATE - to_date(:ra_ly_ysdt,'dd/mm/yyyy')),-1,0,decode(sign(TASK_DATE - to_date(:ra_ly_frdt,'dd/mm/yyyy')),1,0,(nvl(TASK_PMACOUNTTODAYTY,0) + nvl(TASK_PFACOUNTTODAYTY,0) + nvl(TASK_TMACOUNTTODAYTY,0) + nvl(TASK_TFACOUNTTODAYTY,0) + nvl(TASK_OMACOUNTTODAYTY,0) + nvl(TASK_OFACOUNTTODAYTY,0) + nvl(TASK_PMADCOUNTTODAYTY,0) + nvl(TASK_PFADCOUNTTODAYTY,0) + nvl(TASK_TMADCOUNTTODAYTY,0) + nvl(TASK_TFADCOUNTTODAYTY,0) + nvl(TASK_OMADCOUNTTODAYTY,0) + nvl(TASK_OFADCOUNTTODAYTY,0) + nvl(TASK_PMCCOUNTTODAYTY,0) + nvl(TASK_PFCCOUNTTODAYTY,0) + nvl(TASK_TMCCOUNTTODAYTY,0) + nvl(TASK_TFCCOUNTTODAYTY,0) + nvl(TASK_OMCCOUNTTODAYTY,0) + nvl(TASK_OFCCOUNTTODAYTY,0))))) ltodate
+         FROM FB_TASKACTIVEMEASUREMENT a, FB_TASKACTIVEDAILY b
+         WHERE TASKSECTION_ID = TASKDATE_ID AND b.SECTION_ID in ( select SECTION_ID from fb_section where field_id = decode(:ra_field,'ALL',field_id,:ra_field)) and
+                TASK_ID in (select kamsub_id from FB_KAMSUBHEAD where nvl(KAMSUB_ACTIVE_IND,'N') = 'Y' and KAMSUB_TYPE = 'PLUCK') and 
+                    (TASK_DATE between to_date(:ra_ysdt,'dd/mm/yyyy') and to_date(:ra_frdt,'dd/mm/yyyy') or 
+                     TASK_DATE between to_date(:ra_ly_ysdt,'dd/mm/yyyy') and to_date(:ra_ly_frdt,'dd/mm/yyyy') )
+        group by 10,'Green Leaf'
+        union all        
+        SELECT  'A' ty, 10 so, 'Green Leaf' recdesc,
+                  sum(decode(sign(SPR_DATE - to_date(:ra_frdt,'dd/mm/yyyy')),-1,0,decode(sign(SPR_DATE - to_date(:ra_frdt,'dd/mm/yyyy')),1,0,nvl(SPR_GL,0)))) ctoday, 
+                    sum(decode(sign(SPR_DATE - to_date(:ra_ysdt,'dd/mm/yyyy')),-1,0,decode(sign(SPR_DATE - to_date(:ra_frdt,'dd/mm/yyyy')),1,0,nvl(SPR_GL,0)))) ctodate,
+                 sum(decode(sign(SPR_DATE - to_date(:ra_ly_frdt,'dd/mm/yyyy')),-1,0,decode(sign(SPR_DATE - to_date(:ra_ly_frdt,'dd/mm/yyyy')),1,0,nvl(SPR_GL,0)))) ltoday, 
+                    sum(decode(sign(SPR_DATE - to_date(:ra_ly_ysdt,'dd/mm/yyyy')),-1,0,decode(sign(SPR_DATE - to_date(:ra_ly_frdt,'dd/mm/yyyy')),1,0,nvl(SPR_GL,0)))) ltodate
+         from FB_SECTIONPLUCKINGROUND
+        where SPR_PLUCCKTYPE='C' and SECTION_ID in ( select SECTION_ID from fb_section where field_id = decode(:ra_field,'ALL',field_id,:ra_field)) and
+                (SPR_DATE between to_date(:ra_ysdt,'dd/mm/yyyy') and to_date(:ra_frdt,'dd/mm/yyyy') or 
+                 SPR_DATE between to_date(:ra_ly_ysdt,'dd/mm/yyyy') and to_date(:ra_ly_frdt,'dd/mm/yyyy') ) 
+        group by 10,'Green Leaf'
+        union all        
+           SELECT  'A' ty, 20 so, 'Mandays', 
+                  sum(decode(TASK_DATE,to_date(:ra_frdt,'dd/mm/yyyy'),(nvl(TASK_PMATODAYTY,0) + nvl(TASK_PFATODAYTY,0) + nvl(TASK_TMATODAYTY,0) + nvl(TASK_TFATODAYTY,0) + nvl(TASK_OMATODAYTY,0) + nvl(TASK_OFATODAYTY,0) + ((nvl(TASK_PMADTODAYTY,0) + nvl(TASK_PFADTODAYTY,0) + nvl(TASK_TMADTODAYTY,0) + nvl(TASK_TFADTODAYTY,0) + nvl(TASK_OMADTODAYTY,0) + nvl(TASK_OFADTODAYTY,0) + nvl(TASK_PMCTODAYTY,0) + nvl(TASK_PFCTODAYTY,0) + nvl(TASK_TMCTODAYTY,0) + nvl(TASK_TFCTODAYTY,0) + nvl(TASK_OMCTODAYTY,0) + nvl(TASK_OFCTODAYTY,0)) * 0.5)),0)) ctoday, 
+                    sum(decode(sign(TASK_DATE - to_date(:ra_ysdt,'dd/mm/yyyy')),-1,0,decode(sign(TASK_DATE - to_date(:ra_frdt,'dd/mm/yyyy')),1,0,(nvl(TASK_PMATODAYTY,0) + nvl(TASK_PFATODAYTY,0) + nvl(TASK_TMATODAYTY,0) + nvl(TASK_TFATODAYTY,0) + nvl(TASK_OMATODAYTY,0) + nvl(TASK_OFATODAYTY,0) + ((nvl(TASK_PMADTODAYTY,0) + nvl(TASK_PFADTODAYTY,0) + nvl(TASK_TMADTODAYTY,0) + nvl(TASK_TFADTODAYTY,0) + nvl(TASK_OMADTODAYTY,0) + nvl(TASK_OFADTODAYTY,0) + nvl(TASK_PMCTODAYTY,0) + nvl(TASK_PFCTODAYTY,0) + nvl(TASK_TMCTODAYTY,0) + nvl(TASK_TFCTODAYTY,0) + nvl(TASK_OMCTODAYTY,0) + nvl(TASK_OFCTODAYTY,0)) * 0.5))))) ctodate,
+                 sum(decode(TASK_DATE,to_date(:ra_ly_frdt,'dd/mm/yyyy'),(nvl(TASK_PMATODAYTY,0) + nvl(TASK_PFATODAYTY,0) + nvl(TASK_TMATODAYTY,0) + nvl(TASK_TFATODAYTY,0) + nvl(TASK_OMATODAYTY,0) + nvl(TASK_OFATODAYTY,0) + ((nvl(TASK_PMADTODAYTY,0) + nvl(TASK_PFADTODAYTY,0) + nvl(TASK_TMADTODAYTY,0) + nvl(TASK_TFADTODAYTY,0) + nvl(TASK_OMADTODAYTY,0) + nvl(TASK_OFADTODAYTY,0) + nvl(TASK_PMCTODAYTY,0) + nvl(TASK_PFCTODAYTY,0) + nvl(TASK_TMCTODAYTY,0) + nvl(TASK_TFCTODAYTY,0) + nvl(TASK_OMCTODAYTY,0) + nvl(TASK_OFCTODAYTY,0)) * 0.5)),0)) ltoday, 
+                    sum(decode(sign(TASK_DATE - to_date(:ra_ly_ysdt,'dd/mm/yyyy')),-1,0,decode(sign(TASK_DATE - to_date(:ra_ly_frdt,'dd/mm/yyyy')),1,0,(nvl(TASK_PMATODAYTY,0) + nvl(TASK_PFATODAYTY,0) + nvl(TASK_TMATODAYTY,0) + nvl(TASK_TFATODAYTY,0) + nvl(TASK_OMATODAYTY,0) + nvl(TASK_OFATODAYTY,0) + ((nvl(TASK_PMADTODAYTY,0) + nvl(TASK_PFADTODAYTY,0) + nvl(TASK_TMADTODAYTY,0) + nvl(TASK_TFADTODAYTY,0) + nvl(TASK_OMADTODAYTY,0) + nvl(TASK_OFADTODAYTY,0) + nvl(TASK_PMCTODAYTY,0) + nvl(TASK_PFCTODAYTY,0) + nvl(TASK_TMCTODAYTY,0) + nvl(TASK_TFCTODAYTY,0) + nvl(TASK_OMCTODAYTY,0) + nvl(TASK_OFCTODAYTY,0)) * 0.5))))) ltodate
+         FROM FB_TASKACTIVEDAILY b
+         WHERE SECTION_ID in ( select SECTION_ID from fb_section where field_id = decode(:ra_field,'ALL',field_id,:ra_field)) and
+                TASK_ID in (select kamsub_id from FB_KAMSUBHEAD where nvl(KAMSUB_ACTIVE_IND,'N') = 'Y' and KAMSUB_TYPE = 'PLUCK') and 
+                    (TASK_DATE between to_date(:ra_ysdt,'dd/mm/yyyy') and to_date(:ra_frdt,'dd/mm/yyyy') or 
+                     TASK_DATE between to_date(:ra_ly_ysdt,'dd/mm/yyyy') and to_date(:ra_ly_frdt,'dd/mm/yyyy') )
+        group by 20,'Mandays'  
+        union all
+           SELECT  'A' ty, 20 so, 'Mandays', 
+                  sum(decode(SPR_DATE,to_date(:ra_frdt,'dd/mm/yyyy'),nvl(cash_md,0))) ctoday, 
+                    sum(decode(sign(SPR_DATE - to_date(:ra_ysdt,'dd/mm/yyyy')),-1,0,decode(sign(SPR_DATE - to_date(:ra_frdt,'dd/mm/yyyy')),1,0,nvl(cash_md,0)))) ctodate,
+                 sum(decode(SPR_DATE,to_date(:ra_ly_frdt,'dd/mm/yyyy'),nvl(cash_md,0) )) ltoday, 
+                    sum(decode(sign(SPR_DATE - to_date(:ra_ly_ysdt,'dd/mm/yyyy')),-1,0,decode(sign(SPR_DATE - to_date(:ra_ly_frdt,'dd/mm/yyyy')),1,0,nvl(cash_md,0)))) ltodate
+          from (select SPR_DATE,(sum(nvl(SPR_GL,0) * nvl(SPR_PLKRATE,0)) / nvl(KAMSUB_AFRATE,0)) cash_md
+                    from FB_SECTIONPLUCKINGROUND,(select KAMSUB_AFRATE from fb_kamsubhead where KAMSUB_ID = 'ESUB0163' and KAMSUB_TYPE='PLUCK'  and nvl(KAMSUB_ACTIVE_IND,'N') = 'Y' and to_date(:ra_frdt,'dd/mm/yyyy') between KAMSUB_FRDT and nvl(KAMSUB_TODT,trunc(sysdate)))
+                   where SECTION_ID in ( select SECTION_ID from fb_section where field_id = decode(:ra_field,'ALL',field_id,:ra_field)) and
+                         SPR_PLUCCKTYPE='C' and 
+                            (SPR_DATE between to_date(:ra_ysdt,'dd/mm/yyyy') and to_date(:ra_frdt,'dd/mm/yyyy') or 
+                             SPR_DATE between to_date(:ra_ly_ysdt,'dd/mm/yyyy') and to_date(:ra_ly_frdt,'dd/mm/yyyy') ) 
+                  group  by SPR_DATE,nvl(KAMSUB_AFRATE,0))          
+        union all        
+        SELECT  'A' ty, 30 so, 'Area Covered' recdesc,
+                     sum(decode(sign(i.SPR_DATE  - to_date(:ra_frdt,'dd/mm/yyyy')),-1,0,decode(sign(i.SPR_DATE - to_date(:ra_frdt,'dd/mm/yyyy')),1,0,nvl(SPR_AREACOVERED,0)))) ctoday, 
+                    sum(decode(sign(i.SPR_DATE - to_date(:ra_ysdt,'dd/mm/yyyy')),-1,0,decode(sign(i.SPR_DATE - to_date(:ra_frdt,'dd/mm/yyyy')),1,0,nvl(SPR_AREACOVERED,0)))) ctodate,
+                     sum(decode(sign(i.SPR_DATE - to_date(:ra_ly_frdt,'dd/mm/yyyy')),-1,0,decode(sign(i.SPR_DATE - to_date(:ra_ly_frdt,'dd/mm/yyyy')),1,0,nvl(SPR_AREACOVERED,0)))) ltoday, 
+                    sum(decode(sign(i.SPR_DATE - to_date(:ra_ly_ysdt,'dd/mm/yyyy')),-1,0,decode(sign(i.SPR_DATE - to_date(:ra_ly_frdt,'dd/mm/yyyy')),1,0,nvl(SPR_AREACOVERED,0)))) ltodate
+         FROM   FB_KAMSUBHEAD f,  FB_SECTIONPLUCKINGROUND i
+          WHERE  i.KAMSUB_ID = f.KAMSUB_ID AND  i.SECTION_ID in ( select SECTION_ID from fb_section where field_id = decode(:ra_field,'ALL',field_id,:ra_field)) and 
+                 f.KAMSUB_TYPE = 'PLUCK' and nvl(KAMSUB_ACTIVE_IND,'N') = 'Y' and
+                        (i.SPR_DATE between to_date(:ra_ysdt,'dd/mm/yyyy') and to_date(:ra_frdt,'dd/mm/yyyy') or 
+                         i.SPR_DATE between to_date(:ra_ly_ysdt,'dd/mm/yyyy') and to_date(:ra_ly_frdt,'dd/mm/yyyy') )                          
+        union all
+       SELECT 'B' ty,50 so, 'Rainfall (In Inch)' recdesc, 
+                  sum(decode(sign(wr_date - to_date(:ra_frdt,'dd/mm/yyyy')),-1,0,decode(sign(wr_date - to_date(:ra_frdt,'dd/mm/yyyy')),1,0,nvl(wr_rainfall,0)))) ctoday, 
+                    sum(decode(sign(wr_date - to_date(:ra_ysdt,'dd/mm/yyyy')),-1,0,decode(sign(wr_date - to_date(:ra_frdt,'dd/mm/yyyy')),1,0,nvl(wr_rainfall,0)))) ctodate, 
+                 sum(decode(sign(wr_date - to_date(:ra_ly_frdt,'dd/mm/yyyy')),-1,0,decode(sign(wr_date - to_date(:ra_ly_frdt,'dd/mm/yyyy')),1,0,nvl(wr_rainfall,0)))) ltoday, 
+                    sum(decode(sign(wr_date - to_date(:ra_ly_ysdt,'dd/mm/yyyy')),-1,0,decode(sign(wr_date - to_date(:ra_ly_frdt,'dd/mm/yyyy')),1,0,nvl(wr_rainfall,0)))) ltodate 
+         FROM fb_weatherreport 
+         WHERE (wr_date between to_date(:ra_ysdt,'dd/mm/yyyy') and to_date(:ra_frdt,'dd/mm/yyyy') or 
+                     wr_date between to_date(:ra_ly_ysdt,'dd/mm/yyyy') and to_date(:ra_ly_frdt,'dd/mm/yyyy')) 
+        group by 50,'Rainfall (In Inch)'        
+        union all
+       SELECT 'B' ty,60 so, 'Temperature (Max)' recdesc, 
+                  max(decode(sign(wr_date - to_date(:ra_frdt,'dd/mm/yyyy')),-1,0,decode(sign(wr_date - to_date(:ra_frdt,'dd/mm/yyyy')),1,0,nvl(WR_MAXTEMP,0)))) ctoday, 
+                    max(decode(sign(wr_date - to_date(:ra_ysdt,'dd/mm/yyyy')),-1,0,decode(sign(wr_date - to_date(:ra_frdt,'dd/mm/yyyy')),1,0,nvl(WR_MAXTEMP,0)))) ctodate, 
+                 max(decode(sign(wr_date - to_date(:ra_ly_frdt,'dd/mm/yyyy')),-1,0,decode(sign(wr_date - to_date(:ra_ly_frdt,'dd/mm/yyyy')),1,0,nvl(WR_MAXTEMP,0)))) ltoday, 
+                    max(decode(sign(wr_date - to_date(:ra_ly_ysdt,'dd/mm/yyyy')),-1,0,decode(sign(wr_date - to_date(:ra_ly_frdt,'dd/mm/yyyy')),1,0,nvl(WR_MAXTEMP,0)))) ltodate 
+         FROM (SELECT wr_date, NVL (max (WR_MAXTEMP), 0) WR_MAXTEMP, NVL (max (WR_MINTEMP), 0) WR_MINTEMP
+                FROM fb_weatherreport 
+                GROUP BY (wr_date)) 
+         WHERE (wr_date between to_date(:ra_ysdt,'dd/mm/yyyy') and to_date(:ra_frdt,'dd/mm/yyyy') or 
+                     wr_date between to_date(:ra_ly_ysdt,'dd/mm/yyyy') and to_date(:ra_ly_frdt,'dd/mm/yyyy')) 
+        group by 60,'Temperature (Max)'
+        union all
+       SELECT 'B' ty,70 so, 'Temperature (Min)' recdesc, 
+                  min(decode(sign(wr_date - to_date(:ra_frdt,'dd/mm/yyyy')),-1,100,decode(sign(wr_date - to_date(:ra_frdt,'dd/mm/yyyy')),1,100,nvl(WR_MINTEMP,0)))) ctoday, 
+                    min(decode(sign(wr_date - to_date(:ra_ysdt,'dd/mm/yyyy')),-1,100,decode(sign(wr_date - to_date(:ra_frdt,'dd/mm/yyyy')),1,100,nvl(WR_MINTEMP,0)))) ctodate, 
+                 min(decode(sign(wr_date - to_date(:ra_ly_frdt,'dd/mm/yyyy')),-1,100,decode(sign(wr_date - to_date(:ra_ly_frdt,'dd/mm/yyyy')),1,100,nvl(WR_MINTEMP,0)))) ltoday, 
+                    min(decode(sign(wr_date - to_date(:ra_ly_ysdt,'dd/mm/yyyy')),-1,100,decode(sign(wr_date - to_date(:ra_ly_frdt,'dd/mm/yyyy')),1,100,nvl(WR_MINTEMP,0)))) ltodate 
+         FROM (SELECT wr_date, NVL (max (WR_MAXTEMP), 0) WR_MAXTEMP, NVL (max (WR_MINTEMP), 0) WR_MINTEMP
+                FROM fb_weatherreport 
+                GROUP BY (wr_date)) 
+         WHERE (wr_date between to_date(:ra_ysdt,'dd/mm/yyyy') and to_date(:ra_frdt,'dd/mm/yyyy') or 
+                     wr_date between to_date(:ra_ly_ysdt,'dd/mm/yyyy') and to_date(:ra_ly_frdt,'dd/mm/yyyy')) 
+        group by 70,'Temperature (Min)'
+        )
+group by  ty,so,recdesc" arguments=(("ra_field", string),("ra_frdt", string),("ra_ysdt", string),("ra_ly_frdt", string),("ra_ly_ysdt", string))  sort="ty A so A " )
+group(level=1 header.height=4 header.height.autosize=yes trailer.height=0 trailer.height.autosize=yes by=("ty" ) header.color="536870912" trailer.color="536870912" )
+text(band=header alignment="0" text="Summary" border="0" color="33554432" x="18" y="92" height="64" width="453" html.valueishtml="0"  name=recdesc_t visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+line(band=header x1="14" y1="164" x2="2034" y2="164"  name=l_1 visible="1" pen.style="0" pen.width="5" pen.color="33554432"  background.mode="2" background.color="1073741824" )
+text(band=header alignment="1" text="Today" border="0" color="33554432" x="672" y="92" height="64" width="320" html.valueishtml="0"  name=ctoday_t visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+text(band=header alignment="1" text="Today" border="0" color="33554432" x="1376" y="92" height="64" width="320" html.valueishtml="0"  name=ltoday_t visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+text(band=header alignment="1" text="<- - - - - Last Year - - - - ->" border="0" color="33554432" x="1353" y="16" height="64" width="681" html.valueishtml="0"  name=t_4 visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+text(band=header alignment="1" text="<- - - - - This Year - - - - ->" border="0" color="33554432" x="645" y="16" height="64" width="699" html.valueishtml="0"  name=t_9 visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+text(band=header alignment="1" text="Todate" border="0" color="33554432" x="1015" y="92" height="64" width="320" html.valueishtml="0"  name=ctodate_t visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+text(band=header alignment="1" text="Todate" border="0" color="33554432" x="1719" y="92" height="64" width="320" html.valueishtml="0"  name=ltodate_t visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+column(band=header id=1 alignment="0" tabsequence=32766 border="0" color="33554432" x="361" y="64" height="64" width="78" format="[general]" html.valueishtml="0"  name=ty visible="0" edit.limit=0 edit.case=any edit.focusrectangle=no edit.autoselect=no  font.face="Times New Roman" font.height="-9" font.weight="400"  font.family="2" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+column(band=header id=2 alignment="1" tabsequence=32766 border="0" color="33554432" x="462" y="64" height="64" width="137" format="[general]" html.valueishtml="0"  name=so visible="0" edit.limit=0 edit.case=any edit.autoselect=yes edit.autohscroll=yes  font.face="Times New Roman" font.height="-9" font.weight="400"  font.family="2" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+column(band=detail id=4 alignment="1" tabsequence=32766 border="0" color="33554432" x="663" y="4" height="64" width="329" format="#,##0.00" html.valueishtml="0"  name=ctoday visible="1" edit.limit=0 edit.case=any edit.autoselect=yes edit.autohscroll=yes  font.face="Times New Roman" font.height="-9" font.weight="400"  font.family="2" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+column(band=detail id=3 alignment="0" tabsequence=32766 border="0" color="33554432" x="14" y="4" height="64" width="626" format="[general]" html.valueishtml="0"  name=recdesc visible="1" edit.limit=12 edit.case=any edit.autoselect=yes edit.autohscroll=yes  font.face="Times New Roman" font.height="-9" font.weight="400"  font.family="2" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+column(band=detail id=6 alignment="1" tabsequence=32766 border="0" color="33554432" x="1367" y="4" height="64" width="329" format="#,##0.00" html.valueishtml="0"  name=ltoday visible="1" edit.limit=0 edit.case=any edit.autoselect=yes edit.autohscroll=yes  font.face="Times New Roman" font.height="-9" font.weight="400"  font.family="2" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+column(band=detail id=5 alignment="1" tabsequence=32766 border="0" color="33554432" x="1006" y="4" height="64" width="329" format="#,##0.00" html.valueishtml="0"  name=ctodate visible="1" edit.limit=0 edit.case=any edit.autoselect=yes edit.autohscroll=yes  font.face="Times New Roman" font.height="-9" font.weight="400"  font.family="2" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+column(band=detail id=7 alignment="1" tabsequence=32766 border="0" color="33554432" x="1710" y="4" height="64" width="329" format="#,##0.00" html.valueishtml="0"  name=ltodate visible="1" edit.limit=0 edit.case=any edit.autoselect=yes edit.autohscroll=yes  font.face="Times New Roman" font.height="-9" font.weight="400"  font.family="2" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+text(band=trailer.1 alignment="0" text="Plucker / Hectare" border="0" color="33554432" x="9" y="88" height="64" width="626" html.valueishtml="0"  name=t_2 visible="1~tif(ty='A',1,0)"  font.face="Times New Roman" font.height="-9" font.weight="400"  font.family="1" font.pitch="2" font.charset="0" background.mode="2" background.color="1073741824" )
+text(band=trailer.1 alignment="0" text="Green Leaf / Hectare" border="0" color="33554432" x="9" y="168" height="64" width="626" html.valueishtml="0"  name=t_6 visible="1~tif(ty='A',1,0)"  font.face="Times New Roman" font.height="-9" font.weight="400"  font.family="1" font.pitch="2" font.charset="0" background.mode="2" background.color="1073741824" )
+compute(band=trailer.1 alignment="1" expression="if ( sum(if( so = 20,if (isnull(ctoday),0,ctoday) ,0) for all) = 0,0,sum(if( so = 20,if (isnull(ctoday),0,ctoday) ,0) for all) / sum(if( so = 30,if (isnull(ctoday),0,ctoday),0) for all))"border="0" color="33554432" x="658" y="88" height="64" width="329" format="#,##0.00" html.valueishtml="0"  name=compute_2 visible="1~tif(ty='A',1,0)"  font.face="Times New Roman" font.height="-9" font.weight="400"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+compute(band=trailer.1 alignment="1" expression="if (sum(if( so = 10,if (isnull(ctoday),0,ctoday),0) for all) = 0, 0, sum(if( so = 10,if (isnull(ctoday),0,ctoday),0) for all) / sum(if( so = 30,if (isnull(ctoday),0,ctoday),0) for all))"border="0" color="33554432" x="658" y="168" height="64" width="329" format="#,##0.00" html.valueishtml="0"  name=compute_3 visible="1~tif(ty='A',1,0)"  font.face="Times New Roman" font.height="-9" font.weight="400"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+compute(band=trailer.1 alignment="1" expression="if (sum(if( so = 20,if (isnull(ctodate),0,ctodate),0) for all) = 0,0,sum(if( so = 20,if (isnull(ctodate),0,ctodate),0) for all) / sum(if( so = 30,if (isnull(ctodate),0,ctodate),0) for all))"border="0" color="33554432" x="1006" y="88" height="64" width="329" format="#,##0.00" html.valueishtml="0"  name=compute_5 visible="1~tif(ty='A',1,0)"  font.face="Times New Roman" font.height="-9" font.weight="400"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+compute(band=trailer.1 alignment="1" expression="if (sum(if( so = 10,if (isnull(ctodate),0,ctodate),0) for all) = 0,0,sum(if( so = 10,if (isnull(ctodate),0,ctodate),0) for all) / sum(if( so = 30,if (isnull(ctodate),0,ctodate),0) for all))"border="0" color="33554432" x="1006" y="168" height="64" width="329" format="#,##0.00" html.valueishtml="0"  name=compute_6 visible="1~tif(ty='A',1,0)"  font.face="Times New Roman" font.height="-9" font.weight="400"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+compute(band=trailer.1 alignment="1" expression="if (sum(if( so = 20, if (isnull(ltoday),0,ltoday),0) for all) = 0,0,sum(if( so = 20, if (isnull(ltoday),0,ltoday),0) for all) / sum(if( so = 30,  if (isnull(ltoday),0,ltoday) ,0) for all))"border="0" color="33554432" x="1367" y="88" height="64" width="329" format="#,##0.00" html.valueishtml="0"  name=compute_8 visible="1~tif(ty='A',1,0)"  font.face="Times New Roman" font.height="-9" font.weight="400"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+compute(band=trailer.1 alignment="1" expression="if(sum(if( so = 10,  if (isnull(ltoday),0,ltoday) ,0) for all) = 0,0,sum(if( so = 10,  if (isnull(ltoday),0,ltoday) ,0) for all) / sum(if( so = 30,  if (isnull(ltoday),0,ltoday) ,0) for all))"border="0" color="33554432" x="1367" y="168" height="64" width="329" format="#,##0.00" html.valueishtml="0"  name=compute_9 visible="1~tif(ty='A',1,0)"  font.face="Times New Roman" font.height="-9" font.weight="400"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+compute(band=trailer.1 alignment="1" expression="if (sum(if( so = 20,if (isnull(ltodate),0,ltodate),0) for all) = 0,0,sum(if( so = 20,if (isnull(ltodate),0,ltodate),0) for all) / sum(if( so = 30,if (isnull(ltodate),0,ltodate),0) for all))"border="0" color="33554432" x="1710" y="88" height="64" width="329" format="#,##0.00" html.valueishtml="0"  name=compute_11 visible="1~tif(ty='A',1,0)"  font.face="Times New Roman" font.height="-9" font.weight="400"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+compute(band=trailer.1 alignment="1" expression="if(sum(if( so = 10,if (isnull(ltodate),0,ltodate),0) for all) = 0,0,sum(if( so = 10,if (isnull(ltodate),0,ltodate),0) for all) / sum(if( so = 30,if (isnull(ltodate),0,ltodate),0) for all))"border="0" color="33554432" x="1710" y="168" height="64" width="329" format="#,##0.00" html.valueishtml="0"  name=compute_12 visible="1~tif(ty='A',1,0)"  font.face="Times New Roman" font.height="-9" font.weight="400"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+text(band=trailer.1 alignment="0" text="Green Leaf / Plucker" border="0" color="33554432" x="9" y="8" height="64" width="626" html.valueishtml="0"  name=t_1 visible="1~tif(ty='A',1,0)"  font.face="Times New Roman" font.height="-9" font.weight="400"  font.family="1" font.pitch="2" font.charset="0" background.mode="2" background.color="1073741824" )
+compute(band=trailer.1 alignment="1" expression="if ( sum(if( so = 10,if (isnull(ctoday),0,ctoday),0) for all) = 0,0, sum(if( so = 10,if (isnull(ctoday),0,ctoday),0) for all) / sum(if( so = 20,if (isnull(ctoday),0,ctoday),0) for all))"border="0" color="33554432" x="658" y="8" height="64" width="329" format="#,##0.00" html.valueishtml="0"  name=compute_1 visible="1~tif(ty='A',1,0)"  font.face="Times New Roman" font.height="-9" font.weight="400"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+compute(band=trailer.1 alignment="1" expression="if (sum(if( so = 10,if (isnull(ctodate),0,ctodate),0) for all) = 0,0,sum(if( so = 10,if (isnull(ctodate),0,ctodate),0) for all) / sum(if( so = 20,if (isnull(ctodate),0,ctodate),0) for all))"border="0" color="33554432" x="1006" y="8" height="64" width="329" format="#,##0.00" html.valueishtml="0"  name=compute_4 visible="1~tif(ty='A',1,0)"  font.face="Times New Roman" font.height="-9" font.weight="400"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+compute(band=trailer.1 alignment="1" expression="if (sum(if( so = 10, if (isnull(ltoday),0,ltoday) ,0) for all) = 0,0,sum(if( so = 10, if (isnull(ltoday),0,ltoday) ,0) for all) / sum(if( so = 20, if(isnull(ltoday),0,ltoday),0) for all))"border="0" color="33554432" x="1367" y="8" height="64" width="329" format="#,##0.00" html.valueishtml="0"  name=compute_7 visible="1~tif(ty='A',1,0)"  font.face="Times New Roman" font.height="-9" font.weight="400"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+compute(band=trailer.1 alignment="1" expression="if (sum(if( so = 10, if (isnull(ltodate),0,ltodate),0) for all) = 0, 0,sum(if( so = 10, if (isnull(ltodate),0,ltodate),0) for all) / sum(if( so = 20,if (isnull(ltodate),0,ltodate) ,0) for all))"border="0" color="33554432" x="1710" y="8" height="64" width="329" format="#,##0.00" html.valueishtml="0"  name=compute_10 visible="1~tif(ty='A',1,0)"  font.face="Times New Roman" font.height="-9" font.weight="400"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+htmltable(border="1" )
+htmlgen(clientevents="1" clientvalidation="1" clientcomputedfields="1" clientformatting="0" clientscriptable="0" generatejavascript="1" encodeselflinkargs="1" netscapelayers="0" pagingmethod=0 generatedddwframes="1" )
+xhtmlgen() cssgen(sessionspecific="0" )
+xmlgen(inline="0" )
+xsltgen()
+jsgen()
+export.xml(headgroups="1" includewhitespace="0" metadatatype=0 savemetadata=0 )
+import.xml()
+export.pdf(method=0 distill.custompostscript="0" xslfop.print="0" )
+export.xhtml()

@@ -1,0 +1,23 @@
+﻿$PBExportHeader$f_get_lastno_withoutyear.srf
+global type f_get_lastno_withoutyear from function_object
+end type
+
+forward prototypes
+global function long f_get_lastno_withoutyear (string fs_type)
+end prototypes
+
+global function long f_get_lastno_withoutyear (string fs_type);long ll_temp
+
+select (nvl(sn_srl_no,0) + 1) into :ll_temp from fb_serial_no where sn_doc_type = :fs_type for update wait 120; 
+
+if sqlca.sqlcode = -1 then
+	messagebox('Sql Error During Getting Last No',sqlca.sqlerrtext)
+	return -1
+elseif sqlca.sqlcode = 100 then
+	messagebox('Sql Error During Getting Last No',sqlca.sqlerrtext)
+	return -1
+elseif sqlca.sqlcode = 0 then
+	return ll_temp
+end if
+end function
+

@@ -1,0 +1,61 @@
+﻿$PBExportHeader$dw_gtepur005.srd
+release 10.5;
+datawindow(units=0 timer_interval=0 color=1073741824 processing=0 HTMLDW=no print.printername="" print.documentname="" print.orientation = 0 print.margin.left = 110 print.margin.right = 110 print.margin.top = 96 print.margin.bottom = 96 print.paper.source = 0 print.paper.size = 0 print.canusedefaultprinter=yes print.prompt=no print.buttons=no print.preview.buttons=no print.cliptext=no print.overrideprintjob=no print.collate=yes print.preview.outline=yes hidegrayline=no )
+header(height=428 color="536870912" )
+summary(height=68 color="536870912" )
+footer(height=80 color="536870912" )
+detail(height=72 color="536870912" )
+table(column=(type=char(50) updatewhereclause=yes name=sup_name dbname="sup_name" )
+ column=(type=char(20) updatewhereclause=yes name=bill_no dbname="fb_localpurchaseinvoice.bill_no" )
+ column=(type=datetime updatewhereclause=yes name=receipt_date dbname="fb_localpurchaseinvoice.receipt_date" )
+ column=(type=decimal(3) updatewhereclause=yes name=amount dbname="fb_localpurchaseinvoice.amount" )
+ column=(type=char(25) updatewhereclause=yes name=garden_inv_id dbname="fb_localpurchaseinvoice.garden_inv_id" )
+ retrieve=" SELECT DISTINCT initcap(a.SUP_NAME) SUP_NAME,lpi_billno Bill_no,LPI_BILLDATE receipt_date, b.LPI_NETAMO Amount, b.LPI_ID Garden_inv_id                  
+    FROM (SELECT LPI_ID LPI_ID,SUP.SUP_NAME,SUP.SUP_ID FROM FB_LPIINDENT LI,FB_SUPPLIER SUP WHERE LI.SUP_ID=SUP.SUP_ID
+          UNION ALL
+          SELECT IO.LPI_ID LPI_ID,SUP.SUP_NAME,SUP.SUP_ID  FROM FB_LOCALPURCHASEINVOICE IO,FB_LOCALPURCHASEORDER LPO,FB_SUPPLIER SUP
+           WHERE LPO.SUP_ID=SUP.SUP_ID AND IO.LPO_ID=LPO.LPO_ID) a, FB_LOCALPURCHASEINVOICE b
+   WHERE a.LPI_ID=b.LPI_ID and 
+         b.LPI_DATE between TO_DATE (:ra_from_dt, 'dd/mm/yyyy') AND TO_DATE (:ra_to_dt, 'dd/mm/yyyy') and
+		 SUP_ID = decode(:ra_sup_ID,'ALL',SUP_ID,:ra_sup_ID) 
+   ORDER BY SUP_NAME, b.LPI_ID
+" arguments=(("ra_from_dt", string),("ra_to_dt", string),("ra_sup_ID", string))  sort="sup_name A bill_no A " )
+group(level=1 header.height=84 trailer.height=68 by=("sup_name" ) header.color="536870912" trailer.color="536870912" )
+text(band=header alignment="2" text="Lpi Desc" border="0" color="33554432" x="64" y="212" height="64" width="69" html.valueishtml="0"  name=fb_localpurchaseinvoice_lpi_desc_t visible="0"  font.face="Times New Roman" font.height="-9" font.weight="400"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+text(band=header alignment="0" text="Luxmi Tea Co." border="0" color="33554432" x="0" y="20" height="64" width="521" html.valueishtml="0"  name=t_co visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+text(band=header alignment="0" text="Gtepur005" border="0" color="33554432" x="0" y="84" height="64" width="261" html.valueishtml="0"  name=t_4 visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+compute(band=header alignment="1" expression="today()"border="0" color="33554432" x="2679" y="32" height="92" width="274" format="[general]" html.valueishtml="0"  name=date_1 visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+text(band=header alignment="0" text="Supplier Name" border="0" color="33554432" x="18" y="340" height="64" width="590" html.valueishtml="0"  name=sup_name_t visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+text(band=header alignment="1" text="Bill No" border="0" color="33554432" x="955" y="340" height="64" width="229" html.valueishtml="0"  name=bill_no_t visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+text(band=header alignment="0" text="Receipt Date" border="0" color="33554432" x="1317" y="340" height="64" width="393" html.valueishtml="0"  name=receipt_date_t visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+text(band=header alignment="0" text="GardenInvoice Id" border="0" color="33554432" x="1897" y="276" height="128" width="443" html.valueishtml="0"  name=garden_inv_id_t visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+text(band=header alignment="1" text="Amount" border="0" color="33554432" x="2670" y="340" height="64" width="279" html.valueishtml="0"  name=amount_t visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+line(band=header x1="18" y1="416" x2="2962" y2="416"  name=l_3 visible="1" pen.style="0" pen.width="5" pen.color="134217744"  background.mode="2" background.color="1073741824" )
+compute(band=header alignment="2" expression="'Local Purchase Details  From '+ ra_from_dt+' To '+ ra_to_dt"border="0" color="33554432" x="544" y="16" height="80" width="1888" format="[GENERAL]" html.valueishtml="0"  name=compute_4 visible="1"  font.face="Times New Roman" font.height="-10" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+text(band=header alignment="2" text="" border="0" color="33554432" x="512" y="112" height="64" width="1961" html.valueishtml="0"  name=t_gnm visible="1"  hidesnaked=1  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912"  height.autosize=yes)
+column(band=header.1 id=1 alignment="0" tabsequence=32766 border="0" color="33554432" x="18" y="8" height="64" width="873" format="[general]" html.valueishtml="0"  name=sup_name visible="1" edit.limit=0 edit.case=any edit.focusrectangle=no edit.autoselect=no  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="2" font.pitch="2" font.charset="0" background.mode="2" background.color="1073741824" )
+column(band=detail id=2 alignment="1" tabsequence=32766 border="0" color="33554432" x="553" y="0" height="76" width="635" format="[general]" html.valueishtml="0"  name=bill_no visible="1" edit.limit=0 edit.case=any edit.focusrectangle=no edit.autoselect=no  font.face="Times New Roman" font.height="-9" font.weight="400"  font.family="2" font.pitch="2" font.charset="0" background.mode="2" background.color="1073741824" )
+column(band=detail id=4 alignment="1" tabsequence=32766 border="0" color="33554432" x="2542" y="0" height="76" width="402" format="#,##0.00" html.valueishtml="0"  name=amount visible="1" edit.limit=0 edit.case=any edit.focusrectangle=no edit.autoselect=no  font.face="Times New Roman" font.height="-9" font.weight="400"  font.family="2" font.pitch="2" font.charset="0" background.mode="2" background.color="1073741824" )
+column(band=detail id=5 alignment="0" tabsequence=32766 border="0" color="33554432" x="1897" y="0" height="76" width="443" format="[general]" html.valueishtml="0"  name=garden_inv_id visible="1" edit.limit=0 edit.case=any edit.focusrectangle=no edit.autoselect=no  font.face="Times New Roman" font.height="-9" font.weight="400"  font.family="2" font.pitch="2" font.charset="0" background.mode="2" background.color="1073741824" )
+column(band=detail id=3 alignment="0" tabsequence=32766 border="0" color="33554432" x="1317" y="0" height="76" width="393" format="dd/mm/yyyy" html.valueishtml="0"  name=receipt_date visible="1" edit.limit=0 edit.case=any edit.focusrectangle=no edit.autoselect=no  font.face="Times New Roman" font.height="-9" font.weight="400"  font.family="2" font.pitch="2" font.charset="0" background.mode="2" background.color="1073741824" )
+text(band=trailer.1 alignment="1" text="Total : " border="0" color="33554432" x="2162" y="8" height="64" width="197" html.valueishtml="0"  name=t_5 visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+compute(band=trailer.1 alignment="1" expression="sum(amount for group 1)"border="0" color="33554432" x="2542" y="4" height="76" width="402" format="#,##0.00" html.valueishtml="0"  name=compute_1 visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="2" background.color="1073741824" )
+line(band=trailer.1 x1="1952" y1="0" x2="2953" y2="0"  name=l_1 visible="1" pen.style="0" pen.width="5" pen.color="134217744"  background.mode="2" background.color="1073741824" )
+line(band=trailer.1 x1="1952" y1="64" x2="2953" y2="64"  name=l_2 visible="1" pen.style="0" pen.width="5" pen.color="134217744"  background.mode="2" background.color="1073741824" )
+text(band=summary alignment="1" text="Grand Total : " border="0" color="33554432" x="1975" y="8" height="64" width="384" html.valueishtml="0"  name=t_6 visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+compute(band=summary alignment="1" expression="sum(amount for all)"border="0" color="33554432" x="2400" y="0" height="76" width="544" format="#,##0.00" html.valueishtml="0"  name=compute_2 visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="2" background.color="1073741824" )
+line(band=summary x1="1952" y1="64" x2="2953" y2="64"  name=l_4 visible="1" pen.style="0" pen.width="5" pen.color="134217744"  background.mode="2" background.color="1073741824" )
+compute(band=footer alignment="2" expression="'Page ' + page() + ' of ' + pageCount()"border="0" color="33554432" x="1097" y="4" height="64" width="782" format="[general]" html.valueishtml="0"  name=page_1 visible="1"  font.face="Times New Roman" font.height="-9" font.weight="400"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+text(band=footer alignment="0" text="Note: Right Click to close this window" border="0" color="16711680" x="18" y="8" height="56" width="818" html.valueishtml="0"  name=t_9 visible="1"  font.face="Times New Roman" font.height="-8" font.weight="400"  font.family="1" font.pitch="2" font.charset="0" background.mode="2" background.color="1073741824" )
+
+sparse(names="sup_name	bill_no	receipt_date")htmltable(border="1" )
+htmlgen(clientevents="1" clientvalidation="1" clientcomputedfields="1" clientformatting="0" clientscriptable="0" generatejavascript="1" encodeselflinkargs="1" netscapelayers="0" pagingmethod=0 generatedddwframes="1" )
+xhtmlgen() cssgen(sessionspecific="0" )
+xmlgen(inline="0" )
+xsltgen()
+jsgen()
+export.xml(headgroups="1" includewhitespace="0" metadatatype=0 savemetadata=0 )
+import.xml()
+export.pdf(method=0 distill.custompostscript="0" xslfop.print="0" )
+export.xhtml()
+ 

@@ -1,0 +1,77 @@
+﻿$PBExportHeader$dw_gtehrr020.srd
+release 10.5;
+datawindow(units=0 timer_interval=0 color=1073741824 processing=0 HTMLDW=no print.printername="" print.documentname="" print.orientation = 0 print.margin.left = 150 print.margin.right = 150 print.margin.top = 96 print.margin.bottom = 96 print.paper.source = 0 print.paper.size = 0 print.canusedefaultprinter=yes print.prompt=no print.buttons=no print.preview.buttons=no print.cliptext=no print.overrideprintjob=no print.collate=yes print.preview.outline=yes hidegrayline=no )
+header(height=412 color="536870912" )
+summary(height=76 color="536870912" )
+footer(height=76 color="536870912" )
+detail(height=80 color="536870912" )
+table(column=(type=char(30) updatewhereclause=yes name=division dbname="division" )
+ column=(type=number updatewhereclause=yes name=staff dbname="staff" )
+ column=(type=number updatewhereclause=yes name=substaff dbname="substaff" )
+ column=(type=number updatewhereclause=yes name=worker dbname="worker" )
+ column=(type=number updatewhereclause=yes name=minor dbname="minor" )
+ column=(type=number updatewhereclause=yes name=major dbname="major" )
+ retrieve="SELECT initcap(Division) Division,     sum(staff) staff,      sum(substaff) substaff,    sum(Worker) Worker,     sum(nvl(minor,0)) minor,     sum(nvl(MAJOR,0)) MAJOR
+from        
+( SELECT initcap(FIELD_NAME) Division, 
+        sum(decode(a.EMP_TYPE,'ST',1,0)) staff,  
+        sum(decode(a.EMP_TYPE,'SS',1,0)) substaff,
+        0 Worker, 
+        sum(nvl(NOMINOR,0)) minor, 
+        sum(nvl(NOADULT,0)) MAJOR
+ FROM FB_EMPLOYEE a,FB_SUBSTAFFWEEKLYRATION b,fb_rationperiodforweek c,fb_field d
+ WHERE (a.emp_id=b.emp_ID) AND (b.LWW_ID=c.RPFW_ID) AND EMP_ACTIVE='1' and
+              (c.RPFW_ID =:ra_RPFW ) and  a.field_id = d.field_ID
+ group by initcap(FIELD_NAME), a.EMP_TYPE
+ union all
+ SELECT initcap(FIELD_NAME) LS_MANID, 0,0, 
+        count(1) worker, 
+        sum(nvl(LWR_NOMIN,0)) minor, 
+        sum(nvl(LWR_NOMAJ,0)) MAJOR
+ FROM FB_EMPLOYEE a,fb_labourweeklyration b,fb_rationperiodforweek c,fb_laboursheet d,fb_residentialhouse e, fb_field f
+ WHERE (a.emp_id=B.LABOUR_ID) AND (b.LRW_ID=c.RPFW_ID) AND a.rh_id = e.RH_ID(+) and (c.RPFW_ID =:ra_RPFW ) and
+        a.field_id = f.field_id and nvl(LWR_RATIONDED,0) > 0 and a.ls_id = d.LS_ID
+ group by initcap(FIELD_NAME))
+ group by Division
+ order by 1  " arguments=(("ra_RPFW", string))  sort="division A " )
+text(band=header alignment="0" text="Luxmi Tea Co." border="0" color="33554432" x="18" y="8" height="64" width="462" html.valueishtml="0"  name=t_co visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+text(band=header alignment="0" text="Gtehrr020" border="0" color="33554432" x="18" y="88" height="64" width="562" html.valueishtml="0"  name=t_2 visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+compute(band=header alignment="1" expression="today()"border="0" color="33554432" x="2907" y="12" height="84" width="329" format="dd/mm/yyyy" html.valueishtml="0"  name=date_1 visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+compute(band=header alignment="2" expression=" 'Ration Entitelement Statement'"border="0" color="33554432" x="750" y="8" height="152" width="1847" format="[GENERAL]" html.valueishtml="0"  name=compute_1 visible="1"  font.face="Times New Roman" font.height="-11" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="2" background.color="1073741824" )
+text(band=header alignment="2" text="" border="0" color="33554432" x="645" y="172" height="64" width="1961" html.valueishtml="0"  name=t_gnm visible="1"  hidesnaked=1  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912"  height.autosize=yes)
+compute(band=header alignment="0" expression="/* if(isnumber( rcno ),long( rcno ),0) */"border="0" color="33554432" x="603" y="24" height="64" width="183" format="[GENERAL]" html.valueishtml="0"  name=rcno_num visible="0"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="2" background.color="1073741824" )
+text(band=header alignment="2" text="Division" border="0" color="33554432" x="18" y="336" height="64" width="238" html.valueishtml="0"  name=rcno_t visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+line(band=header x1="14" y1="408" x2="3237" y2="408"  name=l_1 visible="1" pen.style="0" pen.width="5" pen.color="33554432"  background.mode="2" background.color="1073741824" )
+text(band=summary alignment="1" text="Grand Total :" border="0" color="33554432" x="873" y="4" height="64" width="361" html.valueishtml="0"  name=t_6 visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="2" background.color="1073741824" )
+text(band=footer alignment="1" text="Ration Entitelement" border="0" color="33554432" x="2542" y="4" height="64" width="695" html.valueishtml="0"  name=t_9 visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+compute(band=footer alignment="2" expression="'Page ' + page() + ' of ' + pageCount()"border="0" color="33554432" x="1234" y="4" height="64" width="782" format="[general]" html.valueishtml="0"  name=page_1 visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="2" background.color="1073741824" )
+column(band=detail id=1 alignment="0" tabsequence=0 border="0" color="33554432" x="41" y="8" height="64" width="1198" html.valueishtml="0"  name=division visible="1" edit.limit=0 edit.case=any edit.focusrectangle=no edit.autoselect=no  font.face="Times New Roman" font.height="-9" font.weight="400"  font.family="2" font.pitch="2" font.charset="0" background.mode="2" background.color="1073741824" )
+column(band=detail id=5 alignment="1" tabsequence=32766 border="0" color="33554432" x="2309" y="8" height="64" width="247" format="###0" html.valueishtml="0"  name=minor visible="1" edit.limit=0 edit.case=any edit.focusrectangle=no edit.autoselect=no  font.face="Times New Roman" font.height="-9" font.weight="400"  font.family="2" font.pitch="2" font.charset="0" background.mode="2" background.color="1073741824" )
+text(band=header alignment="1" text="Minor" border="0" color="33554432" x="2309" y="336" height="64" width="247" html.valueishtml="0"  name=minor_t visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+text(band=header alignment="1" text="Major" border="0" color="33554432" x="2638" y="336" height="64" width="247" html.valueishtml="0"  name=major_t visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+text(band=header alignment="1" text="Staff" border="0" color="33554432" x="1335" y="336" height="64" width="219" html.valueishtml="0"  name=t_1 visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+text(band=header alignment="1" text="Sub Staff" border="0" color="33554432" x="1673" y="336" height="64" width="229" html.valueishtml="0"  name=hajira_t visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+text(band=header alignment="1" text="Worker" border="0" color="33554432" x="2016" y="336" height="64" width="219" html.valueishtml="0"  name=t_3 visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+column(band=detail id=6 alignment="1" tabsequence=32766 border="0" color="33554432" x="2638" y="8" height="64" width="247" format="###0" html.valueishtml="0"  name=major visible="1" edit.limit=0 edit.case=any edit.focusrectangle=no edit.autoselect=no  font.face="Times New Roman" font.height="-9" font.weight="400"  font.family="2" font.pitch="2" font.charset="0" background.mode="2" background.color="1073741824" )
+text(band=header alignment="1" text="Total   Amount" border="0" color="33554432" x="2967" y="272" height="128" width="256" html.valueishtml="0"  name=ration_t visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+compute(band=detail alignment="1" expression=" staff +  substaff + worker + minor + major "border="0" color="33554432" x="2967" y="8" height="64" width="256" format="###0" html.valueishtml="0"  name=compute_2 visible="1"  font.face="Times New Roman" font.height="-9" font.weight="400"  font.family="1" font.pitch="2" font.charset="0" background.mode="2" background.color="1073741824" )
+compute(band=summary alignment="1" expression="sum( staff +  substaff + worker + minor + major  for all)"border="0" color="33554432" x="2967" y="4" height="64" width="256" format="###" html.valueishtml="0"  name=compute_3 visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="2" background.color="1073741824" )
+compute(band=summary alignment="1" expression="sum(major for all)"border="0" color="33554432" x="2638" y="4" height="64" width="247" format="###" html.valueishtml="0"  name=compute_9 visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="2" background.color="1073741824" )
+compute(band=summary alignment="1" expression="sum(minor for all)"border="0" color="33554432" x="2309" y="4" height="64" width="247" format="###" html.valueishtml="0"  name=compute_14 visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="2" background.color="1073741824" )
+column(band=detail id=2 alignment="1" tabsequence=0 border="0" color="33554432" x="1307" y="8" height="64" width="247" format="###0" html.valueishtml="0"  name=staff visible="1" edit.limit=0 edit.case=any edit.focusrectangle=no edit.autoselect=no  font.face="Times New Roman" font.height="-9" font.weight="400"  font.family="2" font.pitch="2" font.charset="0" background.mode="2" background.color="1073741824" )
+column(band=detail id=3 alignment="1" tabsequence=0 border="0" color="33554432" x="1682" y="8" height="64" width="247" format="###0" html.valueishtml="0"  name=substaff visible="1" edit.limit=0 edit.case=any edit.focusrectangle=no edit.autoselect=no  font.face="Times New Roman" font.height="-9" font.weight="400"  font.family="2" font.pitch="2" font.charset="0" background.mode="2" background.color="1073741824" )
+column(band=detail id=4 alignment="1" tabsequence=0 border="0" color="33554432" x="1989" y="8" height="64" width="247" format="###0" html.valueishtml="0"  name=worker visible="1" edit.limit=0 edit.case=any edit.focusrectangle=no edit.autoselect=no  font.face="Times New Roman" font.height="-9" font.weight="400"  font.family="2" font.pitch="2" font.charset="0" background.mode="2" background.color="1073741824" )
+compute(band=summary alignment="1" expression="sum(staff for all)"border="0" color="33554432" x="1307" y="4" height="64" width="247" format="###" html.valueishtml="0"  name=compute_4 visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="2" background.color="1073741824" )
+compute(band=summary alignment="1" expression="sum(substaff for all)"border="0" color="33554432" x="1682" y="4" height="64" width="247" format="###" html.valueishtml="0"  name=compute_5 visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="2" background.color="1073741824" )
+compute(band=summary alignment="1" expression="sum(worker for all)"border="0" color="33554432" x="1989" y="4" height="64" width="247" format="###" html.valueishtml="0"  name=compute_6 visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="2" background.color="1073741824" )
+htmltable(border="1" )
+htmlgen(clientevents="1" clientvalidation="1" clientcomputedfields="1" clientformatting="0" clientscriptable="0" generatejavascript="1" encodeselflinkargs="1" netscapelayers="0" pagingmethod=0 generatedddwframes="1" )
+xhtmlgen() cssgen(sessionspecific="0" )
+xmlgen(inline="0" )
+xsltgen()
+jsgen()
+export.xml(headgroups="1" includewhitespace="0" metadatatype=0 savemetadata=0 )
+import.xml()
+export.pdf(method=0 distill.custompostscript="0" xslfop.print="0" )
+export.xhtml()
+ 

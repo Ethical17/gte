@@ -1,0 +1,60 @@
+﻿$PBExportHeader$dw_gteprof010.srd
+release 10.5;
+datawindow(units=0 timer_interval=0 color=67108864 processing=0 HTMLDW=no print.printername="" print.documentname="" print.orientation = 0 print.margin.left = 110 print.margin.right = 110 print.margin.top = 96 print.margin.bottom = 96 print.paper.source = 0 print.paper.size = 0 print.canusedefaultprinter=yes print.prompt=no print.buttons=no print.preview.buttons=no print.cliptext=no print.overrideprintjob=no print.collate=yes print.preview.outline=yes hidegrayline=no )
+header(height=316 color="536870912" )
+summary(height=0 color="536870912" )
+footer(height=84 color="536870912" )
+detail(height=84 color="536870912" )
+table(column=(type=number updatewhereclause=yes name=opn dbname="opn" )
+ column=(type=number updatewhereclause=yes name=own dbname="own" )
+ column=(type=number updatewhereclause=yes name=purc dbname="purc" )
+ column=(type=number updatewhereclause=yes name=recv dbname="recv" )
+ column=(type=number updatewhereclause=yes name=sale dbname="sale" )
+ column=(type=number updatewhereclause=yes name=trans dbname="trans" )
+ column=(type=number updatewhereclause=yes name=net dbname="net" )
+ retrieve="select nvl(OPN,0) opn, nvl(own,0) own,nvl(PURC,0) PURC,nvl(RECV,0) RECV, nvl(SALE,0) SALE,nvl(TRANS,0) TRANS, (nvl(bal,0) + nvl(OPN,0)) NET
+ from (select sum(decode(GT_TYPE,'OWNATTE',GT_QUANTITY,0)) own,
+			sum(decode(GT_TYPE,'PURCHASE',GT_QUANTITY,0)) PURC,
+			sum(decode(GT_TYPE,'BROUGHT',GT_QUANTITY,0)) RECV, 
+			sum(decode(GT_TYPE,'SALE',GT_QUANTITY,0)) SALE ,
+			sum(decode(GT_TYPE,'TRANSFER',GT_QUANTITY,0)) TRANS,
+			sum(decode(GT_TYPE,'SALE',-1,'TRANSFER',-1,1) * GT_QUANTITY) bal
+			 from fb_gltransaction where trunc(GT_DATE) = TO_DATE(:RA_ASONDT,'DD/MM/YYYY') ) trn, 
+		(select (gl1-gl3) opn from 
+				(select sum(decode(gt_type,'SALE',-gt_quantity,'TRANSFER',-gt_quantity,gt_quantity)) gl1 
+				   from fb_gltransaction where trunc(pluckingdate) < TO_DATE(:RA_ASONDT,'DD/MM/YYYY') ) a, 
+				(select nvl(sum(glfp_glforproduction),0) gl3 from fb_glforproduction glfp,fb_gardenwiseteamade gwtm 
+				  where glfp.glfp_pk=gwtm.glfp_pk and (gwtm.gwtm_type <> 'O' AND gwtm.gwtm_type <> 'E' ) and 
+				  trunc(glfp_pluckingdate) < TO_DATE(:RA_ASONDT,'DD/MM/YYYY')))
+" arguments=(("RA_ASONDT", string)) )
+text(band=header alignment="0" text="Luxmi Tea Co." border="0" color="33554432" x="23" y="12" height="64" width="485" html.valueishtml="0"  name=t_co visible="1"  font.face="Times New Roman" font.height="-10" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+text(band=header alignment="0" text="Gteprof010" border="0" color="33554432" x="23" y="88" height="64" width="466" html.valueishtml="0"  name=t_11 visible="1"  font.face="Times New Roman" font.height="-10" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="553648127" )
+text(band=header alignment="1" text="Opening" border="0" color="33554432" x="293" y="240" height="64" width="210" html.valueishtml="0"  name=t_1 visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="2" background.color="67108864" )
+text(band=header alignment="1" text="Net" border="0" color="33554432" x="2309" y="240" height="64" width="197" html.valueishtml="0"  name=t_8 visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="2" background.color="67108864" )
+text(band=header alignment="1" text="Transfer" border="0" color="33554432" x="1961" y="240" height="64" width="210" html.valueishtml="0"  name=t_6 visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="2" background.color="67108864" )
+text(band=header alignment="1" text="Sale" border="0" color="33554432" x="1641" y="240" height="64" width="197" html.valueishtml="0"  name=t_5 visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="2" background.color="67108864" )
+text(band=header alignment="1" text="Received" border="0" color="33554432" x="1294" y="240" height="64" width="210" html.valueishtml="0"  name=t_4 visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="2" background.color="67108864" )
+text(band=header alignment="1" text="Purchase" border="0" color="33554432" x="951" y="240" height="64" width="219" html.valueishtml="0"  name=t_3 visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="2" background.color="67108864" )
+text(band=header alignment="1" text="Own" border="0" color="33554432" x="649" y="240" height="64" width="187" html.valueishtml="0"  name=t_2 visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="2" background.color="67108864" )
+column(band=detail id=1 alignment="1" tabsequence=32766 border="5" color="33554432" x="187" y="8" height="68" width="315" format="#,###0.00" html.valueishtml="0"  name=opn visible="1" edit.limit=0 edit.case=any edit.focusrectangle=no edit.autoselect=no  font.face="Times New Roman" font.height="-9" font.weight="400"  font.family="2" font.pitch="2" font.charset="0" background.mode="2" background.color="67108864" )
+column(band=detail id=7 alignment="1" tabsequence=32766 border="5" color="33554432" x="2190" y="8" height="68" width="315" format="#,###0.00" html.valueishtml="0"  name=net visible="1" edit.limit=0 edit.case=any edit.focusrectangle=no edit.autoselect=no  font.face="Times New Roman" font.height="-9" font.weight="400"  font.family="2" font.pitch="2" font.charset="0" background.mode="2" background.color="67108864" )
+column(band=detail id=6 alignment="1" tabsequence=32766 border="5" color="33554432" x="1856" y="8" height="68" width="315" format="#,###0.00" html.valueishtml="0"  name=trans visible="1" edit.limit=0 edit.case=any edit.focusrectangle=no edit.autoselect=no  font.face="Times New Roman" font.height="-9" font.weight="400"  font.family="2" font.pitch="2" font.charset="0" background.mode="2" background.color="67108864" )
+column(band=detail id=5 alignment="1" tabsequence=32766 border="5" color="33554432" x="1522" y="8" height="68" width="315" format="#,###0.00" html.valueishtml="0"  name=sale visible="1" edit.limit=0 edit.case=any edit.focusrectangle=no edit.autoselect=no  font.face="Times New Roman" font.height="-9" font.weight="400"  font.family="2" font.pitch="2" font.charset="0" background.mode="2" background.color="67108864" )
+column(band=detail id=4 alignment="1" tabsequence=32766 border="5" color="33554432" x="1189" y="8" height="68" width="315" format="#,###0.00" html.valueishtml="0"  name=recv visible="1" edit.limit=0 edit.case=any edit.focusrectangle=no edit.autoselect=no  font.face="Times New Roman" font.height="-9" font.weight="400"  font.family="2" font.pitch="2" font.charset="0" background.mode="2" background.color="67108864" )
+column(band=detail id=3 alignment="1" tabsequence=32766 border="5" color="33554432" x="855" y="8" height="68" width="315" format="#,###0.00" html.valueishtml="0"  name=purc visible="1" edit.limit=0 edit.case=any edit.focusrectangle=no edit.autoselect=no  font.face="Times New Roman" font.height="-9" font.weight="400"  font.family="2" font.pitch="2" font.charset="0" background.mode="2" background.color="67108864" )
+column(band=detail id=2 alignment="1" tabsequence=32766 border="5" color="33554432" x="521" y="8" height="68" width="315" format="#,###0.00" html.valueishtml="0"  name=own visible="1" edit.limit=0 edit.case=any edit.focusrectangle=no edit.autoselect=no  font.face="Times New Roman" font.height="-9" font.weight="400"  font.family="2" font.pitch="2" font.charset="0" background.mode="2" background.color="67108864" )
+text(band=footer alignment="0" text="Total Records : " border="0" color="0" x="18" y="4" height="72" width="384" html.valueishtml="0"  name=t_7 visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="2" background.color="67108864" )
+compute(band=footer alignment="0" expression="rowcount()"border="0" color="0" x="421" y="4" height="72" width="215" format="[GENERAL]" html.valueishtml="0"  name=compute_1 visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="2" background.color="67108864" )
+text(band=header alignment="2" text="Production" border="0" color="33554432" x="855" y="16" height="72" width="983" html.valueishtml="0"  name=t_10 visible="1"  font.face="Times New Roman" font.height="-11" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+line(band=header x1="23" y1="312" x2="2670" y2="312"  name=l_1 visible="1" pen.style="0" pen.width="5" pen.color="33554432"  background.mode="2" background.color="1073741824" )
+compute(band=header alignment="0" expression="today()"border="0" color="33554432" x="2377" y="16" height="64" width="293" format="dd/mm/yyyy" html.valueishtml="0"  name=date_1 visible="1"  font.face="Times New Roman" font.height="-10" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+htmltable(border="1" )
+htmlgen(clientevents="1" clientvalidation="1" clientcomputedfields="1" clientformatting="0" clientscriptable="0" generatejavascript="1" encodeselflinkargs="1" netscapelayers="0" pagingmethod=0 generatedddwframes="1" )
+xhtmlgen() cssgen(sessionspecific="0" )
+xmlgen(inline="0" )
+xsltgen()
+jsgen()
+export.xml(headgroups="1" includewhitespace="0" metadatatype=0 savemetadata=0 )
+import.xml()
+export.pdf(method=0 distill.custompostscript="0" xslfop.print="0" )
+export.xhtml()

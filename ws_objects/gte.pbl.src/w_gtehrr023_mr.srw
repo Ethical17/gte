@@ -1,0 +1,365 @@
+﻿$PBExportHeader$w_gtehrr023_mr.srw
+forward
+global type w_gtehrr023_mr from window
+end type
+type cb_4 from commandbutton within w_gtehrr023_mr
+end type
+type ddlb_2 from dropdownlistbox within w_gtehrr023_mr
+end type
+type st_1 from statictext within w_gtehrr023_mr
+end type
+type em_1 from editmask within w_gtehrr023_mr
+end type
+type cb_1 from commandbutton within w_gtehrr023_mr
+end type
+type cb_2 from commandbutton within w_gtehrr023_mr
+end type
+type st_2 from statictext within w_gtehrr023_mr
+end type
+type dw_1 from datawindow within w_gtehrr023_mr
+end type
+end forward
+
+global type w_gtehrr023_mr from window
+integer width = 3584
+integer height = 2360
+boolean titlebar = true
+string title = "(Gtehrr023) - Payment For Bank"
+boolean controlmenu = true
+boolean minbox = true
+boolean maxbox = true
+boolean resizable = true
+windowstate windowstate = maximized!
+long backcolor = 67108864
+string icon = "AppIcon!"
+event ue_option ( )
+cb_4 cb_4
+ddlb_2 ddlb_2
+st_1 st_1
+em_1 em_1
+cb_1 cb_1
+cb_2 cb_2
+st_2 st_2
+dw_1 dw_1
+end type
+global w_gtehrr023_mr w_gtehrr023_mr
+
+type variables
+string ls_emp_type,ls_division,ls_bank
+n_cst_powerfilter iu_powerfilter
+end variables
+
+event ue_option();choose case gs_ueoption
+	case "PRINT"
+			OpenWithParm(w_print,this.dw_1)
+	case "PRINTPREVIEW"
+			this.dw_1.modify("datawindow.print.preview = yes")
+	case "RESETPREVIEW"
+			this.dw_1.modify("datawindow.print.preview = no")
+	case "ZOOM"
+			SetPointer (HourGlass!)											
+			OpenwithParm (w_zoom,dw_1)
+			SetPointer (Arrow!)						
+	case "SAVEAS"
+			this.dw_1.saveas()
+	case "SFILTER"
+			iu_powerfilter.checked = NOT iu_powerfilter.checked
+			iu_powerfilter.event ue_clicked()
+			m_main.m_file.m_filter.checked = iu_powerfilter.checked
+	case "FILTER"
+			setnull(gs_filtertext)
+			this.dw_1.setredraw(false)
+			this.dw_1.setfilter(gs_filtertext)
+			this.dw_1.filter()
+			this.dw_1.groupcalc()
+			if this.dw_1.rowcount() > 0 then;
+				this.dw_1.setredraw(true)
+			else
+				Messagebox('Warning','Data Not Available In Given Criteria')
+			end if
+	case "SORT"
+			setnull(gs_sorttext)
+			this.dw_1.setredraw(false)
+			this.dw_1.setsort(gs_sorttext)
+			this.dw_1.sort()
+			this.dw_1.groupcalc()
+			if this.dw_1.rowcount() > 0 then;
+				this.dw_1.setredraw(true)
+			else
+				Messagebox('Warning','Data Not Available In Given Criteria')
+			end if
+end choose
+
+end event
+
+on w_gtehrr023_mr.create
+this.cb_4=create cb_4
+this.ddlb_2=create ddlb_2
+this.st_1=create st_1
+this.em_1=create em_1
+this.cb_1=create cb_1
+this.cb_2=create cb_2
+this.st_2=create st_2
+this.dw_1=create dw_1
+this.Control[]={this.cb_4,&
+this.ddlb_2,&
+this.st_1,&
+this.em_1,&
+this.cb_1,&
+this.cb_2,&
+this.st_2,&
+this.dw_1}
+end on
+
+on w_gtehrr023_mr.destroy
+destroy(this.cb_4)
+destroy(this.ddlb_2)
+destroy(this.st_1)
+destroy(this.em_1)
+destroy(this.cb_1)
+destroy(this.cb_2)
+destroy(this.st_2)
+destroy(this.dw_1)
+end on
+
+event open;
+//dw_1.modify("t_co.text = '"+gs_co_name+"'")
+dw_1.modify("t_gnm.text = '"+gs_garden_nameadd+"'")
+
+dw_1.settransobject(sqlca)
+this.dw_1.modify("datawindow.print.preview = yes")
+em_1.text = string(today(),'YYYYMM')
+
+ddlb_2.additem('ALL')
+
+declare c2 cursor for
+select distinct EMP_BANK_NAME from FB_employee order by 1;
+
+open c2;
+
+IF sqlca.sqlcode = 0 THEN 
+	fetch c2 into :ls_bank;
+	
+	do while sqlca.sqlcode <> 100
+		ddlb_2.additem(ls_bank)
+		setnull(ls_bank);
+		fetch c2 into :ls_bank;
+	loop
+	close c2;
+end if
+
+ddlb_2.text = 'ALL'
+end event
+
+type cb_4 from commandbutton within w_gtehrr023_mr
+integer x = 3109
+integer y = 16
+integer width = 334
+integer height = 100
+integer taborder = 30
+integer textsize = -10
+integer weight = 400
+fontcharset fontcharset = ansi!
+fontpitch fontpitch = variable!
+fontfamily fontfamily = roman!
+string facename = "Times New Roman"
+string text = "Genrate File"
+boolean cancel = true
+end type
+
+event clicked;//string ls_rec_ty,ls_rec, ls_gsn,ls_gstn, ls_yymm
+//string ls_doc_nat, ls_srfr, ls_srto, ls_srl
+//double ld_cont,ld_cncl
+//long ll_stno,ll_endno, ll_waybill, ll_season, ll_srlno
+//double  ld_delvqnty
+//integer li_filenum, li_rec, li_ctr
+//li_ctr=0;
+//setpointer(hourglass!) 
+
+string ls_fr_dt,ls_newpath
+//string ls_aa, ls_bb, ls_cc, ls_dd, ls_ee, ls_ff, ls_gg, ls_hh, ls_ii, ls_jj, ls_kk, ls_ll, ls_mm, ls_nn, ls_oo, ls_pp, ls_qq, ls_rr, ls_ss, ls_tt, ls_uu, ls_vv
+
+if isnull(ddlb_2.text) or len(ddlb_2.text) = 0  then
+	messagebox('Warning','Please Select Bank !!!')
+	return 
+end if
+
+if isnull(em_1.text) or len(em_1.text) = 0 then
+	messagebox('Warning','Please Enter Year Month !!!')
+	return 
+else
+	
+	ls_fr_dt = em_1.text
+	
+	ls_bank = ddlb_2.text
+	
+	
+	dw_1.dataobject = 'dw_gtehrr023_mr_bl'
+	dw_1.settransobject(sqlca)
+	dw_1.retrieve(long(left(ls_fr_dt,4)),long(right(ls_fr_dt,2)),ls_bank)
+	if dw_1.rowcount() > 0 then;
+		dw_1.setredraw(true)
+		ChangeDirectory("c:\temp")
+		
+		ls_newpath = getcurrentdirectory()+"\"
+		
+		dw_1.SaveAs(ls_newpath+"LUXMI"+string(today(),"ddmmyy")+ls_fr_dt+".xls",Excel8!,false)		
+	end if		
+
+end if
+	
+
+
+end event
+
+type ddlb_2 from dropdownlistbox within w_gtehrr023_mr
+integer x = 1088
+integer y = 16
+integer width = 1422
+integer height = 608
+integer taborder = 30
+integer textsize = -9
+integer weight = 400
+fontcharset fontcharset = ansi!
+fontpitch fontpitch = variable!
+fontfamily fontfamily = roman!
+string facename = "Times New Roman"
+long textcolor = 33554432
+boolean sorted = false
+boolean vscrollbar = true
+end type
+
+type st_1 from statictext within w_gtehrr023_mr
+integer x = 919
+integer y = 28
+integer width = 169
+integer height = 64
+integer textsize = -10
+integer weight = 700
+fontcharset fontcharset = ansi!
+fontpitch fontpitch = variable!
+fontfamily fontfamily = roman!
+string facename = "Times New Roman"
+long textcolor = 33554432
+long backcolor = 67108864
+string text = "Bank"
+boolean focusrectangle = false
+end type
+
+type em_1 from editmask within w_gtehrr023_mr
+integer x = 626
+integer y = 20
+integer width = 238
+integer height = 88
+integer taborder = 20
+integer textsize = -9
+integer weight = 400
+fontcharset fontcharset = ansi!
+fontpitch fontpitch = variable!
+fontfamily fontfamily = roman!
+string facename = "Times New Roman"
+long textcolor = 33554432
+string text = "none"
+alignment alignment = center!
+borderstyle borderstyle = stylelowered!
+maskdatatype maskdatatype = datemask!
+string mask = "YYYYMM"
+end type
+
+type cb_1 from commandbutton within w_gtehrr023_mr
+integer x = 2821
+integer y = 12
+integer width = 279
+integer height = 104
+integer taborder = 50
+integer textsize = -9
+integer weight = 400
+fontcharset fontcharset = ansi!
+fontpitch fontpitch = variable!
+fontfamily fontfamily = roman!
+string facename = "Times New Roman"
+string text = "&Close"
+end type
+
+event clicked;close(parent)
+end event
+
+type cb_2 from commandbutton within w_gtehrr023_mr
+integer x = 2542
+integer y = 12
+integer width = 279
+integer height = 104
+integer taborder = 40
+integer textsize = -9
+integer weight = 400
+fontcharset fontcharset = ansi!
+fontpitch fontpitch = variable!
+fontfamily fontfamily = roman!
+string facename = "Times New Roman"
+string text = "&Run"
+end type
+
+event clicked;dw_1.settransobject(sqlca)
+dw_1.show()
+
+if isnull(em_1.text) or len(em_1.text) <=0 then
+	messagebox('Error','Please Enter Current Year Month as (YYYYMM)')
+	return 1
+end if
+
+ls_emp_type = ddlb_2.text
+
+dw_1.settransobject(sqlca)
+dw_1.retrieve(long(left(em_1.text,4)),long(right(em_1.text,2)),ls_emp_type)
+
+if dw_1.getrow() = 0 then
+	messagebox('Information!','No Data Found For This Perid !!!')
+	return 1
+end if
+end event
+
+type st_2 from statictext within w_gtehrr023_mr
+integer x = 27
+integer y = 36
+integer width = 581
+integer height = 64
+integer textsize = -9
+integer weight = 700
+fontcharset fontcharset = ansi!
+fontpitch fontpitch = variable!
+fontfamily fontfamily = roman!
+string facename = "Times New Roman"
+long textcolor = 33554432
+long backcolor = 67108864
+string text = "Year Month(YYYYMM)"
+boolean focusrectangle = false
+end type
+
+type dw_1 from datawindow within w_gtehrr023_mr
+event ue_leftbuttonup pbm_dwnlbuttonup
+integer x = 9
+integer y = 124
+integer width = 3520
+integer height = 2104
+string title = "none"
+string dataobject = "dw_gtehrr023_mr"
+boolean hscrollbar = true
+boolean vscrollbar = true
+boolean livescroll = true
+borderstyle borderstyle = stylelowered!
+end type
+
+event ue_leftbuttonup;if isvalid(iu_powerfilter) then
+	iu_powerfilter.event post ue_buttonclicked(dwo.type,dwo.name)
+END IF
+end event
+
+event constructor;iu_powerfilter = create n_cst_powerfilter
+iu_powerfilter.of_setdw(this)
+end event
+
+event resize;if isvalid(iu_powerfilter) then
+	iu_powerfilter.event ue_positionbuttons()
+END IF
+end event
+

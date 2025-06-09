@@ -1,0 +1,45 @@
+﻿$PBExportHeader$dw_popup_supplier_return.srd
+release 10.5;
+datawindow(units=0 timer_interval=0 color=1073741824 processing=0 HTMLDW=no print.printername="" print.documentname="" print.orientation = 0 print.margin.left = 110 print.margin.right = 110 print.margin.top = 96 print.margin.bottom = 96 print.paper.source = 0 print.paper.size = 0 print.canusedefaultprinter=yes print.prompt=no print.buttons=no print.preview.buttons=no print.cliptext=no print.overrideprintjob=no print.collate=yes print.preview.outline=yes hidegrayline=no )
+header(height=0 color="536870912" )
+summary(height=0 color="536870912" )
+footer(height=0 color="536870912" )
+detail(height=80 color="536870912" )
+table(column=(type=char(25) updatewhereclause=yes name=lpi_hpi_id dbname="fb_lpidetails.lpi_id" dbalias="b.lpi_id" )
+ column=(type=char(25) updatewhereclause=yes name=sp_id dbname="fb_lpidetails.sp_id" dbalias="b.sp_id" )
+ column=(type=char(200) updatewhereclause=yes name=sp_name dbname="sp_name" )
+ column=(type=char(10) updatewhereclause=yes name=sp_unit dbname="fb_storeproduct.sp_unit" dbalias="d.sp_unit" )
+ column=(type=decimal(3) updatewhereclause=yes name=lpi_quantity dbname="fb_lpidetails.lpi_quantity" dbalias="b.lpi_quantity" )
+ column=(type=decimal(3) updatewhereclause=yes name=lpi_unitprice dbname="fb_lpidetails.lpi_unitprice" dbalias="b.lpi_unitprice" )
+ column=(type=decimal(3) updatewhereclause=yes name=lpi_effectiveunitprice dbname="fb_lpidetails.lpi_effectiveunitprice" dbalias="b.lpi_effectiveunitprice" )
+ column=(type=number updatewhereclause=yes name=amount dbname="amount" )
+ retrieve="select distinct b.LPI_ID,b.SP_ID SP_ID,decode(nvl(d.SSP_ID,'x'),'x',SP_NAME,e.SSP_NAME)SP_NAME,SP_UNIT, LPI_QUANTITY, LPI_UNITPRICE, LPI_EFFECTIVEUNITPRICE,
+           LPI_EFFECTIVEUNITPRICE* LPI_QUANTITY Amount
+from fb_localpurchaseinvoice a,fb_lpidetails b,FB_STOREPRODUCTCATEGORY c,fb_storeproduct d,fb_storeproduct_std e
+where a.LPI_ID=b.LPI_ID and b.SP_ID=d.SP_ID(+) and d.SPC_ID=c.SPC_ID(+) and d.SSP_ID=e.ssp_id(+)
+union
+select distinct b.HOPI_ID,b.SP_ID SP_ID,decode(nvl(d.SSP_ID,'x'),'x',SP_NAME,e.SSP_NAME)SP_NAME, SP_UNIT,HOPI_QUANTITY, HOPI_UNITPRICE,HOPI_EFFECTIVEUNITPRICE,
+           HOPI_UNITPRICE* HOPI_QUANTITY Amount
+from fb_hopurchaseinvoice a,fb_hopidetails b,FB_STOREPRODUCTCATEGORY c,fb_storeproduct d,fb_storeproduct_std e
+where a.HOPI_ID=b.HOPI_ID and b.SP_ID=d.SP_ID(+) and d.SPC_ID=c.SPC_ID(+) and d.SSP_ID=e.ssp_id(+)
+
+"  sort="sp_name A " )
+column(band=detail id=3 alignment="0" tabsequence=32766 border="0" color="33554432" x="23" y="4" height="64" width="1065" format="[general]" html.valueishtml="0"  name=sp_name visible="1" edit.limit=0 edit.case=any edit.focusrectangle=no edit.autoselect=no  font.face="Times New Roman" font.height="-9" font.weight="400"  font.family="2" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+column(band=detail id=4 alignment="0" tabsequence=32766 border="0" color="33554432" x="1111" y="4" height="64" width="233" format="[general]" html.valueishtml="0"  name=sp_unit visible="1" edit.limit=0 edit.case=any edit.focusrectangle=no edit.autoselect=no  font.face="Times New Roman" font.height="-9" font.weight="400"  font.family="2" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+column(band=detail id=5 alignment="1" tabsequence=32766 border="0" color="33554432" x="1362" y="4" height="64" width="329" format="[general]" html.valueishtml="0"  name=lpi_quantity visible="1" edit.limit=0 edit.case=any edit.autoselect=yes edit.autohscroll=yes  font.face="Times New Roman" font.height="-9" font.weight="400"  font.family="2" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+column(band=detail id=6 alignment="1" tabsequence=32766 border="0" color="33554432" x="1691" y="4" height="64" width="329" format="[general]" html.valueishtml="0"  name=lpi_unitprice visible="1" edit.limit=0 edit.case=any edit.autoselect=yes edit.autohscroll=yes  font.face="Times New Roman" font.height="-9" font.weight="400"  font.family="2" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+column(band=detail id=7 alignment="1" tabsequence=32766 border="0" color="33554432" x="2034" y="4" height="64" width="329" format="[general]" html.valueishtml="0"  name=lpi_effectiveunitprice visible="1" edit.limit=0 edit.case=any edit.autoselect=yes edit.autohscroll=yes  font.face="Times New Roman" font.height="-9" font.weight="400"  font.family="2" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+column(band=detail id=8 alignment="1" tabsequence=32766 border="0" color="33554432" x="2405" y="4" height="64" width="329" format="[general]" html.valueishtml="0"  name=amount visible="1" edit.limit=0 edit.case=any edit.autoselect=yes edit.autohscroll=yes  font.face="Times New Roman" font.height="-9" font.weight="400"  font.family="2" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+column(band=detail id=1 alignment="0" tabsequence=32766 border="0" color="33554432" x="3013" y="4" height="64" width="713" format="[general]" html.valueishtml="0"  name=lpi_hpi_id visible="1" edit.limit=25 edit.case=any edit.autoselect=yes edit.autohscroll=yes  font.face="Times New Roman" font.height="-9" font.weight="400"  font.family="2" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+column(band=detail id=2 alignment="0" tabsequence=32766 border="0" color="33554432" x="2761" y="4" height="64" width="283" format="[general]" html.valueishtml="0"  name=sp_id visible="1" edit.limit=25 edit.case=any edit.autoselect=yes edit.autohscroll=yes  font.face="Times New Roman" font.height="-9" font.weight="400"  font.family="2" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+htmltable(border="1" )
+htmlgen(clientevents="1" clientvalidation="1" clientcomputedfields="1" clientformatting="0" clientscriptable="0" generatejavascript="1" encodeselflinkargs="1" netscapelayers="0" pagingmethod=0 generatedddwframes="1" )
+xhtmlgen() cssgen(sessionspecific="0" )
+xmlgen(inline="0" )
+xsltgen()
+jsgen()
+export.xml(headgroups="1" includewhitespace="0" metadatatype=0 savemetadata=0 )
+import.xml()
+export.pdf(method=0 distill.custompostscript="0" xslfop.print="0" )
+export.xhtml()
+ 

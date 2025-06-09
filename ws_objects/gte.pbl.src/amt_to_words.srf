@@ -1,0 +1,110 @@
+﻿$PBExportHeader$amt_to_words.srf
+global type amt_to_words from function_object
+end type
+
+forward prototypes
+global function string amt_to_words (double amount)
+end prototypes
+
+global function string amt_to_words (double amount);string atw,new_atw,rupee_flag,paise_flag
+
+if isnull(amount) then
+   return ""
+end if
+new_atw = string(amount,"00000000000.00")
+if isnumber(new_atw)=False then
+   MessageBox("PB4 Error","Invalid Amount Fail To Convert In Words : "+new_atw)
+   return ""
+end if
+
+if long(right(new_atw,2)) > 0 then
+   Paise_flag = "Y"
+else
+   Paise_flag = "N"
+end if
+
+if long(left(new_atw,11)) > 0 then
+   Rupee_flag = "Y"
+else
+   Rupee_flag = "N"
+end if
+
+if rupee_flag = "Y" then
+   atw = "Rupees "
+end if
+
+//          Arab Calculation
+
+if long(left(new_atw,2)) > 0 then
+   if long(left(new_atw,2)) <= 19 then
+      atw = atw + atw_Teen(long(left(new_atw,2))) + " Arab "
+   elseif long(left(new_atw,1)) > 1 then
+      atw = atw + atw_Tee(long(left(new_atw,1))) +atw_Teen(long(mid(new_atw,2,1))) + " Arab "
+   end if
+end if
+
+//          Krore Calculation
+
+if long(mid(new_atw,3,2)) > 0 then
+   if long(mid(new_atw,3,2)) <= 19 then
+      atw = atw + atw_Teen(long(mid(new_atw,3,2))) + " Krore "
+   elseif long(mid(new_atw,3,1)) > 1 then
+      atw = atw + atw_Tee(long(mid(new_atw,3,1))) +atw_Teen(long(mid(new_atw,4,1))) + " Krore "
+   end if
+end if
+
+//          Lakhs Calculation
+
+if long(mid(new_atw,5,2)) > 0 then
+   if long(mid(new_atw,5,2)) <= 19 then
+      atw = atw + atw_Teen(long(mid(new_atw,5,2))) + " Lakhs "
+   elseif long(mid(new_atw,5,1)) > 1 then
+      atw = atw + atw_Tee(long(mid(new_atw,5,1))) +atw_Teen(long(mid(new_atw,6,1))) + " Lakhs "
+   end if
+end if
+
+//          Thousand Calculation
+
+if long(mid(new_atw,7,2)) > 0 then
+   if long(mid(new_atw,7,2)) <= 19 then
+      atw = atw + atw_Teen(long(mid(new_atw,7,2))) + " Thousand "
+   elseif long(mid(new_atw,7,1)) > 1 then
+      atw = atw + atw_Tee(long(mid(new_atw,7,1))) +atw_Teen(long(mid(new_atw,8,1))) + " Thousand "
+   end if
+end if
+
+//          Hundred Calculation
+
+if long(mid(new_atw,9,1)) > 0 then
+      atw = atw + atw_Teen(long(mid(new_atw,9,1))) + " Hundred "
+end if
+
+//          OtherCalculation
+
+if long(mid(new_atw,10,2)) > 0 then
+   if long(mid(new_atw,10,2)) <= 19 then
+      atw = atw + atw_Teen(long(mid(new_atw,10,2)))
+   elseif long(mid(new_atw,10,1)) > 1 then
+      atw = atw + atw_Tee(long(mid(new_atw,10,1))) +atw_Teen(long(mid(new_atw,11,1)))
+   end if
+end if
+
+//          Paise Calculation
+
+if paise_flag = 'Y' then
+ if Rupee_flag = 'Y' then
+    atw = atw + " And "
+ end if
+ if long(mid(new_atw,13,2)) > 0 then
+   if long(mid(new_atw,13,2)) <= 19 then
+      atw = atw + atw_Teen(long(mid(new_atw,13,2))) + " Paise"
+   elseif long(mid(new_atw,13,1)) > 1 then
+      atw = atw + atw_Tee(long(mid(new_atw,13,1))) +atw_Teen(long(mid(new_atw,14,1))) + " Paise"
+   end if
+ end if
+end if
+
+atw = atw + " Only."
+return atw
+end function
+

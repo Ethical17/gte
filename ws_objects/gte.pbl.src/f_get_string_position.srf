@@ -1,0 +1,24 @@
+﻿$PBExportHeader$f_get_string_position.srf
+global type f_get_string_position from function_object
+end type
+
+forward prototypes
+global function string f_get_string_position (ref string source, string separator)
+end prototypes
+
+global function string f_get_string_position (ref string source, string separator);int 		p
+string 	ret
+
+p = Pos(source, separator)	
+
+if p = 0 then					
+	ret = source				
+	source = ""
+else
+	ret = Mid(source, 1, p - 1)	
+	source = Right(source, Len(source) - p)
+end if
+
+return ret
+end function
+

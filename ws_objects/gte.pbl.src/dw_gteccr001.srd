@@ -1,0 +1,47 @@
+﻿$PBExportHeader$dw_gteccr001.srd
+release 10.5;
+datawindow(units=0 timer_interval=0 color=1073741824 processing=0 HTMLDW=no print.printername="" print.documentname="" print.orientation = 0 print.margin.left = 110 print.margin.right = 110 print.margin.top = 96 print.margin.bottom = 96 print.paper.source = 0 print.paper.size = 0 print.canusedefaultprinter=yes print.prompt=no print.buttons=no print.preview.buttons=no print.cliptext=no print.overrideprintjob=no print.collate=yes print.preview.outline=yes hidegrayline=no )
+header(height=388 color="536870912" )
+summary(height=0 color="536870912" )
+footer(height=100 color="536870912" )
+detail(height=84 color="536870912" )
+table(column=(type=char(20) updatewhereclause=yes name=cc_id dbname="fb_costcentre.cc_id" )
+ column=(type=char(25) updatewhereclause=yes name=cc_desc dbname="fb_costcentre.cc_desc" )
+ column=(type=number updatewhereclause=yes name=store_value dbname="fb_costcentre.store_value" )
+ column=(type=number updatewhereclause=yes name=cash_vlaue dbname="fb_costcentre.cash_vlaue" )
+ retrieve="select CC_ID, CC_DESC,store_value,cash_vlaue
+from fb_costcentre a,
+     (select ECC_ID id,sum(nvl(PRIS_VALUE,0))store_value from fb_productissue x,fb_productissuedetails y 
+	   where x.PRIS_ID=y.PRIS_ID and x.PRIS_DATE between to_date(:ra_frdt,'DD/mm/yyyy') and to_date(:ra_todt,'DD/mm/yyyy') and 
+	         ECC_ID is not null group by ECC_ID)b, 
+	 (select VD_SECTION_ID id,sum(decode(VD_DC_IND,'D',nvl(VD_AMOUNT,0),nvl(VD_AMOUNT,0)*(-1)))cash_vlaue 
+	    from fb_vou_head aa,fb_vou_det bb
+	   where VH_DOC_SRL=VD_DOC_SRL and aa.VH_VOU_DATE between to_date(:ra_frdt,'DD/mm/yyyy') and to_date(:ra_todt,'DD/mm/yyyy')and 
+	         VH_VOU_TYPE in('CPV') and VD_PREFERRED_MES='C' group by VD_SECTION_ID,VD_DC_IND)c
+where a.CC_ID=b.ID(+) and a.CC_ID=c.ID(+) and (nvl(store_value,0)>0 or nvl(cash_vlaue,0)>0)" arguments=(("ra_frdt", string),("ra_todt", string)) )
+text(band=header alignment="0" text="Gteccr001" border="0" color="33554432" x="0" y="76" height="64" width="338" html.valueishtml="0"  name=t_2 visible="1"  font.face="Times New Roman" font.height="-10" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+text(band=header alignment="0" text="Luxmi Tea Co." border="0" color="33554432" x="0" y="20" height="64" width="581" html.valueishtml="0"  name=t_co visible="1"  font.face="Times New Roman" font.height="-10" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+text(band=header alignment="0" text="Costcentre Id" border="0" color="33554432" x="18" y="312" height="64" width="480" html.valueishtml="0"  name=cc_id_t visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+text(band=header alignment="0" text="CostcentreDescription" border="0" color="33554432" x="585" y="248" height="128" width="800" html.valueishtml="0"  name=cc_desc_t visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+text(band=header alignment="1" text="Store Value" border="0" color="33554432" x="1591" y="312" height="64" width="329" html.valueishtml="0"  name=store_value_t visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+text(band=header alignment="2" text="" border="0" color="33554432" x="265" y="124" height="64" width="1961" html.valueishtml="0"  name=t_gnm visible="1"  hidesnaked=1  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912"  height.autosize=yes)
+text(band=header alignment="1" text="Cash Vlaue" border="0" color="33554432" x="2158" y="312" height="64" width="329" html.valueishtml="0"  name=cash_vlaue_t visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+compute(band=header alignment="0" expression="today()"border="0" color="33554432" x="2217" y="48" height="72" width="293" format="[general]" html.valueishtml="0"  name=date_1 visible="1"  font.face="Times New Roman" font.height="-10" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+text(band=header alignment="2" text="Cost Centre Wise Expense Detail" border="0" color="33554432" x="809" y="20" height="64" width="873" html.valueishtml="0"  name=t_1 visible="1"  font.face="Times New Roman" font.height="-10" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+line(band=header x1="0" y1="380" x2="2491" y2="380"  name=l_1 visible="1" pen.style="0" pen.width="5" pen.color="33554432"  background.mode="2" background.color="1073741824" )
+column(band=detail id=1 alignment="0" tabsequence=32766 border="0" color="33554432" x="5" y="8" height="76" width="480" format="[general]" html.valueishtml="0"  name=cc_id visible="1" edit.limit=20 edit.case=any edit.autoselect=yes edit.autohscroll=yes  font.face="Times New Roman" font.height="-9" font.weight="400"  font.family="2" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+column(band=detail id=2 alignment="0" tabsequence=32766 border="0" color="33554432" x="585" y="8" height="76" width="800" format="[general]" html.valueishtml="0"  name=cc_desc visible="1" edit.limit=25 edit.case=any edit.autoselect=yes edit.autohscroll=yes  font.face="Times New Roman" font.height="-9" font.weight="400"  font.family="2" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+column(band=detail id=4 alignment="1" tabsequence=32766 border="0" color="33554432" x="2158" y="8" height="76" width="329" format="#,##0.00" html.valueishtml="0"  name=cash_vlaue visible="1" edit.limit=0 edit.case=any edit.autoselect=yes edit.autohscroll=yes  font.face="Times New Roman" font.height="-9" font.weight="400"  font.family="2" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+column(band=detail id=3 alignment="1" tabsequence=32766 border="0" color="33554432" x="1591" y="8" height="76" width="329" format="#,##0.00" html.valueishtml="0"  name=store_value visible="1" edit.limit=0 edit.case=any edit.autoselect=yes edit.autohscroll=yes  font.face="Times New Roman" font.height="-9" font.weight="400"  font.family="2" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+compute(band=footer alignment="0" expression="'Page ' + page() + ' of ' + pageCount()"border="0" color="33554432" x="919" y="16" height="72" width="654" format="[general]" html.valueishtml="0"  name=page_1 visible="1"  font.face="Times New Roman" font.height="-9" font.weight="400"  font.family="1" font.pitch="2" font.charset="0" background.mode="2" background.color="1073741824" )
+htmltable(border="1" )
+htmlgen(clientevents="1" clientvalidation="1" clientcomputedfields="1" clientformatting="0" clientscriptable="0" generatejavascript="1" encodeselflinkargs="1" netscapelayers="0" pagingmethod=0 generatedddwframes="1" )
+xhtmlgen() cssgen(sessionspecific="0" )
+xmlgen(inline="0" )
+xsltgen()
+jsgen()
+export.xml(headgroups="1" includewhitespace="0" metadatatype=0 savemetadata=0 )
+import.xml()
+export.pdf(method=0 distill.custompostscript="0" xslfop.print="0" )
+export.xhtml()
+ 

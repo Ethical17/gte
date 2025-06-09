@@ -1,0 +1,347 @@
+﻿$PBExportHeader$dw_gteflr009_mis_old.srd
+release 10.5;
+datawindow(units=0 timer_interval=0 color=1073741824 processing=0 HTMLDW=no print.printername="" print.documentname="" print.orientation = 1 print.margin.left = 20 print.margin.right = 20 print.margin.top = 96 print.margin.bottom = 96 print.paper.source = 0 print.paper.size = 0 print.canusedefaultprinter=yes print.prompt=no print.buttons=no print.preview.buttons=no print.cliptext=no print.overrideprintjob=no print.collate=yes print.preview.outline=yes hidegrayline=no )
+header(height=476 color="536870912" )
+summary(height=284 color="536870912" )
+footer(height=140 color="536870912" )
+detail(height=92 color="536870912" )
+table(column=(type=char(30) updatewhereclause=yes name=sectionname dbname="sectionname" )
+ column=(type=number updatewhereclause=yes name=secarea dbname="secarea" )
+ column=(type=char(4) updatewhereclause=yes name=prun_style dbname="prun_style" )
+ column=(type=number updatewhereclause=yes name=plantpopulation dbname="plantpopulation" )
+ column=(type=number updatewhereclause=yes name=yieldphec dbname="yieldphec" )
+ column=(type=number updatewhereclause=yes name=yieldphec_ytd dbname="yieldphec_ytd" )
+ column=(type=number updatewhereclause=yes name=yieldphec_lytd dbname="yieldphec_lytd" )
+ column=(type=number updatewhereclause=yes name=hytd dbname="hytd" )
+ column=(type=number updatewhereclause=yes name=lyy dbname="lyy" )
+ column=(type=number updatewhereclause=yes name=hyy dbname="hyy" )
+ column=(type=number updatewhereclause=yes name=wages dbname="wages" )
+ column=(type=number updatewhereclause=yes name=stores dbname="stores" )
+ column=(type=number updatewhereclause=yes name=unallocated dbname="unallocated" )
+ column=(type=number updatewhereclause=yes name=indirect dbname="indirect" )
+ column=(type=number updatewhereclause=yes name=wages_ytd dbname="wages_ytd" )
+ column=(type=number updatewhereclause=yes name=stores_ytd dbname="stores_ytd" )
+ column=(type=number updatewhereclause=yes name=unallocated_ytd dbname="unallocated_ytd" )
+ column=(type=number updatewhereclause=yes name=indirect_ytd dbname="indirect_ytd" )
+ retrieve="SELECT a.SECTION_name sectionname, a.SECTION_AREA secarea, PRUN_STYLE,to_number(SECTION_ACTUALPLANTS) plantpopulation, 
+           decode(nvl(a.SECTION_AREA,0),0,0,round((nvl(totgl,0) * nvl(:ra_recper,0) / 100),2)) yieldphec,
+           decode(nvl(a.SECTION_AREA,0),0,0,round((nvl(totgl_ytd,0) * nvl(:ra_recper,0) / 100),2)) yieldphec_ytd,
+           decode(nvl(a.SECTION_AREA,0),0,0,round((nvl(totgl_lytd,0) * nvl(:ra_recper_ly,0) / 100),2)) yieldphec_lytd,
+           round((nvl(HYTD,0) * nvl(:ra_recper,0) / 100),2) HYTD, round((nvl(LYY,0) * nvl(:ra_recper_ly,0) / 100),2) LYY, round((nvl(HYY,0) * nvl(:ra_recper,0) / 100),2) HYY, 
+           nvl(wages,0) / nvl(a.SECTION_AREA,0) wages, nvl(stores,0) / nvl(a.SECTION_AREA,0) stores, (nvl(:ra_una_costph,0) * a.SECTION_AREA) / nvl(a.SECTION_AREA,0) unallocated, 
+		  (nvl(:ra_ind_costph,0) * a.SECTION_AREA) / nvl(a.SECTION_AREA,0) Indirect, nvl(wages_ytd,0) / nvl(a.SECTION_AREA,0) wages_ytd, nvl(stores_ytd,0) / nvl(a.SECTION_AREA,0) stores_ytd, 
+		  (nvl(:ra_una_costph_ytd,0) * a.SECTION_AREA) / nvl(a.SECTION_AREA,0) unallocated_ytd, (nvl(:ra_ind_costph_ytd,0) * a.SECTION_AREA) / nvl(a.SECTION_AREA,0) Indirect_ytd
+FROM   FB_SECTION a, (select SECTION_ID, PRUN_STYLE from fb_pruningsession where PRUN_YEAR = (to_number(to_char(to_date(:ra_frdt,'dd/mm/yyyy'),'yyyy')) - 1)) b,
+          (select section_id,sum(nvl(totgl,0)) totgl, sum(nvl(totgl_ytd,0)) totgl_ytd, sum(nvl(totgl_lytd,0)) totgl_lytd  from
+        (select c.section_id,
+                sum(decode(sign(trunc(TASK_DATE) - to_date(:ra_frdt,'dd/mm/yyyy')),-1,0,decode(sign(trunc(TASK_DATE) - to_date(:ra_todt,'dd/mm/yyyy')),1,0,
+                    (nvl(f.TASK_PMACOUNTTODAYTY,0) + nvl(f.TASK_PFACOUNTTODAYTY,0) + nvl(f.TASK_TMACOUNTTODAYTY,0) + nvl(f.TASK_TFACOUNTTODAYTY,0) + 
+                    nvl(f.TASK_OMACOUNTTODAYTY,0) + nvl(f.TASK_OFACOUNTTODAYTY,0) + nvl(f.TASK_PMADCOUNTTODAYTY,0) + nvl(f.TASK_PFADCOUNTTODAYTY,0) + 
+                    nvl(f.TASK_TMADCOUNTTODAYTY,0) + nvl(f.TASK_TFADCOUNTTODAYTY,0) + nvl(f.TASK_OMADCOUNTTODAYTY,0) + nvl(f.TASK_OFADCOUNTTODAYTY,0) + 
+                    nvl(f.TASK_PMCCOUNTTODAYTY,0) + nvl(f.TASK_PFCCOUNTTODAYTY,0) + nvl(f.TASK_TMCCOUNTTODAYTY,0) + nvl(f.TASK_TFCCOUNTTODAYTY,0) + 
+                    nvl(f.TASK_OMCCOUNTTODAYTY,0) + nvl(f.TASK_OFCCOUNTTODAYTY,0)))))  totgl,
+                 sum(decode(sign(trunc(TASK_DATE) - to_date(:ra_ysdt,'dd/mm/yyyy')),-1,0,decode(sign(trunc(TASK_DATE) - to_date(:ra_todt,'dd/mm/yyyy')),1,0,
+                    (nvl(f.TASK_PMACOUNTTODAYTY,0) + nvl(f.TASK_PFACOUNTTODAYTY,0) + nvl(f.TASK_TMACOUNTTODAYTY,0) + nvl(f.TASK_TFACOUNTTODAYTY,0) + 
+                    nvl(f.TASK_OMACOUNTTODAYTY,0) + nvl(f.TASK_OFACOUNTTODAYTY,0) + nvl(f.TASK_PMADCOUNTTODAYTY,0) + nvl(f.TASK_PFADCOUNTTODAYTY,0) + 
+                    nvl(f.TASK_TMADCOUNTTODAYTY,0) + nvl(f.TASK_TFADCOUNTTODAYTY,0) + nvl(f.TASK_OMADCOUNTTODAYTY,0) + nvl(f.TASK_OFADCOUNTTODAYTY,0) + 
+                    nvl(f.TASK_PMCCOUNTTODAYTY,0) + nvl(f.TASK_PFCCOUNTTODAYTY,0) + nvl(f.TASK_TMCCOUNTTODAYTY,0) + nvl(f.TASK_TFCCOUNTTODAYTY,0) + 
+                    nvl(f.TASK_OMCCOUNTTODAYTY,0) + nvl(f.TASK_OFCCOUNTTODAYTY,0)))))  totgl_ytd,
+                 sum(decode(sign(trunc(TASK_DATE) - to_date(:ra_ly_ysdt,'dd/mm/yyyy')),-1,0,decode(sign(trunc(TASK_DATE) - to_date(:ra_ly_todt,'dd/mm/yyyy')),1,0,
+                    (nvl(f.TASK_PMACOUNTTODAYTY,0) + nvl(f.TASK_PFACOUNTTODAYTY,0) + nvl(f.TASK_TMACOUNTTODAYTY,0) + nvl(f.TASK_TFACOUNTTODAYTY,0) + 
+                    nvl(f.TASK_OMACOUNTTODAYTY,0) + nvl(f.TASK_OFACOUNTTODAYTY,0) + nvl(f.TASK_PMADCOUNTTODAYTY,0) + nvl(f.TASK_PFADCOUNTTODAYTY,0) + 
+                    nvl(f.TASK_TMADCOUNTTODAYTY,0) + nvl(f.TASK_TFADCOUNTTODAYTY,0) + nvl(f.TASK_OMADCOUNTTODAYTY,0) + nvl(f.TASK_OFADCOUNTTODAYTY,0) + 
+                    nvl(f.TASK_PMCCOUNTTODAYTY,0) + nvl(f.TASK_PFCCOUNTTODAYTY,0) + nvl(f.TASK_TMCCOUNTTODAYTY,0) + nvl(f.TASK_TFCCOUNTTODAYTY,0) + 
+                    nvl(f.TASK_OMCCOUNTTODAYTY,0) + nvl(f.TASK_OFCCOUNTTODAYTY,0)))))  totgl_lytd                   
+         from FB_TASKACTIVEDAILY c, FB_KAMSUBHEAD e,  FB_TASKACTIVEMEASUREMENT f 
+         where c.TASKDATE_ID = f.TASKSECTION_ID AND c.TASK_ID = e.KAMSUB_ID AND nvl(KAMSUB_ACTIVE_IND,'N') = 'Y' and e.KAMSUB_TYPE = 'PLUCK' AND
+            (trunc(TASK_DATE) between to_date(:ra_ysdt,'dd/mm/yyyy') and to_date(:ra_todt,'dd/mm/yyyy') or trunc(TASK_DATE) between to_date(:ra_ly_ysdt,'dd/mm/yyyy') and to_date(:ra_ly_todt,'dd/mm/yyyy'))
+         group by  c.section_id 
+         union all
+         select SECTION_ID, 
+                sum(decode(sign(trunc(SPR_DATE) - to_date(:ra_frdt,'dd/mm/yyyy')),-1,0,decode(sign(trunc(SPR_DATE) - to_date(:ra_todt,'dd/mm/yyyy')),1,0,nvl(SPR_GL,0)))) cash_gl,
+                sum(decode(sign(trunc(SPR_DATE) - to_date(:ra_ysdt,'dd/mm/yyyy')),-1,0,decode(sign(trunc(SPR_DATE) - to_date(:ra_todt,'dd/mm/yyyy')),1,0,nvl(SPR_GL,0)))) cash_gl_ytd,
+                sum(decode(sign(trunc(SPR_DATE) - to_date(:ra_ly_ysdt,'dd/mm/yyyy')),-1,0,decode(sign(trunc(SPR_DATE) - to_date(:ra_ly_todt,'dd/mm/yyyy')),1,0,nvl(SPR_GL,0)))) cash_gl_lytd
+         from FB_SECTIONPLUCKINGROUND where SPR_PLUCCKTYPE = 'C' and 
+              (trunc(SPR_DATE) between to_date(:ra_ysdt,'dd/mm/yyyy') and to_date(:ra_todt,'dd/mm/yyyy') or trunc(SPR_DATE) between to_date(:ra_ly_ysdt,'dd/mm/yyyy') and to_date(:ra_ly_todt,'dd/mm/yyyy')) 
+        group by SECTION_ID)
+        group by SECTION_ID) f,
+        (select section_id,sum(nvl(LYY,0)) LYY from
+        (select c.section_id,
+                 sum(decode(sign(trunc(TASK_DATE) - to_date(:ra_ly_ysdt,'dd/mm/yyyy')),-1,0,decode(sign(trunc(TASK_DATE) - to_date(:ra_ly_eddt,'dd/mm/yyyy')),1,0,
+                    (nvl(f.TASK_PMACOUNTTODAYTY,0) + nvl(f.TASK_PFACOUNTTODAYTY,0) + nvl(f.TASK_TMACOUNTTODAYTY,0) + nvl(f.TASK_TFACOUNTTODAYTY,0) + 
+                    nvl(f.TASK_OMACOUNTTODAYTY,0) + nvl(f.TASK_OFACOUNTTODAYTY,0) + nvl(f.TASK_PMADCOUNTTODAYTY,0) + nvl(f.TASK_PFADCOUNTTODAYTY,0) + 
+                    nvl(f.TASK_TMADCOUNTTODAYTY,0) + nvl(f.TASK_TFADCOUNTTODAYTY,0) + nvl(f.TASK_OMADCOUNTTODAYTY,0) + nvl(f.TASK_OFADCOUNTTODAYTY,0) + 
+                    nvl(f.TASK_PMCCOUNTTODAYTY,0) + nvl(f.TASK_PFCCOUNTTODAYTY,0) + nvl(f.TASK_TMCCOUNTTODAYTY,0) + nvl(f.TASK_TFCCOUNTTODAYTY,0) + 
+                    nvl(f.TASK_OMCCOUNTTODAYTY,0) + nvl(f.TASK_OFCCOUNTTODAYTY,0)))))  LYY                    
+         from FB_TASKACTIVEDAILY c, FB_KAMSUBHEAD e,  FB_TASKACTIVEMEASUREMENT f 
+         where c.TASKDATE_ID = f.TASKSECTION_ID AND c.TASK_ID = e.KAMSUB_ID AND nvl(KAMSUB_ACTIVE_IND,'N') = 'Y' and e.KAMSUB_TYPE = 'PLUCK' AND
+            (trunc(TASK_DATE) between to_date(:ra_ly_ysdt,'dd/mm/yyyy') and to_date(:ra_ly_eddt,'dd/mm/yyyy'))
+         group by  c.section_id 
+         union all
+         select SECTION_ID, 
+                sum(decode(sign(trunc(SPR_DATE) - to_date(:ra_ly_ysdt,'dd/mm/yyyy')),-1,0,decode(sign(trunc(SPR_DATE) - to_date(:ra_ly_eddt,'dd/mm/yyyy')),1,0,nvl(SPR_GL,0)))) cash_gl_ly
+         from FB_SECTIONPLUCKINGROUND where SPR_PLUCCKTYPE = 'C' and 
+              (trunc(SPR_DATE) between to_date(:ra_ly_ysdt,'dd/mm/yyyy') and to_date(:ra_ly_eddt,'dd/mm/yyyy')) 
+        group by SECTION_ID)
+        group by section_id) g,
+       (select section_id, max(HYY) HYY from
+       (select section_id, yieldyear, sum(totgl_ly) HYY from
+        (select c.section_id, to_char(TASK_DATE,'YYYY') yieldyear,
+                 sum(nvl(f.TASK_PMACOUNTTODAYTY,0) + nvl(f.TASK_PFACOUNTTODAYTY,0) + nvl(f.TASK_TMACOUNTTODAYTY,0) + nvl(f.TASK_TFACOUNTTODAYTY,0) + 
+                    nvl(f.TASK_OMACOUNTTODAYTY,0) + nvl(f.TASK_OFACOUNTTODAYTY,0) + nvl(f.TASK_PMADCOUNTTODAYTY,0) + nvl(f.TASK_PFADCOUNTTODAYTY,0) + 
+                    nvl(f.TASK_TMADCOUNTTODAYTY,0) + nvl(f.TASK_TFADCOUNTTODAYTY,0) + nvl(f.TASK_OMADCOUNTTODAYTY,0) + nvl(f.TASK_OFADCOUNTTODAYTY,0) + 
+                    nvl(f.TASK_PMCCOUNTTODAYTY,0) + nvl(f.TASK_PFCCOUNTTODAYTY,0) + nvl(f.TASK_TMCCOUNTTODAYTY,0) + nvl(f.TASK_TFCCOUNTTODAYTY,0) + 
+                    nvl(f.TASK_OMCCOUNTTODAYTY,0) + nvl(f.TASK_OFCCOUNTTODAYTY,0))  totgl_ly                    
+         from FB_TASKACTIVEDAILY c, FB_KAMSUBHEAD e,  FB_TASKACTIVEMEASUREMENT f 
+         where c.TASKDATE_ID = f.TASKSECTION_ID AND c.TASK_ID = e.KAMSUB_ID AND nvl(KAMSUB_ACTIVE_IND,'N') = 'Y' and e.KAMSUB_TYPE = 'PLUCK' 
+         group by  c.section_id,to_char(TASK_DATE,'YYYY') 
+         union all
+         select SECTION_ID, to_char(SPR_DATE,'YYYY') yieldyear, sum(nvl(SPR_GL,0)) cash_gl_ly
+         from FB_SECTIONPLUCKINGROUND where SPR_PLUCCKTYPE = 'C' 
+        group by SECTION_ID,to_char(SPR_DATE,'YYYY'))
+        group by section_id,yieldyear)
+        group by section_id) h, 
+        (select section_id, sum(totgl_ly) HYTD from
+        (select c.section_id,
+                 max(nvl(f.TASK_PMACOUNTTODAYTY,0) + nvl(f.TASK_PFACOUNTTODAYTY,0) + nvl(f.TASK_TMACOUNTTODAYTY,0) + nvl(f.TASK_TFACOUNTTODAYTY,0) + 
+                    nvl(f.TASK_OMACOUNTTODAYTY,0) + nvl(f.TASK_OFACOUNTTODAYTY,0) + nvl(f.TASK_PMADCOUNTTODAYTY,0) + nvl(f.TASK_PFADCOUNTTODAYTY,0) + 
+                    nvl(f.TASK_TMADCOUNTTODAYTY,0) + nvl(f.TASK_TFADCOUNTTODAYTY,0) + nvl(f.TASK_OMADCOUNTTODAYTY,0) + nvl(f.TASK_OFADCOUNTTODAYTY,0) + 
+                    nvl(f.TASK_PMCCOUNTTODAYTY,0) + nvl(f.TASK_PFCCOUNTTODAYTY,0) + nvl(f.TASK_TMCCOUNTTODAYTY,0) + nvl(f.TASK_TFCCOUNTTODAYTY,0) + 
+                    nvl(f.TASK_OMCCOUNTTODAYTY,0) + nvl(f.TASK_OFCCOUNTTODAYTY,0))  totgl_ly                    
+         from FB_TASKACTIVEDAILY c, FB_KAMSUBHEAD e,  FB_TASKACTIVEMEASUREMENT f 
+         where c.TASKDATE_ID = f.TASKSECTION_ID AND c.TASK_ID = e.KAMSUB_ID AND nvl(KAMSUB_ACTIVE_IND,'N') = 'Y' and e.KAMSUB_TYPE = 'PLUCK' and
+               trunc(TASK_DATE) between to_date(:ra_ysdt,'dd/mm/yyyy') and to_date(:ra_todt,'dd/mm/yyyy')
+         group by  c.section_id 
+         union all
+         select SECTION_ID, max(nvl(SPR_GL,0)) cash_gl_ly
+         from FB_SECTIONPLUCKINGROUND where SPR_PLUCCKTYPE = 'C' and
+              trunc(SPR_DATE) between to_date(:ra_ysdt,'dd/mm/yyyy') and to_date(:ra_todt,'dd/mm/yyyy')
+        group by SECTION_ID)
+        group by section_id
+        order by 1) i,
+       (select VD_SECTION_ID,
+               sum(decode(ACSUBLEDGER_COSTNATURE,'D',decode(vd_preferred_mes,'W',decode(nvl(VD_SECTION_ID,'X'),'X',0,nvl(value,0)),0),0)) wages,
+               sum(decode(ACSUBLEDGER_COSTNATURE,'D',decode(vd_preferred_mes,'W',decode(nvl(VD_SECTION_ID,'X'),'X',0,nvl(value_ytd,0)),0),0)) wages_ytd,
+               sum(decode(ACSUBLEDGER_COSTNATURE,'D',decode(vd_preferred_mes,'T',decode(nvl(VD_SECTION_ID,'X'),'X',0,nvl(value,0)),0),0)) stores,
+               sum(decode(ACSUBLEDGER_COSTNATURE,'D',decode(vd_preferred_mes,'T',decode(nvl(VD_SECTION_ID,'X'),'X',0,nvl(value_ytd,0)),0),0)) stores_ytd
+        from 
+        (    select vd_preferred_mes,vd_expsubhead,VD_SECTION_ID, sum(nvl(value,0)) value, sum(nvl(value_ytd,0)) value_ytd
+            from
+            (    select vd_preferred_mes,vd_expsubhead,VD_SECTION_ID, 
+                        sum(decode(sign(trunc(vh_vou_date) - to_date(:ra_frdt,'dd/mm/yyyy')),-1,0,decode(sign(trunc(vh_vou_date) - to_date(:ra_todt,'dd/mm/yyyy')),1,0,nvl(vd_amount,0)))) value ,
+                        sum(decode(sign(trunc(vh_vou_date) - to_date(:ra_ysdt,'dd/mm/yyyy')),-1,0,decode(sign(trunc(vh_vou_date) - to_date(:ra_todt,'dd/mm/yyyy')),1,0,nvl(vd_amount,0)))) value_ytd
+                 from fb_vou_det,fb_vou_head 
+                where VH_DOC_SRL = VD_DOC_SRL and VD_SECTION_ID not like 'CC%' and vd_expsubhead is not null and 
+                    (trunc(vh_vou_date) between to_date(:ra_ysdt,'dd/mm/yyyy') and to_date(:ra_todt,'dd/mm/yyyy') or trunc(vh_vou_date) between to_date(:ra_ly_ysdt,'dd/mm/yyyy') and to_date(:ra_ly_todt,'dd/mm/yyyy')) 
+                group by vd_preferred_mes,vd_expsubhead,VD_SECTION_ID 
+                union 
+                select 'T',EACSUBHEAD_ID, SECTION_ID,
+                        sum(decode(sign(trunc(pris_date) - to_date(:ra_frdt,'dd/mm/yyyy')),-1,0,decode(sign(trunc(pris_date) - to_date(:ra_todt,'dd/mm/yyyy')),1,0,nvl(PRIS_VALUE,0)))) value ,
+                        sum(decode(sign(trunc(pris_date) - to_date(:ra_ysdt,'dd/mm/yyyy')),-1,0,decode(sign(trunc(pris_date) - to_date(:ra_todt,'dd/mm/yyyy')),1,0,nvl(PRIS_VALUE,0)))) value_ytd                 
+                from fb_productissuedetails a,fb_productissue b 
+                where a.PRIS_ID = b.PRIS_ID and nvl(PRIS_STOCKIND,'N') = 'Y' and EACSUBHEAD_ID is not null and 
+                      (trunc(pris_date) between to_date(:ra_ysdt,'dd/mm/yyyy') and to_date(:ra_todt,'dd/mm/yyyy') or trunc(pris_date) between to_date(:ra_ly_ysdt,'dd/mm/yyyy') and to_date(:ra_ly_todt,'dd/mm/yyyy')) 
+                group by EACSUBHEAD_ID, SECTION_ID 
+                union 
+                select 'T',EACSUBHEAD_ID, null, 
+                        sum(decode(sign(trunc(SA_ADJ_DATE) - to_date(:ra_frdt,'dd/mm/yyyy')),-1,0,decode(sign(trunc(SA_ADJ_DATE) - to_date(:ra_todt,'dd/mm/yyyy')),1,0,nvl(SA_VALUE,0)))) value ,
+                        sum(decode(sign(trunc(SA_ADJ_DATE) - to_date(:ra_ysdt,'dd/mm/yyyy')),-1,0,decode(sign(trunc(SA_ADJ_DATE) - to_date(:ra_todt,'dd/mm/yyyy')),1,0,nvl(SA_VALUE,0)))) value_ytd                                 
+                from fb_stores_adjustment 
+                where nvl(SA_STOCKIND,'N') = 'Y' and EACSUBHEAD_ID is not null and 
+                       (trunc(SA_ADJ_DATE) between to_date(:ra_ysdt,'dd/mm/yyyy') and to_date(:ra_todt,'dd/mm/yyyy') or trunc(SA_ADJ_DATE) between to_date(:ra_ly_ysdt,'dd/mm/yyyy') and to_date(:ra_ly_todt,'dd/mm/yyyy'))
+                group by EACSUBHEAD_ID 
+                union 
+                select 'T',EACSUBHEAD_ID, null,
+                        sum(decode(sign(trunc(pret_date) - to_date(:ra_frdt,'dd/mm/yyyy')),-1,0,decode(sign(trunc(pret_date) - to_date(:ra_todt,'dd/mm/yyyy')),1,0,nvl(PRET_VALUE,0)))) value ,
+                        sum(decode(sign(trunc(pret_date) - to_date(:ra_ysdt,'dd/mm/yyyy')),-1,0,decode(sign(trunc(pret_date) - to_date(:ra_todt,'dd/mm/yyyy')),1,0,nvl(PRET_VALUE,0)))) value_ytd                                                  
+                from fb_productreturndetails a,fb_productreturn b 
+                where a.PRET_ID = b.PRET_ID and nvl(PRET_STOCKIND,'N') = 'Y' and EACSUBHEAD_ID is not null and 
+                       (trunc(pret_date) between to_date(:ra_ysdt,'dd/mm/yyyy') and to_date(:ra_todt,'dd/mm/yyyy') or trunc(pret_date) between to_date(:ra_ly_ysdt,'dd/mm/yyyy') and to_date(:ra_ly_todt,'dd/mm/yyyy'))                 
+                group by EACSUBHEAD_ID
+                union 
+                select 'T',EACSUBHEAD_ID, null, 
+                        sum(decode(sign(trunc(SPR_DATE) - to_date(:ra_frdt,'dd/mm/yyyy')),-1,0,decode(sign(trunc(SPR_DATE) - to_date(:ra_todt,'dd/mm/yyyy')),1,0,(nvl(SPR_UNITPRICE,0) * nvl(SPR_QUANTITY,0))))) value ,
+                        sum(decode(sign(trunc(SPR_DATE) - to_date(:ra_ysdt,'dd/mm/yyyy')),-1,0,decode(sign(trunc(SPR_DATE) - to_date(:ra_todt,'dd/mm/yyyy')),1,0,(nvl(SPR_UNITPRICE,0) * nvl(SPR_QUANTITY,0))))) value_ytd                                                                  
+                from fb_supproductreturndetails a,fb_supproductreturn b, 
+                       (select distinct EACSUBHEAD_ID,SP_ID from fb_storeproduct, fb_expenseacsubhead where SPC_ID = EACHEAD_ID) c 
+                where a.SPR_ID = b.SPR_ID and a.SP_ID = c.SP_ID and nvl(SPR_STOCKIND,'N') = 'Y' and EACSUBHEAD_ID is not null and 
+                       (trunc(SPR_DATE) between to_date(:ra_ysdt,'dd/mm/yyyy') and to_date(:ra_todt,'dd/mm/yyyy') or trunc(SPR_DATE) between to_date(:ra_ly_ysdt,'dd/mm/yyyy') and to_date(:ra_ly_todt,'dd/mm/yyyy'))                 
+                group by EACSUBHEAD_ID
+                union 
+                select 'W',KAMSUB_ID, LDA_SECTIONID1, 
+                        sum(decode(sign(trunc(LDA_DATE) - to_date(:ra_frdt,'dd/mm/yyyy')),-1,0,decode(sign(trunc(LDA_DATE) - to_date(:ra_todt,'dd/mm/yyyy')),1,0,(nvl(LDA_WAGES,0))))) value ,
+                        sum(decode(sign(trunc(LDA_DATE) - to_date(:ra_ysdt,'dd/mm/yyyy')),-1,0,decode(sign(trunc(LDA_DATE) - to_date(:ra_todt,'dd/mm/yyyy')),1,0,(nvl(LDA_WAGES,0))))) value_ytd                                                                                  
+                from fb_labourdailyattendance
+                where KAMSUB_ID is not null and
+                      (trunc(LDA_DATE) between to_date(:ra_ysdt,'dd/mm/yyyy') and to_date(:ra_todt,'dd/mm/yyyy') or trunc(LDA_DATE) between to_date(:ra_ly_ysdt,'dd/mm/yyyy') and to_date(:ra_ly_todt,'dd/mm/yyyy'))                
+                group by KAMSUB_ID, LDA_SECTIONID1 
+                union 
+                select 'W',OT_KAMSUB_ID, null, 
+                        sum(decode(sign(trunc(OT_DT) - to_date(:ra_frdt,'dd/mm/yyyy')),-1,0,decode(sign(trunc(OT_DT) - to_date(:ra_todt,'dd/mm/yyyy')),1,0,(nvl(OT_AMOUNT,0))))) value ,
+                        sum(decode(sign(trunc(OT_DT) - to_date(:ra_ysdt,'dd/mm/yyyy')),-1,0,decode(sign(trunc(OT_DT) - to_date(:ra_todt,'dd/mm/yyyy')),1,0,(nvl(OT_AMOUNT,0))))) value_ytd                                                                                                  
+                from fb_overtime
+                where OT_KAMSUB_ID is not null and
+					  (trunc(OT_DT) between to_date(:ra_ysdt,'dd/mm/yyyy') and to_date(:ra_todt,'dd/mm/yyyy') or trunc(OT_DT) between to_date(:ra_ly_ysdt,'dd/mm/yyyy') and to_date(:ra_ly_todt,'dd/mm/yyyy'))
+                group by OT_KAMSUB_ID)
+            group by vd_preferred_mes,vd_expsubhead,VD_SECTION_ID) a,fb_acsubledger b, FB_EXPENSEACSUBHEAD c 
+        where a.vd_expsubhead = c.EACSUBHEAD_ID and b.ACSUBLEDGER_ID = c.EACHEAD_ID and VD_SECTION_ID is not null
+        group by VD_SECTION_ID)
+WHERE a.SECTION_ID = f.SECTION_ID(+) and a.SECTION_ID = g.SECTION_ID(+) and a.SECTION_ID = h.SECTION_ID(+) and a.SECTION_ID = i.SECTION_ID(+) and a.SECTION_ID = b.SECTION_ID(+) and a.SECTION_ID = VD_SECTION_ID(+) and a.SECTION_TYPE ='S'  and SECTION_ACTIVE_IND = 'Y' and
+           (nvl(wages,0) + nvl(stores,0)+ nvl((nvl(:ra_una_costph,0) * a.SECTION_AREA),0)) > 0" arguments=(("ra_frdt", string),("ra_todt", string),("ra_recper", number),("ra_una_costph", number),("ra_ind_costph", number),("ra_teamade", number),("ra_secarea_ly", number),("ra_yieldphec_ly", number),("ra_wages_ly", number),("ra_store_ly", number),("ra_unall_ly", number),("ra_ind_ly", number),("ra_secarea_py", number),("ra_yieldphec_py", number),("ra_wages_py", number),("ra_store_py", number),("ra_unall_py", number),("ra_ind_py", number),("ra_recper_ly", number),("ra_ysdt", string),("ra_ly_ysdt", string),("ra_ly_todt", string),("ra_ly_eddt", string),("ra_una_costph_ytd", number),("ra_ind_costph_ytd", number),("ra_lstcnt_dt", datetime),("ra_totcost_ly_ytd", number),("ra_totcost_py_ytd", number))  sort="sectionname A secarea A " )
+text(band=header alignment="1" text="Cost In     /Hectare" border="0" color="16777215~trgb(150,54,52)" x="4416" y="248" height="64" width="480" html.valueishtml="0"  name=t_4 visible="1"  font.face="Times New Roman" font.height="-9" font.weight="400"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+rectangle(band=header x="14" y="84" height="120" width="4901"  name=r_1 visible="1"  hidesnaked=1 brush.hatch="6" brush.color="12639424~trgb(0,176,240)" pen.style="5" pen.width="5" pen.color="0"  background.mode="2" background.color="0" )
+text(band=header alignment="0" text="Section" border="0" color="33554432" x="18" y="400" height="64" width="265" html.valueishtml="0"  name=sectionname_t visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+text(band=header alignment="0" text="Gteflr009m" border="0" color="33554432" x="18" y="12" height="64" width="562" html.valueishtml="0"  name=t_2 visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+compute(band=header alignment="0" expression=" 'Section Wise Cost & Yield For The Period - '+ string(date(ra_frdt),'dd-Mmm-YYYY') +' To '+ string(date(ra_todt),'dd-Mmm-YYYY')"border="0" color="16777215" x="1344" y="104" height="72" width="2245" format="[GENERAL]" html.valueishtml="0"  name=compute_2 visible="1"  font.face="Times New Roman" font.height="-11" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="553648127" )
+compute(band=header alignment="1" expression="today()"border="0" color="33554432" x="4585" y="12" height="64" width="329" format="dd/mm/yyyy" html.valueishtml="0"  name=date_1 visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+bitmap(band=header filename="rupee.jpg" x="4658" y="252" height="56" width="46" border="0"  name=p_1 visible="1" )
+column(band=header id=5 alignment="1" tabsequence=32766 border="0" color="33554432" x="864" y="232" height="64" width="142" format="#,##0.00" html.valueishtml="0"  name=yieldphec visible="0" edit.limit=0 edit.case=any edit.focusrectangle=no edit.autoselect=no  font.face="Times New Roman" font.height="-9" font.weight="400"  font.family="2" font.pitch="2" font.charset="0" background.mode="2" background.color="1073741824" )
+text(band=header alignment="2" text="" border="0" color="33554432" x="1335" y="212" height="52" width="2258" html.valueishtml="0"  name=t_gnm visible="1"  hidesnaked=1  font.face="Times New Roman" font.height="-8" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912"  height.autosize=yes)
+compute(band=header alignment="0" expression="'Last Counting Date : '+string( ra_lstcnt_dt,'dd-Mmm-yyyy') "border="0" color="33554432~trgb(150,54,52)" x="23" y="244" height="64" width="1051" format="[GENERAL]" html.valueishtml="0"  name=compute_13 visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="2" background.color="1073741824" )
+column(band=header id=18 alignment="0" tabsequence=32766 border="0" color="33554432" x="3351" y="224" height="64" width="347" format="[general]" html.valueishtml="0"  name=indirect_ytd visible="0" edit.limit=0 edit.case=any edit.focusrectangle=no edit.autoselect=no  font.face="Times New Roman" font.height="-9" font.weight="400"  font.family="2" font.pitch="2" font.charset="0" background.mode="2" background.color="1073741824" )
+column(band=header id=17 alignment="0" tabsequence=32766 border="0" color="33554432" x="2962" y="248" height="64" width="347" format="[general]" html.valueishtml="0"  name=unallocated_ytd visible="0" edit.limit=0 edit.case=any edit.focusrectangle=no edit.autoselect=no  font.face="Times New Roman" font.height="-9" font.weight="400"  font.family="2" font.pitch="2" font.charset="0" background.mode="2" background.color="1073741824" )
+column(band=header id=15 alignment="0" tabsequence=32766 border="0" color="33554432" x="3675" y="264" height="64" width="251" format="[general]" html.valueishtml="0"  name=wages_ytd visible="0" edit.limit=0 edit.case=any edit.focusrectangle=no edit.autoselect=no  font.face="Times New Roman" font.height="-9" font.weight="400"  font.family="2" font.pitch="2" font.charset="0" background.mode="2" background.color="1073741824" )
+column(band=header id=16 alignment="0" tabsequence=32766 border="0" color="33554432" x="3963" y="256" height="64" width="251" format="[general]" html.valueishtml="0"  name=stores_ytd visible="0" edit.limit=0 edit.case=any edit.focusrectangle=no edit.autoselect=no  font.face="Times New Roman" font.height="-9" font.weight="400"  font.family="2" font.pitch="2" font.charset="0" background.mode="2" background.color="1073741824" )
+compute(band=header alignment="1" expression=" if(isnull(wages_ytd),0,wages_ytd) +   if(isnull(stores_ytd),0,stores_ytd) + if(isnull(unallocated_ytd),0,unallocated_ytd)"border="0" color="33554432" x="4151" y="224" height="64" width="347" format="#,##0" html.valueishtml="0"  name=total_unallocated_ytd visible="0"  font.face="Times New Roman" font.height="-9" font.weight="400"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="553648127" )
+text(band=header alignment="2" text="Yield (Kg)/Hectare" border="0" color="33554432" x="1175" y="332" height="72" width="1605" html.valueishtml="0"  name=yield_phec_t visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="0" background.color="536870912~trgb(219,219,219)" )
+text(band=header alignment="2" text="YTD" border="0" color="33554432" x="1463" y="404" height="76" width="279" html.valueishtml="0"  name=t_6 visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="0" background.color="536870912~trgb(209,201,217)" )
+text(band=header alignment="2" text="Month" border="0" color="33554432" x="1175" y="404" height="76" width="279" html.valueishtml="0"  name=t_5 visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="0" background.color="536870912~trgb(219,219,219)" )
+text(band=header alignment="2" text="LYTD" border="0" color="33554432" x="1751" y="404" height="76" width="279" html.valueishtml="0"  name=t_7 visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="0" background.color="536870912~trgb(197,210,213)" )
+text(band=header alignment="1" text="Direct CostWages" border="0" color="33554432" x="2789" y="332" height="140" width="288" html.valueishtml="0"  name=wages_t visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="0" background.color="536870912~trgb(209,201,217)" )
+text(band=header alignment="1" text="Direct CostStores" border="0" color="33554432" x="3090" y="332" height="140" width="288" html.valueishtml="0"  name=stores_t visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="0" background.color="536870912~trgb(197,210,213)" )
+text(band=header alignment="1" text="Direct CostUnallocated" border="0" color="33554432" x="3392" y="332" height="140" width="288" html.valueishtml="0"  name=unallocated_t visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="0" background.color="536870912~trgb(219,219,219)" )
+text(band=header alignment="1" text="Direct CostTotal" border="0" color="33554432" x="3694" y="332" height="140" width="288" html.valueishtml="0"  name=total_unallocated_t visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="0" background.color="536870912~trgb(209,201,217)" )
+text(band=header alignment="1" text="IndirectCost   " border="0" color="33554432" x="3995" y="332" height="140" width="288" html.valueishtml="0"  name=indirect_t visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="0" background.color="536870912~trgb(197,210,213)" )
+text(band=header alignment="1" text="TotalCost " border="0" color="33554432" x="4297" y="332" height="140" width="288" html.valueishtml="0"  name=tot_cost_t visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="0" background.color="536870912~trgb(219,219,219)" )
+text(band=header alignment="1" text="Total CostYTD" border="0" color="33554432" x="4599" y="332" height="140" width="288" html.valueishtml="0"  name=t_13 visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="0" background.color="536870912~trgb(209,201,217)" )
+text(band=header alignment="1" text="PlantPopulation" border="0" color="33554432" x="878" y="332" height="196" width="279" html.valueishtml="0"  name=plantpopulation_t visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="0" background.color="536870912~trgb(209,201,217)" )
+compute(band=header alignment="0" expression=" wages *  secarea "border="0" color="33554432" x="1006" y="24" height="64" width="183" format="[GENERAL]" html.valueishtml="0"  name=tot_wage visible="0"  font.face="Times New Roman" font.height="-9" font.weight="400"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="553648127" )
+compute(band=header alignment="0" expression=" stores *  secarea "border="0" color="33554432" x="1275" y="24" height="64" width="183" format="[GENERAL]" html.valueishtml="0"  name=tot_stores visible="0"  font.face="Times New Roman" font.height="-9" font.weight="400"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="553648127" )
+compute(band=header alignment="0" expression="unallocated *  secarea "border="0" color="33554432" x="1499" y="24" height="64" width="183" format="[GENERAL]" html.valueishtml="0"  name=tot_unallocated visible="0"  font.face="Times New Roman" font.height="-9" font.weight="400"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="553648127" )
+compute(band=header alignment="0" expression="total_unallocated *  secarea "border="0" color="33554432" x="1733" y="24" height="64" width="183" format="[GENERAL]" html.valueishtml="0"  name=tot_total_unallocated visible="0"  font.face="Times New Roman" font.height="-9" font.weight="400"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="553648127" )
+compute(band=header alignment="0" expression="indirect *  secarea "border="0" color="33554432" x="2011" y="24" height="64" width="183" format="[GENERAL]" html.valueishtml="0"  name=tot_indirect visible="0"  font.face="Times New Roman" font.height="-9" font.weight="400"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="553648127" )
+compute(band=header alignment="0" expression="tot_cost *  secarea "border="0" color="33554432" x="2322" y="24" height="64" width="183" format="[GENERAL]" html.valueishtml="0"  name=tot_tot_cost visible="0"  font.face="Times New Roman" font.height="-9" font.weight="400"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="553648127" )
+compute(band=header alignment="0" expression="tot_cost_ytd *  secarea "border="0" color="33554432" x="2661" y="24" height="64" width="183" format="[GENERAL]" html.valueishtml="0"  name=tot_tot_cost_ytd visible="0"  font.face="Times New Roman" font.height="-9" font.weight="400"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="553648127" )
+text(band=header alignment="2" text="Area(Hect.)" border="0" color="33554432" x="439" y="332" height="144" width="210" html.valueishtml="0"  name=secarea_t visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="0" background.color="553648127~trgb(209,201,217)" )
+text(band=header alignment="2" text="PrunType" border="0" color="33554432" x="663" y="332" height="144" width="201" html.valueishtml="0"  name=prun_style_t visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="0" background.color="536870912~trgb(197,210,213)" )
+compute(band=header alignment="0" expression=" yieldphec "border="0" color="33554432" x="3666" y="12" height="64" width="192" format="##0.00" html.valueishtml="0"  name=compute_15 visible="0"  font.face="Tahoma" font.height="-9" font.weight="400"  font.family="2" font.pitch="2" font.charset="0" background.mode="2" background.color="1073741824" )
+column(band=header id=9 alignment="1" tabsequence=32766 border="0" color="33554432" x="2249" y="260" height="64" width="261" format="#,##0" html.valueishtml="0"  name=lyy visible="0" edit.limit=0 edit.case=any edit.focusrectangle=no edit.autoselect=no  font.face="Times New Roman" font.height="-9" font.weight="400"  font.family="2" font.pitch="2" font.charset="0" background.mode="1" background.color="553648127" )
+column(band=header id=10 alignment="1" tabsequence=32766 border="0" color="33554432" x="2519" y="260" height="64" width="261" format="#,##0" html.valueishtml="0"  name=hyy visible="0" edit.limit=0 edit.case=any edit.focusrectangle=no edit.autoselect=no  font.face="Times New Roman" font.height="-9" font.weight="400"  font.family="2" font.pitch="2" font.charset="0" background.mode="1" background.color="553648127" )
+column(band=header id=6 alignment="1" tabsequence=32766 border="0" color="33554432" x="1463" y="260" height="64" width="279" format="#,##0" html.valueishtml="0"  name=yieldphec_ytd visible="0" edit.limit=0 edit.case=any edit.focusrectangle=no edit.autoselect=no  font.face="Times New Roman" font.height="-9" font.weight="400"  font.family="2" font.pitch="2" font.charset="0" background.mode="1" background.color="553648127" )
+column(band=header id=8 alignment="1" tabsequence=32766 border="0" color="33554432" x="2053" y="260" height="64" width="169" format="#,##0" html.valueishtml="0"  name=hytd visible="0" edit.limit=0 edit.case=any edit.focusrectangle=no edit.autoselect=no  font.face="Times New Roman" font.height="-9" font.weight="400"  font.family="2" font.pitch="2" font.charset="0" background.mode="1" background.color="553648127" )
+column(band=header id=7 alignment="1" tabsequence=32766 border="0" color="33554432" x="1751" y="260" height="64" width="279" format="#,##0" html.valueishtml="0"  name=yieldphec_lytd visible="0" edit.limit=0 edit.case=any edit.focusrectangle=no edit.autoselect=no  font.face="Times New Roman" font.height="-9" font.weight="400"  font.family="2" font.pitch="2" font.charset="0" background.mode="1" background.color="553648127" )
+text(band=header alignment="2" text="HYTD" border="0" color="33554432" x="2043" y="404" height="76" width="197" html.valueishtml="0"  name=t_8 visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="0" background.color="553648127~trgb(209,201,217)" )
+text(band=header alignment="2" text="LYY" border="0" color="33554432" x="2249" y="404" height="76" width="261" html.valueishtml="0"  name=t_10 visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="0" background.color="536870912~trgb(197,210,213)" )
+text(band=header alignment="2" text="HYY" border="0" color="33554432" x="2519" y="404" height="76" width="261" html.valueishtml="0"  name=t_11 visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="0" background.color="536870912~trgb(219,219,219)" )
+rectangle(band=detail x="663" y="0" height="112" width="201"  name=r_3 visible="1"  hidesnaked=1 brush.hatch="6" brush.color="12639424~trgb(231,236,237)" pen.style="5" pen.width="5" pen.color="0"  background.mode="2" background.color="0" )
+rectangle(band=detail x="448" y="0" height="112" width="197"  name=r_2 visible="1"  hidesnaked=1 brush.hatch="6" brush.color="12639424~trgb(236,233,239)" pen.style="5" pen.width="5" pen.color="0"  background.mode="2" background.color="0" )
+column(band=detail id=1 alignment="0" tabsequence=32766 border="0" color="33554432" x="23" y="12" height="64" width="407" format="[general]" html.valueishtml="0"  name=sectionname visible="1" edit.limit=0 edit.case=any edit.focusrectangle=no edit.autoselect=no  font.face="Times New Roman" font.height="-9" font.weight="400"  font.family="2" font.pitch="2" font.charset="0" background.mode="2" background.color="1073741824" )
+column(band=detail id=2 alignment="1" tabsequence=32766 border="0" color="33554432" x="448" y="12" height="64" width="197" format="#,##0.00" html.valueishtml="0"  name=secarea visible="1" edit.limit=0 edit.case=any edit.focusrectangle=no edit.autoselect=no  font.face="Times New Roman" font.height="-9" font.weight="400"  font.family="2" font.pitch="2" font.charset="0" background.mode="1" background.color="553648127" )
+rectangle(band=detail x="1175" y="0" height="112" width="279"  name=r_4 visible="1"  hidesnaked=1 brush.hatch="6" brush.color="12639424~trgb(247,247,247)" pen.style="5" pen.width="5" pen.color="0"  background.mode="2" background.color="0" )
+rectangle(band=detail x="2043" y="0" height="112" width="197"  name=r_24 visible="1"  hidesnaked=1 brush.hatch="6" brush.color="12639424~trgb(236,233,239)" pen.style="5" pen.width="5" pen.color="0"  background.mode="2" background.color="0" )
+rectangle(band=detail x="1463" y="0" height="112" width="279"  name=r_22 visible="1"  hidesnaked=1 brush.hatch="6" brush.color="12639424~trgb(236,233,239)" pen.style="5" pen.width="5" pen.color="0"  background.mode="2" background.color="0" )
+rectangle(band=detail x="1751" y="0" height="112" width="279"  name=r_23 visible="1"  hidesnaked=1 brush.hatch="6" brush.color="12639424~trgb(231,236,237)" pen.style="5" pen.width="5" pen.color="0"  background.mode="2" background.color="0" )
+rectangle(band=detail x="2249" y="0" height="112" width="261"  name=r_26 visible="1"  hidesnaked=1 brush.hatch="6" brush.color="12639424~trgb(231,236,237)" pen.style="5" pen.width="5" pen.color="0"  background.mode="2" background.color="0" )
+rectangle(band=detail x="2519" y="0" height="112" width="261"  name=r_28 visible="1"  hidesnaked=1 brush.hatch="6" brush.color="12639424~trgb(247,247,247)" pen.style="5" pen.width="5" pen.color="0"  background.mode="2" background.color="0" )
+rectangle(band=detail x="2789" y="0" height="112" width="288"  name=r_5 visible="1"  hidesnaked=1 brush.hatch="6" brush.color="12639424~trgb(236,233,239)" pen.style="5" pen.width="5" pen.color="0"  background.mode="2" background.color="0" )
+rectangle(band=detail x="3090" y="0" height="112" width="288"  name=r_6 visible="1"  hidesnaked=1 brush.hatch="6" brush.color="12639424~trgb(231,236,237)" pen.style="5" pen.width="5" pen.color="0"  background.mode="2" background.color="0" )
+column(band=detail id=12 alignment="1" tabsequence=32766 border="0" color="33554432" x="3090" y="12" height="64" width="288" format="#,###" html.valueishtml="0"  name=stores visible="1" edit.limit=0 edit.case=any edit.focusrectangle=no edit.autoselect=no  font.face="Times New Roman" font.height="-9" font.weight="400"  font.family="2" font.pitch="2" font.charset="0" background.mode="1" background.color="553648127" )
+rectangle(band=detail x="3392" y="0" height="112" width="288"  name=r_7 visible="1"  hidesnaked=1 brush.hatch="6" brush.color="12639424~trgb(247,247,247)" pen.style="5" pen.width="5" pen.color="0"  background.mode="2" background.color="0" )
+column(band=detail id=13 alignment="1" tabsequence=32766 border="0" color="33554432" x="3392" y="12" height="64" width="288" format="#,###" html.valueishtml="0"  name=unallocated visible="1" edit.limit=0 edit.case=any edit.focusrectangle=no edit.autoselect=no  font.face="Times New Roman" font.height="-9" font.weight="400"  font.family="2" font.pitch="2" font.charset="0" background.mode="1" background.color="553648127" )
+rectangle(band=detail x="3694" y="0" height="112" width="288"  name=r_8 visible="1"  hidesnaked=1 brush.hatch="6" brush.color="12639424~trgb(236,233,239)" pen.style="5" pen.width="5" pen.color="0"  background.mode="2" background.color="0" )
+compute(band=detail alignment="1" expression=" if(isnull(wages),0,wages) +   if(isnull(stores),0,stores) + if(isnull(unallocated),0,unallocated)"border="0" color="33554432" x="3694" y="12" height="64" width="288" format="#,##0" html.valueishtml="0"  name=total_unallocated visible="1"  font.face="Times New Roman" font.height="-9" font.weight="400"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="553648127" )
+rectangle(band=detail x="3995" y="0" height="112" width="288"  name=r_9 visible="1"  hidesnaked=1 brush.hatch="6" brush.color="12639424~trgb(231,236,237)" pen.style="5" pen.width="5" pen.color="0"  background.mode="2" background.color="0" )
+column(band=detail id=14 alignment="1" tabsequence=32766 border="0" color="33554432" x="3995" y="12" height="64" width="288" format="#,###" html.valueishtml="0"  name=indirect visible="1" edit.limit=0 edit.case=any edit.focusrectangle=no edit.autoselect=no  font.face="Times New Roman" font.height="-9" font.weight="400"  font.family="2" font.pitch="2" font.charset="0" background.mode="1" background.color="553648127" )
+rectangle(band=detail x="4297" y="0" height="112" width="288"  name=r_10 visible="1"  hidesnaked=1 brush.hatch="6" brush.color="12639424~trgb(247,247,247)" pen.style="5" pen.width="5" pen.color="0"  background.mode="2" background.color="0" )
+compute(band=detail alignment="1" expression="if(isnull(total_unallocated),0,total_unallocated) + if(isnull(indirect),0,indirect) "border="0" color="33554432" x="4297" y="12" height="64" width="288" format="#,##0" html.valueishtml="0"  name=tot_cost visible="1"  font.face="Times New Roman" font.height="-9" font.weight="400"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="553648127" )
+rectangle(band=detail x="4599" y="0" height="112" width="288"  name=r_30 visible="1"  hidesnaked=1 brush.hatch="6" brush.color="12639424~trgb(247,247,247)" pen.style="5" pen.width="5" pen.color="0"  background.mode="2" background.color="0" )
+column(band=detail id=3 alignment="0" tabsequence=32766 border="0" color="33554432" x="663" y="12" height="64" width="201" format="[general]" html.valueishtml="0"  name=prun_style visible="1" edit.limit=0 edit.case=any edit.focusrectangle=no edit.autoselect=no  font.face="Times New Roman" font.height="-9" font.weight="400"  font.family="2" font.pitch="2" font.charset="0" background.mode="1" background.color="553648127" )
+rectangle(band=detail x="878" y="0" height="112" width="279"  name=r_63 visible="1"  hidesnaked=1 brush.hatch="6" brush.color="12639424~trgb(236,233,239)" pen.style="5" pen.width="5" pen.color="0"  background.mode="2" background.color="0" )
+column(band=detail id=4 alignment="1" tabsequence=32766 border="0" color="33554432" x="878" y="12" height="64" width="279" format="###,##" html.valueishtml="0"  name=plantpopulation visible="1" edit.limit=0 edit.case=any edit.focusrectangle=no edit.autoselect=no  font.face="Times New Roman" font.height="-9" font.weight="400"  font.family="2" font.pitch="2" font.charset="0" background.mode="1" background.color="553648127" )
+column(band=detail id=11 alignment="1" tabsequence=32766 border="0" color="33554432" x="2789" y="12" height="64" width="288" format="#,###" html.valueishtml="0"  name=wages visible="1" edit.limit=0 edit.case=any edit.focusrectangle=no edit.autoselect=no  font.face="Times New Roman" font.height="-9" font.weight="400"  font.family="2" font.pitch="2" font.charset="0" background.mode="1" background.color="553648127" )
+compute(band=detail alignment="1" expression="if(isnull(total_unallocated_ytd),0,total_unallocated_ytd) + if(isnull(indirect_ytd),0,indirect_ytd) "border="0" color="33554432" x="4599" y="12" height="64" width="288" format="#,##0" html.valueishtml="0"  name=tot_cost_ytd visible="1"  font.face="Times New Roman" font.height="-9" font.weight="400"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="553648127" )
+compute(band=detail alignment="1" expression=" yieldphec / secarea "border="0" color="33554432" x="1170" y="12" height="64" width="279" format="#,##0" html.valueishtml="0"  name=yield_phec visible="1"  font.face="Times New Roman" font.height="-9" font.weight="400"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="553648127" )
+compute(band=detail alignment="1" expression=" yieldphec_ytd /  secarea "border="0" color="33554432" x="1463" y="12" height="64" width="279" format="#,##0" html.valueishtml="0"  name=compute_16 visible="1"  font.face="Times New Roman" font.height="-9" font.weight="400"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="553648127" )
+compute(band=detail alignment="1" expression="yieldphec_lytd /  secarea "border="0" color="33554432" x="1751" y="12" height="64" width="279" format="#,##0" html.valueishtml="0"  name=compute_18 visible="1"  font.face="Times New Roman" font.height="-9" font.weight="400"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="553648127" )
+compute(band=detail alignment="1" expression="hytd /  secarea "border="0" color="33554432" x="2043" y="12" height="64" width="197" format="#,##0" html.valueishtml="0"  name=compute_19 visible="1"  font.face="Times New Roman" font.height="-9" font.weight="400"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="553648127" )
+compute(band=detail alignment="1" expression="lyy /  secarea "border="0" color="33554432" x="2249" y="12" height="64" width="261" format="#,##0" html.valueishtml="0"  name=compute_20 visible="1"  font.face="Times New Roman" font.height="-9" font.weight="400"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="553648127" )
+compute(band=detail alignment="1" expression="hyy /  secarea "border="0" color="33554432" x="2519" y="12" height="64" width="261" format="#,##0" html.valueishtml="0"  name=compute_21 visible="1"  font.face="Times New Roman" font.height="-9" font.weight="400"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="553648127" )
+rectangle(band=summary x="448" y="0" height="276" width="197"  name=r_11 visible="1"  hidesnaked=1 brush.hatch="6" brush.color="12639424~trgb(236,233,239)" pen.style="5" pen.width="5" pen.color="0"  background.mode="2" background.color="0" )
+rectangle(band=summary x="1175" y="0" height="276" width="279"  name=r_13 visible="1"  hidesnaked=1 brush.hatch="6" brush.color="12639424~trgb(247,247,247)" pen.style="5" pen.width="5" pen.color="0"  background.mode="2" background.color="0" )
+rectangle(band=summary x="1463" y="0" height="276" width="279"  name=r_20 visible="1"  hidesnaked=1 brush.hatch="6" brush.color="12639424~trgb(236,233,239)" pen.style="5" pen.width="5" pen.color="0"  background.mode="2" background.color="0" )
+text(band=summary alignment="1" text="Prior year :" border="0" color="33554432" x="101" y="200" height="64" width="274" html.valueishtml="0"  name=t_3 visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="2" background.color="1073741824" )
+text(band=summary alignment="1" text="Last year :" border="0" color="33554432" x="123" y="108" height="64" width="251" html.valueishtml="0"  name=t_1 visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="2" background.color="1073741824" )
+compute(band=summary alignment="1" expression=" ra_secarea_ly "border="0" color="33554432" x="448" y="108" height="64" width="197" format="#,##0.00" html.valueishtml="0"  name=lyr_area visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="553648127" )
+compute(band=summary alignment="1" expression=" ra_secarea_py "border="0" color="33554432" x="448" y="200" height="64" width="197" format="#,##0.00" html.valueishtml="0"  name=pyr_area visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="553648127" )
+compute(band=summary alignment="1" expression=" ra_yieldphec_ly "border="0" color="33554432" x="1175" y="108" height="64" width="279" format="#,##0" html.valueishtml="0"  name=compute_9 visible="0"  font.face="Times New Roman" font.height="-9" font.weight="400"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="553648127" )
+compute(band=summary alignment="1" expression=" ra_yieldphec_py "border="0" color="33554432" x="1175" y="200" height="64" width="279" format="#,##0" html.valueishtml="0"  name=compute_11 visible="0"  font.face="Times New Roman" font.height="-9" font.weight="400"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="553648127" )
+rectangle(band=summary x="1751" y="0" height="276" width="279"  name=r_21 visible="1"  hidesnaked=1 brush.hatch="6" brush.color="12639424~trgb(231,236,237)" pen.style="5" pen.width="5" pen.color="0"  background.mode="2" background.color="0" )
+rectangle(band=summary x="2249" y="0" height="276" width="261"  name=r_27 visible="1"  hidesnaked=1 brush.hatch="6" brush.color="12639424~trgb(231,236,237)" pen.style="5" pen.width="5" pen.color="0"  background.mode="2" background.color="0" )
+rectangle(band=summary x="2519" y="0" height="276" width="261"  name=r_29 visible="1"  hidesnaked=1 brush.hatch="6" brush.color="12639424~trgb(247,247,247)" pen.style="5" pen.width="5" pen.color="0"  background.mode="2" background.color="0" )
+rectangle(band=summary x="2043" y="0" height="276" width="197"  name=r_25 visible="1"  hidesnaked=1 brush.hatch="6" brush.color="12639424~trgb(236,233,239)" pen.style="5" pen.width="5" pen.color="0"  background.mode="2" background.color="0" )
+rectangle(band=summary x="2789" y="0" height="276" width="288"  name=r_14 visible="1"  hidesnaked=1 brush.hatch="6" brush.color="12639424~trgb(236,233,239)" pen.style="5" pen.width="5" pen.color="0"  background.mode="2" background.color="0" )
+compute(band=summary alignment="1" expression=" ra_wages_ly / lyr_area"border="0" color="33554432" x="2789" y="108" height="64" width="288" format="#,###" html.valueishtml="0"  name=wage_ly visible="1"  font.face="Times New Roman" font.height="-9" font.weight="400"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="553648127" )
+compute(band=summary alignment="1" expression=" ra_wages_py / pyr_area"border="0" color="33554432" x="2789" y="200" height="64" width="288" format="#,###" html.valueishtml="0"  name=wage_py visible="1"  font.face="Times New Roman" font.height="-9" font.weight="400"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="553648127" )
+compute(band=summary alignment="1" expression="sum(tot_wage for all) / ty_area"border="0" color="33554432" x="2789" y="8" height="64" width="288" format="#,###" html.valueishtml="0"  name=compute_6 visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="553648127" )
+line(band=summary x1="2789" y1="80" x2="3077" y2="80"  name=l_1 visible="1" pen.style="0" pen.width="5" pen.color="0"  background.mode="2" background.color="0" )
+line(band=summary x1="2789" y1="88" x2="3077" y2="88"  name=l_2 visible="1" pen.style="0" pen.width="5" pen.color="0"  background.mode="2" background.color="0" )
+rectangle(band=summary x="3090" y="0" height="276" width="288"  name=r_15 visible="1"  hidesnaked=1 brush.hatch="6" brush.color="12639424~trgb(231,236,237)" pen.style="5" pen.width="5" pen.color="0"  background.mode="2" background.color="0" )
+compute(band=summary alignment="1" expression=" ra_store_py / pyr_area"border="0" color="33554432" x="3090" y="200" height="64" width="288" format="#,###" html.valueishtml="0"  name=store_py visible="1"  font.face="Times New Roman" font.height="-9" font.weight="400"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="553648127" )
+compute(band=summary alignment="1" expression=" ra_store_ly / lyr_area"border="0" color="33554432" x="3090" y="108" height="64" width="288" format="#,###" html.valueishtml="0"  name=store_ly visible="1"  font.face="Times New Roman" font.height="-9" font.weight="400"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="553648127" )
+compute(band=summary alignment="1" expression=" sum(tot_stores for all) / ty_area "border="0" color="33554432" x="3090" y="8" height="64" width="288" format="#,###" html.valueishtml="0"  name=compute_7 visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="553648127" )
+line(band=summary x1="3090" y1="80" x2="3378" y2="80"  name=l_3 visible="1" pen.style="0" pen.width="5" pen.color="0"  background.mode="2" background.color="0" )
+line(band=summary x1="3090" y1="88" x2="3378" y2="88"  name=l_4 visible="1" pen.style="0" pen.width="5" pen.color="0"  background.mode="2" background.color="0" )
+rectangle(band=summary x="3392" y="0" height="276" width="288"  name=r_16 visible="1"  hidesnaked=1 brush.hatch="6" brush.color="12639424~trgb(247,247,247)" pen.style="5" pen.width="5" pen.color="0"  background.mode="2" background.color="0" )
+compute(band=summary alignment="1" expression=" ra_unall_ly / lyr_area"border="0" color="33554432" x="3392" y="108" height="64" width="288" format="#,###" html.valueishtml="0"  name=unall_ly visible="1"  font.face="Times New Roman" font.height="-9" font.weight="400"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="553648127" )
+compute(band=summary alignment="1" expression=" ra_unall_py / pyr_area"border="0" color="33554432" x="3392" y="200" height="64" width="288" format="#,###" html.valueishtml="0"  name=unall_py visible="1"  font.face="Times New Roman" font.height="-9" font.weight="400"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="553648127" )
+compute(band=summary alignment="1" expression="sum(tot_unallocated for all) / ty_area"border="0" color="33554432" x="3392" y="8" height="64" width="288" format="#,###" html.valueishtml="0"  name=compute_8 visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="553648127" )
+line(band=summary x1="3392" y1="80" x2="3680" y2="80"  name=l_7 visible="1" pen.style="0" pen.width="5" pen.color="0"  background.mode="2" background.color="0" )
+line(band=summary x1="3392" y1="88" x2="3680" y2="88"  name=l_8 visible="1" pen.style="0" pen.width="5" pen.color="0"  background.mode="2" background.color="0" )
+rectangle(band=summary x="3694" y="0" height="276" width="288"  name=r_17 visible="1"  hidesnaked=1 brush.hatch="6" brush.color="12639424~trgb(236,233,239)" pen.style="5" pen.width="5" pen.color="0"  background.mode="2" background.color="0" )
+compute(band=summary alignment="1" expression=" if(isnull(wage_py),0,wage_py) +   if(isnull(store_py),0,store_py) + if(isnull( unall_py ),0, unall_py ) "border="0" color="33554432" x="3694" y="200" height="64" width="288" format="#,###" html.valueishtml="0"  name=total_una_py visible="1"  font.face="Times New Roman" font.height="-9" font.weight="400"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="553648127" )
+compute(band=summary alignment="1" expression=" if(isnull(wage_ly),0,wage_ly) +   if(isnull(store_ly),0,store_ly) + if(isnull( unall_ly ),0, unall_ly ) "border="0" color="33554432" x="3694" y="108" height="64" width="288" format="#,###" html.valueishtml="0"  name=total_una_ly visible="1"  font.face="Times New Roman" font.height="-9" font.weight="400"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="553648127" )
+compute(band=summary alignment="1" expression="sum(tot_total_unallocated for all) / ty_area"border="0" color="33554432" x="3694" y="8" height="64" width="288" format="#,###" html.valueishtml="0"  name=compute_5 visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="553648127" )
+line(band=summary x1="3694" y1="80" x2="3982" y2="80"  name=l_5 visible="1" pen.style="0" pen.width="5" pen.color="0"  background.mode="2" background.color="0" )
+line(band=summary x1="3694" y1="88" x2="3982" y2="88"  name=l_6 visible="1" pen.style="0" pen.width="5" pen.color="0"  background.mode="2" background.color="0" )
+rectangle(band=summary x="3995" y="0" height="276" width="288"  name=r_18 visible="1"  hidesnaked=1 brush.hatch="6" brush.color="12639424~trgb(231,236,237)" pen.style="5" pen.width="5" pen.color="0"  background.mode="2" background.color="0" )
+compute(band=summary alignment="1" expression=" ra_ind_ly / lyr_area"border="0" color="33554432" x="3995" y="108" height="64" width="288" format="#,###" html.valueishtml="0"  name=ind_ly visible="1"  font.face="Times New Roman" font.height="-9" font.weight="400"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="553648127" )
+compute(band=summary alignment="1" expression=" ra_ind_py / pyr_area"border="0" color="33554432" x="3995" y="200" height="64" width="288" format="#,###" html.valueishtml="0"  name=ind_py visible="1"  font.face="Times New Roman" font.height="-9" font.weight="400"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="553648127" )
+compute(band=summary alignment="1" expression="sum(tot_indirect for all) / ty_area"border="0" color="33554432" x="3995" y="8" height="64" width="288" format="#,###" html.valueishtml="0"  name=compute_4 visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="553648127" )
+line(band=summary x1="3995" y1="80" x2="4283" y2="80"  name=l_9 visible="1" pen.style="0" pen.width="5" pen.color="0"  background.mode="2" background.color="0" )
+line(band=summary x1="3995" y1="88" x2="4283" y2="88"  name=l_10 visible="1" pen.style="0" pen.width="5" pen.color="0"  background.mode="2" background.color="0" )
+line(band=summary x1="3995" y1="80" x2="4283" y2="80"  name=l_11 visible="1" pen.style="0" pen.width="5" pen.color="0"  background.mode="2" background.color="0" )
+line(band=summary x1="3995" y1="88" x2="4283" y2="88"  name=l_12 visible="1" pen.style="0" pen.width="5" pen.color="0"  background.mode="2" background.color="0" )
+rectangle(band=summary x="4297" y="0" height="276" width="288"  name=r_19 visible="1"  hidesnaked=1 brush.hatch="6" brush.color="12639424~trgb(247,247,247)" pen.style="5" pen.width="5" pen.color="0"  background.mode="2" background.color="0" )
+compute(band=summary alignment="1" expression="sum(tot_tot_cost  for all) / ty_area"border="0" color="33554432" x="4297" y="8" height="64" width="288" format="#,###" html.valueishtml="0"  name=compute_3 visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="553648127" )
+line(band=summary x1="4297" y1="80" x2="4585" y2="80"  name=l_13 visible="1" pen.style="0" pen.width="5" pen.color="0"  background.mode="2" background.color="0" )
+line(band=summary x1="4297" y1="88" x2="4585" y2="88"  name=l_14 visible="1" pen.style="0" pen.width="5" pen.color="0"  background.mode="2" background.color="0" )
+line(band=summary x1="4297" y1="80" x2="4585" y2="80"  name=l_15 visible="1" pen.style="0" pen.width="5" pen.color="0"  background.mode="2" background.color="0" )
+line(band=summary x1="4297" y1="88" x2="4585" y2="88"  name=l_16 visible="1" pen.style="0" pen.width="5" pen.color="0"  background.mode="2" background.color="0" )
+rectangle(band=summary x="4599" y="0" height="276" width="288"  name=r_31 visible="1"  hidesnaked=1 brush.hatch="6" brush.color="12639424~trgb(236,233,239)" pen.style="5" pen.width="5" pen.color="0"  background.mode="2" background.color="0" )
+line(band=summary x1="4599" y1="80" x2="4887" y2="80"  name=l_17 visible="1" pen.style="0" pen.width="5" pen.color="0"  background.mode="2" background.color="0" )
+line(band=summary x1="4599" y1="88" x2="4887" y2="88"  name=l_18 visible="1" pen.style="0" pen.width="5" pen.color="0"  background.mode="2" background.color="0" )
+line(band=summary x1="4599" y1="80" x2="4887" y2="80"  name=l_19 visible="1" pen.style="0" pen.width="5" pen.color="0"  background.mode="2" background.color="0" )
+line(band=summary x1="4599" y1="88" x2="4887" y2="88"  name=l_20 visible="1" pen.style="0" pen.width="5" pen.color="0"  background.mode="2" background.color="0" )
+rectangle(band=summary x="663" y="0" height="276" width="201"  name=r_12 visible="1"  hidesnaked=1 brush.hatch="6" brush.color="12639424~trgb(231,236,237)" pen.style="5" pen.width="5" pen.color="0"  background.mode="2" background.color="0" )
+rectangle(band=summary x="878" y="0" height="276" width="279"  name=r_65 visible="1"  hidesnaked=1 brush.hatch="6" brush.color="12639424~trgb(236,233,239)" pen.style="5" pen.width="5" pen.color="0"  background.mode="2" background.color="0" )
+text(band=summary alignment="1" text="Total :" border="0" color="33554432" x="160" y="8" height="64" width="215" html.valueishtml="0"  name=t_12 visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="2" background.color="1073741824" )
+compute(band=summary alignment="1" expression="sum(secarea for all)"border="0" color="33554432" x="448" y="8" height="64" width="197" format="#,##0.00" html.valueishtml="0"  name=ty_area visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="553648127" )
+compute(band=summary alignment="1" expression="sum(tot_tot_cost_ytd  for all) / ty_area"border="0" color="33554432" x="4599" y="8" height="64" width="288" format="#,###" html.valueishtml="0"  name=compute_12 visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="553648127" )
+compute(band=summary alignment="1" expression="if(isnull(total_una_ly),0,total_una_ly) + if(isnull(ind_ly),0,ind_ly)"border="0" color="33554432" x="4297" y="108" height="64" width="288" format="#,###" html.valueishtml="0"  name=compute_14 visible="1"  font.face="Times New Roman" font.height="-9" font.weight="400"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="553648127" )
+compute(band=summary alignment="1" expression="ra_totcost_ly_ytd /  lyr_area "border="0" color="33554432" x="4599" y="108" height="64" width="288" format="#,###" html.valueishtml="0"  name=compute_1 visible="1"  font.face="Times New Roman" font.height="-9" font.weight="400"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="553648127" )
+compute(band=summary alignment="1" expression="if(isnull(total_una_py),0,total_una_py) + if(isnull(ind_py),0,ind_py)"border="0" color="33554432" x="4297" y="200" height="64" width="288" format="#,###" html.valueishtml="0"  name=compute_17 visible="1"  font.face="Times New Roman" font.height="-9" font.weight="400"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="553648127" )
+compute(band=summary alignment="1" expression="ra_totcost_py_ytd /  pyr_area "border="0" color="33554432" x="4599" y="200" height="64" width="288" format="#,###" html.valueishtml="0"  name=compute_10 visible="1"  font.face="Times New Roman" font.height="-9" font.weight="400"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="553648127" )
+compute(band=footer alignment="2" expression="'Page ' + page() + ' of ' + pageCount()"border="0" color="33554432" x="2071" y="4" height="64" width="786" format="[general]" html.valueishtml="0"  name=page_1 visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="2" background.color="1073741824" )
+text(band=footer alignment="0" text="YTD - Year Todate; LYTD - Last Year Todate; HYTD - Highest Yield To Date;  LYY - Last Year Yield; HYY - Highest Year Yield" border="0" color="33554432" x="23" y="80" height="48" width="2304" html.valueishtml="0"  name=t_14 visible="1"  font.face="Times New Roman" font.height="-7" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="553648127" )
+text(band=footer alignment="1" text="Cost && Yield" border="0" color="33554432" x="4219" y="4" height="64" width="695" html.valueishtml="0"  name=t_9 visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+htmltable(border="1" )
+htmlgen(clientevents="1" clientvalidation="1" clientcomputedfields="1" clientformatting="0" clientscriptable="0" generatejavascript="1" encodeselflinkargs="1" netscapelayers="0" pagingmethod=0 generatedddwframes="1" )
+xhtmlgen() cssgen(sessionspecific="0" )
+xmlgen(inline="0" )
+xsltgen()
+jsgen()
+export.xml(headgroups="1" includewhitespace="0" metadatatype=0 savemetadata=0 )
+import.xml()
+export.pdf(method=0 distill.custompostscript="0" xslfop.print="0" )
+export.xhtml()
+ 

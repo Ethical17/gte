@@ -1,0 +1,54 @@
+﻿$PBExportHeader$atw_teen.srf
+global type atw_teen from function_object
+end type
+
+forward prototypes
+global function string atw_teen (long anyvalue)
+end prototypes
+
+global function string atw_teen (long anyvalue);CHOOSE CASE anyvalue
+	CASE 1
+		return "One"
+	CASE 2
+		return "Two"
+	CASE 3
+		return "Three"
+	CASE 4
+		return "Four"
+	CASE 5
+		return "Five"
+	CASE 6
+		return "Six"
+	CASE 7
+		return "Seven"
+	CASE 8
+		return "Eight"
+	CASE 9
+		return "Nine"
+	CASE 9
+		return "Nine"
+	CASE 10
+		return "Ten"
+	CASE 11
+		return "Eleven"
+	CASE 12
+		return "Twelve"
+	CASE 13
+		return "Thirteen"
+	CASE 14
+		return "Fourteen"
+	CASE 15
+		return "Fifteen"
+	CASE 16
+		return "Sixteen"
+	CASE 17
+		return "Seventeen"
+	CASE 18
+		return "Eighteen"
+	CASE 19
+		return "Nineteen"
+
+END CHOOSE
+ return ""
+end function
+

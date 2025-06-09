@@ -1,0 +1,62 @@
+﻿$PBExportHeader$dw_gteinr009.srd
+release 10.5;
+datawindow(units=0 timer_interval=0 color=1073741824 processing=0 HTMLDW=no print.printername="" print.documentname="" print.orientation = 0 print.margin.left = 110 print.margin.right = 110 print.margin.top = 96 print.margin.bottom = 96 print.paper.source = 0 print.paper.size = 0 print.canusedefaultprinter=yes print.prompt=no print.buttons=no print.preview.buttons=no print.cliptext=no print.overrideprintjob=no print.collate=yes print.preview.outline=yes hidegrayline=no )
+header(height=436 color="536870912" )
+summary(height=0 color="536870912" )
+footer(height=84 color="536870912" )
+detail(height=92 color="536870912" )
+table(column=(type=char(78) updatewhereclause=yes name=sup_name dbname="sup_name" )
+ column=(type=char(25) updatewhereclause=yes name=lpi_id dbname="fb_localpurchaseinvoice.lpi_id" dbalias="a.lpi_id" )
+ column=(type=datetime updatewhereclause=yes name=lpi_date dbname="fb_localpurchaseinvoice.lpi_date" dbalias="a.lpi_date" )
+ column=(type=decimal(3) updatewhereclause=yes name=invoice_amt dbname="fb_localpurchaseinvoice.invoice_amt" dbalias="a.invoice_amt" )
+ column=(type=number updatewhereclause=yes name=vat_on_tot dbname="vat_on_tot" )
+ column=(type=decimal(2) updatewhereclause=yes name=saletax dbname="fb_lpidetails.lpi_saletax" dbalias="b.lpi_saletax" )
+ column=(type=number updatewhereclause=yes name=vat_amount dbname="vat_amount" )
+ column=(type=datetime updatewhereclause=yes name=receiving_dt dbname="fb_localpurchaseinvoice.receiving_dt" dbalias="a.receiving_dt" )
+ retrieve="select  initcap(SUP_NAME)||' ('||c.SUP_ID||')' SUP_NAME,a.LPI_ID, LPI_DATE,LPI_NETAMO Invoice_Amt, 
+            sum(LPI_EFFECTIVEUNITPRICE* LPI_QUANTITY)Vat_on_tot,b.LPI_SALETAX,   
+            ((sum(LPI_EFFECTIVEUNITPRICE* LPI_QUANTITY) - nvl(b.LPI_DISCOUNT,0)) * b.LPI_SALETAX) / 100 Vat_Amount ,
+           LPI_VOU_DT Receiving_Dt       
+  from  fb_localpurchaseinvoice a,fb_lpidetails b,fb_localpurchaseorder c,fb_supplier d
+where a.LPI_ID=b.LPI_ID and a.LPO_ID=c.LPO_ID(+) and c.SUP_ID=d.SUP_ID(+) and nvl(a.LPI_SALETAX,0)>0 and
+           trunc(LPI_DATE)between TO_DATE (:ra_fr_dt, 'DD/MM/YYYY') and TO_DATE (:ra_to_dt, 'DD/MM/YYYY')
+group by initcap(SUP_NAME)||' ('||c.SUP_ID||')',a.LPI_ID, LPI_DATE,LPI_NETAMO, b.LPI_SALETAX,b.LPI_DISCOUNT,LPI_VOU_DT" arguments=(("ra_fr_dt", string),("ra_to_dt", string)) )
+group(level=1 header.height=84 trailer.height=108 by=("sup_name" ) header.color="536870912" trailer.color="536870912" )
+text(band=header alignment="0" text="Luxmi Tea Co." border="0" color="33554432" x="9" y="28" height="64" width="549" html.valueishtml="0"  name=t_co visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+text(band=header alignment="0" text="Gteinr009" border="0" color="33554432" x="9" y="92" height="64" width="242" html.valueishtml="0"  name=t_1 visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+text(band=header alignment="0" text="Invoice Id" border="0" color="33554432" x="32" y="356" height="64" width="229" html.valueishtml="0"  name=lpi_id_t visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+text(band=header alignment="2" text="InvoiceDate" border="0" color="33554432" x="443" y="288" height="128" width="261" html.valueishtml="0"  name=lpi_date_t visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+text(band=header alignment="1" text="InvoiceAmount" border="0" color="33554432" x="791" y="288" height="128" width="261" html.valueishtml="0"  name=invoice_amt_t visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+line(band=header x1="23" y1="424" x2="2784" y2="424"  name=l_1 visible="1" pen.style="0" pen.width="5" pen.color="33554432"  background.mode="2" background.color="1073741824" )
+text(band=header alignment="2" text="" border="0" color="33554432" x="425" y="116" height="64" width="1961" html.valueishtml="0"  name=t_gnm visible="1"  hidesnaked=1  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912"  height.autosize=yes)
+compute(band=header alignment="2" expression="'Entry Tax Report From '+ ra_fr_dt + ' To '+ ra_to_dt "border="0" color="33554432" x="741" y="12" height="64" width="1330" format="[GENERAL]" html.valueishtml="0"  name=compute_1 visible="1"  font.face="Times New Roman" font.height="-10" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+compute(band=header alignment="1" expression="today()"border="0" color="33554432" x="2409" y="32" height="84" width="329" format="[general]" html.valueishtml="0"  name=date_1 visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+text(band=header alignment="1" text="EntryTax %" border="0" color="33554432" x="1623" y="284" height="128" width="242" html.valueishtml="0"  name=saletax_t visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+text(band=header alignment="1" text="EntryTax Amount" border="0" color="33554432" x="1993" y="288" height="128" width="343" html.valueishtml="0"  name=vat_amount_t visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+text(band=header alignment="2" text="Receiving Date" border="0" color="33554432" x="2441" y="288" height="128" width="270" html.valueishtml="0"  name=receiving_dt_t visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+text(band=header alignment="1" text="Entry Tax On Total" border="0" color="33554432" x="1115" y="288" height="128" width="315" html.valueishtml="0"  name=vat_on_tot_t visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+column(band=header.1 id=1 alignment="0" tabsequence=32766 border="0" color="33554432" x="288" y="4" height="72" width="1280" format="[general]" html.valueishtml="0"  name=sup_name visible="1" edit.limit=0 edit.case=any edit.focusrectangle=no edit.autoselect=no  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="2" font.pitch="2" font.charset="0" background.mode="2" background.color="1073741824" )
+text(band=header.1 alignment="0" text="Supplier :" border="0" color="33554432" x="32" y="8" height="64" width="242" html.valueishtml="0"  name=sup_name_t visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+column(band=detail id=2 alignment="0" tabsequence=32766 border="0" color="33554432" x="14" y="4" height="76" width="453" format="[general]" html.valueishtml="0"  name=lpi_id visible="1" edit.limit=0 edit.case=any edit.focusrectangle=no edit.autoselect=no  font.face="Times New Roman" font.height="-9" font.weight="400"  font.family="2" font.pitch="2" font.charset="0" background.mode="2" background.color="1073741824" )
+column(band=detail id=3 alignment="0" tabsequence=32766 border="0" color="33554432" x="443" y="8" height="76" width="352" format="dd/mm/yyyy" html.valueishtml="0"  name=lpi_date visible="1" edit.limit=0 edit.case=any edit.focusrectangle=no edit.autoselect=no  font.face="Times New Roman" font.height="-9" font.weight="400"  font.family="2" font.pitch="2" font.charset="0" background.mode="2" background.color="1073741824" )
+column(band=detail id=4 alignment="1" tabsequence=32766 border="0" color="33554432" x="791" y="8" height="76" width="261" format="#,##0.00" html.valueishtml="0"  name=invoice_amt visible="1" edit.limit=0 edit.case=any edit.focusrectangle=no edit.autoselect=no  font.face="Times New Roman" font.height="-9" font.weight="400"  font.family="2" font.pitch="2" font.charset="0" background.mode="2" background.color="1073741824" )
+column(band=detail id=6 alignment="1" tabsequence=32766 border="0" color="33554432" x="1609" y="12" height="64" width="256" format="#,##0.00" html.valueishtml="0"  name=saletax visible="1" edit.limit=0 edit.case=any edit.focusrectangle=no edit.autoselect=no  font.face="Times New Roman" font.height="-9" font.weight="400"  font.family="2" font.pitch="2" font.charset="0" background.mode="2" background.color="1073741824" )
+column(band=detail id=7 alignment="1" tabsequence=32766 border="0" color="33554432" x="1906" y="8" height="76" width="434" format="#,##0.00" html.valueishtml="0"  name=vat_amount visible="1" edit.limit=0 edit.case=any edit.focusrectangle=no edit.autoselect=no  font.face="Times New Roman" font.height="-9" font.weight="400"  font.family="2" font.pitch="2" font.charset="0" background.mode="2" background.color="1073741824" )
+column(band=detail id=8 alignment="2" tabsequence=32766 border="0" color="33554432" x="2441" y="8" height="64" width="270" format="dd/mm/yyyy" html.valueishtml="0"  name=receiving_dt visible="1" edit.limit=0 edit.case=any edit.focusrectangle=no edit.autoselect=no  font.face="Times New Roman" font.height="-9" font.weight="400"  font.family="2" font.pitch="2" font.charset="0" background.mode="2" background.color="1073741824" )
+column(band=detail id=5 alignment="1" tabsequence=32766 border="0" color="33554432" x="1115" y="8" height="76" width="315" format="#,##0.00" html.valueishtml="0"  name=vat_on_tot visible="1" edit.limit=0 edit.case=any edit.focusrectangle=no edit.autoselect=no  font.face="Times New Roman" font.height="-9" font.weight="400"  font.family="2" font.pitch="2" font.charset="0" background.mode="2" background.color="1073741824" )
+line(band=trailer.1 x1="1582" y1="4" x2="2464" y2="4"  name=l_2 visible="1" pen.style="0" pen.width="5" pen.color="134217744"  background.mode="2" background.color="1073741824" )
+line(band=trailer.1 x1="1582" y1="100" x2="2464" y2="100"  name=l_3 visible="1" pen.style="0" pen.width="5" pen.color="134217744"  background.mode="2" background.color="1073741824" )
+text(band=trailer.1 alignment="1" text="Total :" border="0" color="33554432" x="1673" y="24" height="64" width="192" html.valueishtml="0"  name=t_4 visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+compute(band=trailer.1 alignment="1" expression="sum(vat_amount for group 1)"border="0" color="33554432" x="1906" y="16" height="76" width="434" format="#,##0.00" html.valueishtml="0"  name=compute_2 visible="1"  font.face="Times New Roman" font.height="-9" font.weight="400"  font.family="1" font.pitch="2" font.charset="0" background.mode="2" background.color="1073741824" )
+compute(band=footer alignment="2" expression="'Page ' + page() + ' of ' + pageCount()"border="0" color="33554432" x="1074" y="12" height="72" width="654" format="[general]" html.valueishtml="0"  name=page_1 visible="1"  font.face="Times New Roman" font.height="-9" font.weight="400"  font.family="1" font.pitch="2" font.charset="0" background.mode="2" background.color="1073741824" )
+htmltable(border="1" )
+htmlgen(clientevents="1" clientvalidation="1" clientcomputedfields="1" clientformatting="0" clientscriptable="0" generatejavascript="1" encodeselflinkargs="1" netscapelayers="0" pagingmethod=0 generatedddwframes="1" )
+xhtmlgen() cssgen(sessionspecific="0" )
+xmlgen(inline="0" )
+xsltgen()
+jsgen()
+export.xml(headgroups="1" includewhitespace="0" metadatatype=0 savemetadata=0 )
+import.xml()
+export.pdf(method=0 distill.custompostscript="0" xslfop.print="0" )
+export.xhtml()
+ 

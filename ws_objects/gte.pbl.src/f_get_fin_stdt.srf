@@ -1,0 +1,20 @@
+﻿$PBExportHeader$f_get_fin_stdt.srf
+global type f_get_fin_stdt from function_object
+end type
+
+forward prototypes
+global function string f_get_fin_stdt ()
+end prototypes
+
+global function string f_get_fin_stdt ();long ll_st_year,ll_end_year
+if long(string(today(),'mm')) < 4 then
+	ll_st_year  = ((long(string(today(),'YYYY'))-1)*100)+4;
+	ll_end_year = (long(string(today(),'YYYY'))*100)+3;
+else
+	ll_st_year  = (long(string(today(),'YYYY'))*100)+4;
+	ll_end_year = ((long(string(today(),'YYYY'))+1)*100)+3;
+end if;
+
+return string(ll_st_year)
+end function
+

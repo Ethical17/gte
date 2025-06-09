@@ -1,0 +1,37 @@
+﻿$PBExportHeader$dw_stock2.srd
+release 10.5;
+datawindow(units=0 timer_interval=0 color=1073741824 processing=0 HTMLDW=no print.printername="" print.documentname="" print.orientation = 0 print.margin.left = 110 print.margin.right = 110 print.margin.top = 96 print.margin.bottom = 96 print.paper.source = 0 print.paper.size = 0 print.canusedefaultprinter=yes print.prompt=no print.buttons=no print.preview.buttons=no print.cliptext=no print.overrideprintjob=no print.collate=yes print.preview.outline=yes hidegrayline=no )
+header(height=136 color="536870912" )
+summary(height=80 color="536870912" )
+footer(height=0 color="536870912" )
+detail(height=84 color="536870912" )
+table(column=(type=char(25) updatewhereclause=yes name=fb_dailydryerunsorted_tpc_id dbname="fb_dailydryerunsorted.tpc_id" dbalias="ddu.tpc_id" )
+ column=(type=datetime updatewhereclause=yes name=fb_dailydryerproduct_pludate dbname="fb_dailydryerproduct.pludate" dbalias="ddp.pludate" )
+ column=(type=number updatewhereclause=yes name=qty dbname="qty" )
+ retrieve="SELECT ddu.tpc_id tpc_id, ddp.ddp_pluckingdate pludate, NVL(SUM(ddu.ddu_quantity), 0) qty 
+ FROM fb_dailydryerproduct ddp, fb_dailydryerunsorted ddu 
+ WHERE ddp.ddp_pk = ddu.ddp_pk AND ddp.ddp_type <> 'O' 
+ GROUP BY (ddu.tpc_id, ddp.ddp_pluckingdate)" arguments=(("ra_frdt", string),("ra_todt", string)) )
+text(band=header alignment="2" text="Date" border="0" color="33554432" x="5" y="40" height="64" width="297" html.valueishtml="0"  name=compute_0001_t visible="1"  font.face="Tahoma" font.height="-10" font.weight="700"  font.family="2" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+text(band=header alignment="1" text="Madetea" border="0" color="33554432" x="393" y="40" height="64" width="398" html.valueishtml="0"  name=compute_0002_t visible="1"  font.face="Tahoma" font.height="-10" font.weight="700"  font.family="2" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+text(band=header alignment="1" text="Excess" border="0" color="33554432" x="864" y="40" height="64" width="398" html.valueishtml="0"  name=fb_glforproduction_glfp_pluckingdate_t visible="1"  font.face="Tahoma" font.height="-10" font.weight="700"  font.family="2" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+text(band=header alignment="1" text="Despatch" border="0" color="33554432" x="1335" y="40" height="64" width="398" html.valueishtml="0"  name=t_1 visible="1"  font.face="Tahoma" font.height="-10" font.weight="700"  font.family="2" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+text(band=header alignment="1" text="Sorted" border="0" color="33554432" x="1760" y="40" height="64" width="398" html.valueishtml="0"  name=t_2 visible="1"  font.face="Tahoma" font.height="-10" font.weight="700"  font.family="2" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+text(band=header alignment="1" text="Packed" border="0" color="33554432" x="2181" y="40" height="64" width="398" html.valueishtml="0"  name=t_3 visible="1"  font.face="Tahoma" font.height="-10" font.weight="700"  font.family="2" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+text(band=header alignment="1" text="Factory Stk" border="0" color="33554432" x="2619" y="40" height="64" width="398" html.valueishtml="0"  name=t_4 visible="1"  font.face="Tahoma" font.height="-10" font.weight="700"  font.family="2" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+line(band=header x1="9" y1="120" x2="3058" y2="120"  name=l_1 visible="1" pen.style="0" pen.width="5" pen.color="33554432"  background.mode="2" background.color="1073741824" )
+compute(band=summary alignment="1" expression="/* sum(stk for all) */"border="0" color="33554432" x="745" y="4" height="64" width="352" format="[general]" html.valueishtml="0"  name=compute_1 visible="1"  font.face="Tahoma" font.height="-10" font.weight="700"  font.family="2" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+column(band=detail id=1 alignment="0" tabsequence=0 border="0" color="33554432" x="3058" y="0" height="64" width="800" html.valueishtml="0"  name=fb_dailydryerunsorted_tpc_id visible="1" edit.limit=0 edit.case=any edit.focusrectangle=no edit.autoselect=no  font.face="Tahoma" font.height="-10" font.weight="700"  font.family="2" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+column(band=detail id=2 alignment="0" tabsequence=0 border="0" color="33554432" x="3858" y="0" height="64" width="352" html.valueishtml="0"  name=fb_dailydryerproduct_pludate visible="1" edit.limit=0 edit.case=any edit.focusrectangle=no edit.autoselect=no  font.face="Tahoma" font.height="-10" font.weight="700"  font.family="2" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+column(band=detail id=3 alignment="0" tabsequence=0 border="0" color="33554432" x="4210" y="0" height="64" width="4686" html.valueishtml="0"  name=qty visible="1" edit.limit=0 edit.case=any edit.focusrectangle=no edit.autoselect=no  font.face="Tahoma" font.height="-10" font.weight="700"  font.family="2" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+htmltable(border="1" )
+htmlgen(clientevents="1" clientvalidation="1" clientcomputedfields="1" clientformatting="0" clientscriptable="0" generatejavascript="1" encodeselflinkargs="1" netscapelayers="0" pagingmethod=0 generatedddwframes="1" )
+xhtmlgen() cssgen(sessionspecific="0" )
+xmlgen(inline="0" )
+xsltgen()
+jsgen()
+export.xml(headgroups="1" includewhitespace="0" metadatatype=0 savemetadata=0 )
+import.xml()
+export.pdf(method=0 distill.custompostscript="0" xslfop.print="0" )
+export.xhtml()
+ 

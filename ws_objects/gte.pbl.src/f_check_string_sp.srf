@@ -1,0 +1,44 @@
+﻿$PBExportHeader$f_check_string_sp.srf
+global type f_check_string_sp from function_object
+end type
+
+forward prototypes
+global function integer f_check_string_sp (string fs_value)
+end prototypes
+
+global function integer f_check_string_sp (string fs_value);long l_ctr,i,l_ascii
+string ls_char
+
+select length(:fs_value) into :l_ctr from dual;
+for i = 1 to l_ctr
+	select substr(:fs_value,:i,1) into :ls_char from dual;
+	select ascii(:ls_char) into :l_ascii from dual;
+	//32 33 34 35 36 37 38 39 40 41 43 44 45 46 47 58 59 60 61 62 63 64 91 92 93 94 95 96 123 124 125 126
+	//45 - 40 ( 41 ) 46 . 44 ,
+	if (l_ascii > 32 and l_ascii < 40)  then
+ 		messagebox("Alert !","Special character ("+ ls_char +") is not allowed !!!")
+		return -1
+	elseif (l_ascii > 41 and l_ascii < 44)  then
+		messagebox("Alert !","Special character ("+ ls_char +") is not allowed !!!")
+		return -1
+	elseif (l_ascii > 46 and l_ascii < 48)  then
+		messagebox("Alert !","Special character ("+ ls_char +") is not allowed !!!")
+		return -1
+	elseif (l_ascii > 57 and l_ascii < 65) then
+		messagebox("Alert !","Special character ("+ ls_char +") is not allowed !!!")
+		return -1
+	elseif	(l_ascii > 90 and l_ascii < 97) then
+		messagebox("Alert !","Special character ("+ ls_char +") is not allowed !!!")
+		return -1
+	elseif	(l_ascii > 122 and l_ascii < 127) then
+		messagebox("Alert !","Special character ("+ ls_char +") is not allowed !!!")
+		return -1
+//	elseif	(l_ascii > 47 and l_ascii < 58) then
+//		messagebox("Alert !","Numeric value ("+ ls_char +") is not allowed !!!")
+//		return -1
+	end if
+next 
+
+return 1
+end function
+

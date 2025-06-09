@@ -1,0 +1,24 @@
+﻿$PBExportHeader$f_count_weekends.srf
+global type f_count_weekends from function_object
+end type
+
+forward prototypes
+global function integer f_count_weekends (date ld_start_date, date ld_end_date)
+end prototypes
+
+global function integer f_count_weekends (date ld_start_date, date ld_end_date);long  ll_count 
+date  ld_date
+string ls_text
+
+ld_date = ld_start_date;
+do while ld_date < ld_end_date
+  ls_text = dayname(ld_date);
+	if upper(trim(ls_text)) = 'SUNDAY' then
+		ll_count = ll_count +1;
+	end if;
+select (:ld_date + 1) into :ld_date from dual;	
+loop
+
+return ll_count
+end function
+

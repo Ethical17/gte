@@ -1,0 +1,57 @@
+﻿$PBExportHeader$dw_attninc_det.srd
+release 10.5;
+datawindow(units=0 timer_interval=0 color=1073741824 processing=0 HTMLDW=no print.printername="" print.documentname="" print.orientation = 0 print.margin.left = 110 print.margin.right = 110 print.margin.top = 96 print.margin.bottom = 96 print.paper.source = 0 print.paper.size = 0 print.canusedefaultprinter=yes print.prompt=no print.buttons=no print.preview.buttons=no print.cliptext=no print.overrideprintjob=no print.collate=yes print.preview.outline=yes hidegrayline=no )
+header(height=72 color="536870912" )
+summary(height=0 color="536870912" )
+footer(height=0 color="536870912" )
+detail(height=84 color="536870912" )
+table(column=(type=decimal(0) update=yes updatewhereclause=yes name=ls_id dbname="fb_employee.ls_id" )
+ column=(type=char(25) update=yes updatewhereclause=yes name=lwwid dbname="fb_employee.lwwid" )
+ column=(type=datetime update=yes updatewhereclause=yes name=lww_startdate dbname="fb_employee.lww_startdate" )
+ column=(type=datetime update=yes updatewhereclause=yes name=lww_enddate dbname="fb_employee.lww_enddate" )
+ column=(type=char(25) update=yes updatewhereclause=yes key=yes name=emp_id dbname="fb_employee.emp_id" )
+ column=(type=char(30) update=yes updatewhereclause=yes name=emp_name dbname="fb_employee.emp_name" )
+ column=(type=number update=yes updatewhereclause=yes name=totdaya dbname="totdaya" )
+ retrieve="select ls_id,lwwid,lww_startdate,lww_enddate,emp.emp_id,emp_name,
+    (((nvl(fullhajiradays,0) - nvl(susdays,0) ) + nvl(sickwagesdays,0) + nvl(mdays,0) +  nvl(holidaypayday,0) ) + nvl(halfhajiradays,0)) totdaya
+   from (select lda.lww_id lwwid,lww_startdate,lww_enddate,lda.labour_id labourid,
+     sum(decode(trim(kam.kamsub_nkamtype),'MATERNITY',nvl(lda_status,0),0)) mdays,
+     sum(decode(trim(kam.kamsub_nkamtype),'SICKALLOWANCE',decode(nvl(lda_wages,0),0,0,lda_status),'SICKNOWAGES',decode(nvl(lda_wages,0),0,0,lda_status),0)) sickwagesdays,
+     sum(decode(trim(kam.kamsub_nkamtype),'HOLIDAYPAY',nvl(lda_status,0),0)) holidaypayday,
+     sum(decode(trim(kam.kamsub_nkamtype),'MATERNITY',decode(nvl(lda_wages,0),0,0,lda_status),'SICKALLOWANCE',decode(nvl(lda_wages,0),0,0,lda_status),'SICKNOWAGES',decode(nvl(lda_wages,0),0,0,lda_status),'OTHERS',decode(nvl(lda_wages,0),0,0,lda_status),decode(nvl(lda_wages,0),0,0,lda_status) )) withpaydays,
+     sum(decode(trim(KAMSUB_NAME),'LWW',nvl(lda_status,0),0)) lwwdays,
+     sum(decode(trim(KAMSUB_NAME),'SUS',nvl(lda_status,0),0)) susdays,
+     sum(decode(trim(kam.kamsub_nkamtype),'OTHERS',decode(lda_status,1,1,0),0)) fullhajiradays,
+     sum(decode(trim(kam.kamsub_nkamtype),'OTHERS',decode(to_number(lda_status),0.5,1,0.25,1,0.75,1,0),0)) halfhajiradays
+    from fb_labourdailyattendance lda,fb_kamsubhead kam,fb_labourwagesweek lp
+   where lda.kamsub_id=kam.kamsub_id  and nvl(KAMSUB_ACTIVE_IND,'N') = 'Y' and lda.lww_id= lp.lww_id 
+   group by lda.lww_id,lda.labour_id,lww_startdate,lww_enddate) lkw,
+   fb_employee emp
+  where emp.emp_id=lkw.labourid(+) and 
+	lkw.lwwid in ('LWW0000000322','LWW0000000323','LWW0000000324','LWW0000000325',
+		      'LWW0000000326','LWW0000000327','LWW0000000328','LWW0000000329')" update="fb_employee" updatewhere=1 updatekeyinplace=no  sort="ls_id A emp_id A emp_name A lww_startdate A lww_enddate A lwwid A " )
+text(band=header alignment="2" text="Ls Id" border="0" color="33554432" x="5" y="4" height="64" width="329" html.valueishtml="0"  name=ls_id_t visible="1"  font.face="Tahoma" font.height="-10" font.weight="400"  font.family="2" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+text(band=header alignment="2" text="Lwwid" border="0" color="33554432" x="338" y="4" height="64" width="713" html.valueishtml="0"  name=lwwid_t visible="1"  font.face="Tahoma" font.height="-10" font.weight="400"  font.family="2" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+text(band=header alignment="2" text="Lww Startdate" border="0" color="33554432" x="1056" y="4" height="64" width="603" html.valueishtml="0"  name=lww_startdate_t visible="1"  font.face="Tahoma" font.height="-10" font.weight="400"  font.family="2" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+text(band=header alignment="2" text="Lww Enddate" border="0" color="33554432" x="1664" y="4" height="64" width="603" html.valueishtml="0"  name=lww_enddate_t visible="1"  font.face="Tahoma" font.height="-10" font.weight="400"  font.family="2" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+text(band=header alignment="2" text="Emp Id" border="0" color="33554432" x="2272" y="4" height="64" width="713" html.valueishtml="0"  name=emp_id_t visible="1"  font.face="Tahoma" font.height="-10" font.weight="400"  font.family="2" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+text(band=header alignment="2" text="Emp Name" border="0" color="33554432" x="2990" y="4" height="64" width="850" html.valueishtml="0"  name=emp_name_t visible="1"  font.face="Tahoma" font.height="-10" font.weight="400"  font.family="2" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+text(band=header alignment="2" text="Totdaya" border="0" color="33554432" x="3845" y="4" height="64" width="329" html.valueishtml="0"  name=totdaya_t visible="1"  font.face="Tahoma" font.height="-10" font.weight="400"  font.family="2" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+column(band=detail id=1 alignment="1" tabsequence=10 border="0" color="33554432" x="5" y="4" height="76" width="329" format="[general]" html.valueishtml="0"  name=ls_id visible="1" edit.limit=0 edit.case=any edit.autoselect=yes edit.autohscroll=yes  font.face="Tahoma" font.height="-10" font.weight="400"  font.family="2" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+column(band=detail id=2 alignment="0" tabsequence=20 border="0" color="33554432" x="338" y="4" height="76" width="713" format="[general]" html.valueishtml="0"  name=lwwid visible="1" edit.limit=25 edit.case=any edit.autoselect=yes edit.autohscroll=yes  font.face="Tahoma" font.height="-10" font.weight="400"  font.family="2" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+column(band=detail id=3 alignment="0" tabsequence=30 border="0" color="33554432" x="1056" y="4" height="76" width="603" format="[shortdate] [time]" html.valueishtml="0"  name=lww_startdate visible="1" edit.limit=0 edit.case=any edit.autoselect=yes edit.autohscroll=yes  font.face="Tahoma" font.height="-10" font.weight="400"  font.family="2" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+column(band=detail id=4 alignment="0" tabsequence=40 border="0" color="33554432" x="1664" y="4" height="76" width="603" format="[shortdate] [time]" html.valueishtml="0"  name=lww_enddate visible="1" edit.limit=0 edit.case=any edit.autoselect=yes edit.autohscroll=yes  font.face="Tahoma" font.height="-10" font.weight="400"  font.family="2" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+column(band=detail id=5 alignment="0" tabsequence=50 border="0" color="33554432" x="2272" y="4" height="76" width="713" format="[general]" html.valueishtml="0"  name=emp_id visible="1" edit.limit=25 edit.case=any edit.autoselect=yes edit.autohscroll=yes  font.face="Tahoma" font.height="-10" font.weight="400"  font.family="2" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+column(band=detail id=6 alignment="0" tabsequence=60 border="0" color="33554432" x="2990" y="4" height="76" width="850" format="[general]" html.valueishtml="0"  name=emp_name visible="1" edit.limit=30 edit.case=any edit.autoselect=yes edit.autohscroll=yes  font.face="Tahoma" font.height="-10" font.weight="400"  font.family="2" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+column(band=detail id=7 alignment="1" tabsequence=70 border="0" color="33554432" x="3845" y="4" height="76" width="329" format="[general]" html.valueishtml="0"  name=totdaya visible="1" edit.limit=0 edit.case=any edit.autoselect=yes edit.autohscroll=yes  font.face="Tahoma" font.height="-10" font.weight="400"  font.family="2" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+htmltable(border="1" )
+htmlgen(clientevents="1" clientvalidation="1" clientcomputedfields="1" clientformatting="0" clientscriptable="0" generatejavascript="1" encodeselflinkargs="1" netscapelayers="0" pagingmethod=0 generatedddwframes="1" )
+xhtmlgen() cssgen(sessionspecific="0" )
+xmlgen(inline="0" )
+xsltgen()
+jsgen()
+export.xml(headgroups="1" includewhitespace="0" metadatatype=0 savemetadata=0 )
+import.xml()
+export.pdf(method=0 distill.custompostscript="0" xslfop.print="0" )
+export.xhtml()
+ 

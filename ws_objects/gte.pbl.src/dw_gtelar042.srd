@@ -1,0 +1,76 @@
+﻿$PBExportHeader$dw_gtelar042.srd
+release 10.5;
+datawindow(units=0 timer_interval=0 color=1073741824 processing=0 HTMLDW=no print.printername="" print.documentname="" print.orientation = 0 print.margin.left = 50 print.margin.right = 50 print.margin.top = 96 print.margin.bottom = 96 print.paper.source = 0 print.paper.size = 0 print.canusedefaultprinter=yes print.prompt=no print.buttons=no print.preview.buttons=no print.cliptext=no print.overrideprintjob=no print.collate=yes print.preview.outline=yes hidegrayline=no )
+header(height=388 color="536870912" )
+summary(height=88 color="536870912" )
+footer(height=76 color="536870912" )
+detail(height=76 color="536870912" )
+table(column=(type=char(30) updatewhereclause=yes name=empname dbname="fb_field.empname" )
+ column=(type=char(25) updatewhereclause=yes name=empid dbname="fb_field.empid" )
+ column=(type=char(6) updatewhereclause=yes name=sex dbname="fb_field.sex" )
+ column=(type=char(9) updatewhereclause=yes name=status dbname="fb_field.status" )
+ column=(type=number updatewhereclause=yes name=hajira dbname="fb_field.hajira" )
+ column=(type=number updatewhereclause=yes name=absent dbname="fb_field.absent" )
+ column=(type=number updatewhereclause=yes name=absentper dbname="absentper" )
+ column=(type=char(25) updatewhereclause=yes name=field_manid dbname="fb_field.field_manid" )
+ retrieve=" SELECT empname, empid, a.SEX, a.STATUS, a.HAJIRA, a.ABSENT, (a.ABSENT / totdays * 100) absentper , b.FIELD_MANID
+ FROM (SELECT emp.field_id FIELD_ID, initcap(EMP_NAME) empname, labour_id empid, emp_type EMPTYPE, count(lda_date) totdays,
+              DECODE (SIGN (lda.lda_date - emp.emp_dob - 6570),1,'Adult',DECODE (SIGN (lda.lda_date - emp.emp_dob - 5840),1,'Adolesent','Child'))status,
+              DECODE (emp.emp_sex, 'M', 'Male', 'F', 'Female') sex,
+              SUM(DECODE(TRIM (kam.kamsub_nkamtype),'ABSENT', 1,0)) absent,
+              SUM(DECODE(TRIM (kam.kamsub_nkamtype),'ANNUALLEAVE', 1,0)) annualleave,
+              SUM(DECODE(TRIM (kam.kamsub_nkamtype),'CASUALLEAVE', 1,0)) casualleave, 
+              SUM(DECODE(TRIM (kam.kamsub_nkamtype),'HOLIDAYNOPAY', 1,0)) holidaynopay,
+              SUM(DECODE(TRIM (kam.kamsub_nkamtype),'HOLIDAYPAY', 1,0)) holidaypay,
+              SUM(DECODE(TRIM (kam.kamsub_nkamtype),'MATERNITY', 1,0)) maternity,
+              SUM(DECODE (TRIM (kam.kamsub_nkamtype),'SICKALLOWANCE', 1,0)) sickallowance,
+              SUM(DECODE (TRIM (kam.kamsub_nkamtype),'SICKNOWAGES', 1,0)) sicknowages,
+              SUM(DECODE (TRIM (kam.kamsub_nkamtype),'OTHERS', 1,'SICKATTENDANCE', 1,'SUBSTINANCEALLOWANCE', 1,'ACCIDENTHAZIRA', 1,0)) hajira
+         FROM fb_employee emp,fb_labourdailyattendance lda,fb_kamsubhead kam       
+        WHERE emp.emp_id = lda.labour_id(+) AND lda.kamsub_id = kam.kamsub_id  and ls_id is not null and  emp_active ='1' and 
+                    nvl(KAMSUB_ACTIVE_IND,'Y') = 'Y' and trunc(lda.lda_date) between to_date(:ra_frdt,'dd/mm/yyyy') AND to_date(:ra_todt,'dd/mm/yyyy')    
+        GROUP BY emp.field_id,initcap(EMP_NAME), labour_id, emp_type,emp.emp_sex,
+              DECODE (SIGN (lda.lda_date - emp.emp_dob - 6570),1,'Adult',DECODE (SIGN (lda.lda_date - emp.emp_dob - 5840),1, 'Adolesent','Child'))) a, 
+		FB_FIELD b
+ WHERE  a.FIELD_ID=b.FIELD_ID(+) AND EMPTYPE = 'LP' and
+        nvl(a.FIELD_ID,'A') = decode(:ra_division,'ALL',nvl(a.FIELD_ID,'A'),:ra_division)" arguments=(("ra_frdt", string),("ra_todt", string),("ra_division", string))  sort="field_manid A empname A sex A status A " )
+group(level=1 header.height=72 trailer.height=88 by=("field_manid" ) header.color="536870912" trailer.color="536870912" )
+text(band=header alignment="0" text="Gtelar042" border="0" color="33554432" x="18" y="88" height="64" width="421" html.valueishtml="0"  name=t_2 visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+text(band=header alignment="0" text="Luxmi Tea Co." border="0" color="33554432" x="18" y="8" height="64" width="686" html.valueishtml="0"  name=t_co visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+column(band=header id=2 alignment="0" tabsequence=32766 border="0" color="33554432" x="379" y="208" height="64" width="576" format="[general]" html.valueishtml="0"  name=empid visible="0" edit.limit=0 edit.case=any edit.focusrectangle=no edit.autoselect=no  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="1" font.charset="0" background.mode="2" background.color="1073741824" )
+text(band=header alignment="0" text="Name" border="0" color="33554432" x="14" y="304" height="64" width="288" html.valueishtml="0"  name=t_4 visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+text(band=header alignment="0" text="Sex" border="0" color="33554432" x="965" y="304" height="64" width="247" html.valueishtml="0"  name=t_5 visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+text(band=header alignment="1" text="Absent% age" border="0" color="33554432" x="2514" y="240" height="128" width="256" html.valueishtml="0"  name=t_6 visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+text(band=header alignment="1" text="Absent" border="0" color="33554432" x="2112" y="304" height="64" width="288" html.valueishtml="0"  name=t_3 visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+text(band=header alignment="1" text="Present" border="0" color="33554432" x="1705" y="304" height="64" width="288" html.valueishtml="0"  name=t_1 visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+text(band=header alignment="0" text="Status" border="0" color="33554432" x="1289" y="304" height="64" width="334" html.valueishtml="0"  name=t_7 visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+compute(band=header alignment="2" expression=" 'Labour Absentism For The Period Of  ' +  ra_frdt + ' To ' +  ra_todt "border="0" color="33554432" x="549" y="8" height="80" width="1765" format="[GENERAL]" html.valueishtml="0"  name=compute_1 visible="1"  font.face="Times New Roman" font.height="-10" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="2" background.color="1073741824" )
+text(band=header alignment="2" text="" border="0" color="33554432" x="453" y="100" height="64" width="1961" html.valueishtml="0"  name=t_gnm visible="1"  hidesnaked=1  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912"  height.autosize=yes)
+line(band=header x1="14" y1="380" x2="2848" y2="380"  name=l_1 visible="1" pen.style="0" pen.width="5" pen.color="33554432"  background.mode="2" background.color="1073741824" )
+compute(band=header alignment="1" expression="today()"border="0" color="33554432" x="2519" y="12" height="84" width="329" format="dd/mm/yyyy" html.valueishtml="0"  name=date_1 visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+column(band=header.1 id=8 alignment="0" tabsequence=32766 border="0" color="33554432" x="14" y="4" height="64" width="864" format="[general]" html.valueishtml="0"  name=field_manid visible="1" edit.limit=0 edit.case=any edit.focusrectangle=no edit.autoselect=no  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="1" font.charset="0" background.mode="2" background.color="1073741824" )
+column(band=detail id=1 alignment="0" tabsequence=32766 border="0" color="33554432" x="14" y="4" height="64" width="919" format="[general]" html.valueishtml="0"  name=empname visible="1" edit.limit=0 edit.case=any edit.focusrectangle=no edit.autoselect=no  font.face="Times New Roman" font.height="-9" font.weight="400"  font.family="1" font.pitch="1" font.charset="0" background.mode="2" background.color="1073741824" )
+column(band=detail id=3 alignment="0" tabsequence=32766 border="0" color="33554432" x="965" y="4" height="64" width="247" format="[general]" html.valueishtml="0"  name=sex visible="1" edit.limit=0 edit.case=any edit.focusrectangle=no edit.autoselect=no  font.face="Times New Roman" font.height="-9" font.weight="400"  font.family="1" font.pitch="1" font.charset="0" background.mode="2" background.color="1073741824" )
+column(band=detail id=7 alignment="1" tabsequence=32766 border="0" color="33554432" x="2514" y="4" height="64" width="256" format="###0.00" html.valueishtml="0"  name=absentper visible="1" edit.limit=0 edit.case=any edit.focusrectangle=no edit.autoselect=no  font.face="Times New Roman" font.height="-9" font.weight="400"  font.family="1" font.pitch="1" font.charset="0" background.mode="2" background.color="1073741824" )
+column(band=detail id=4 alignment="0" tabsequence=32766 border="0" color="33554432" x="1289" y="4" height="64" width="375" format="[general]" html.valueishtml="0"  name=status visible="1" edit.limit=0 edit.case=any edit.focusrectangle=no edit.autoselect=no  font.face="Times New Roman" font.height="-9" font.weight="400"  font.family="1" font.pitch="1" font.charset="0" background.mode="2" background.color="1073741824" )
+column(band=detail id=6 alignment="1" tabsequence=32766 border="0" color="33554432" x="2112" y="4" height="64" width="288" format="#,##0.0" html.valueishtml="0"  name=absent visible="1" edit.limit=0 edit.case=any edit.focusrectangle=no edit.autoselect=no  font.face="Times New Roman" font.height="-9" font.weight="400"  font.family="1" font.pitch="1" font.charset="0" background.mode="2" background.color="1073741824" )
+column(band=detail id=5 alignment="1" tabsequence=32766 border="0" color="33554432" x="1705" y="4" height="64" width="288" format="#,##0.0" html.valueishtml="0"  name=hajira visible="1" edit.limit=0 edit.case=any edit.focusrectangle=no edit.autoselect=no  font.face="Times New Roman" font.height="-9" font.weight="400"  font.family="1" font.pitch="1" font.charset="0" background.mode="2" background.color="1073741824" )
+compute(band=trailer.1 alignment="1" expression="sum(absent for group 1)"border="0" color="33554432" x="2112" y="8" height="64" width="288" format="#,##0.0" html.valueishtml="0"  name=compute_28 visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="2" background.color="1073741824" )
+compute(band=trailer.1 alignment="1" expression="sum(hajira for group 1)"border="0" color="33554432" x="1705" y="8" height="64" width="288" format="#,##0.0" html.valueishtml="0"  name=compute_20 visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="2" background.color="1073741824" )
+compute(band=summary alignment="1" expression="sum(absent for all)"border="0" color="33554432" x="2112" y="12" height="64" width="288" format="#,##0.0" html.valueishtml="0"  name=compute_37 visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="2" background.color="1073741824" )
+compute(band=summary alignment="1" expression="sum(hajira for all)"border="0" color="33554432" x="1705" y="12" height="64" width="288" format="#,##0.0" html.valueishtml="0"  name=compute_29 visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="2" background.color="1073741824" )
+compute(band=footer alignment="2" expression="'Page ' + page() + ' of ' + pageCount()"border="0" color="33554432" x="1042" y="4" height="64" width="782" format="[general]" html.valueishtml="0"  name=page_1 visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="2" background.color="1073741824" )
+text(band=footer alignment="1" text="Absentism" border="0" color="33554432" x="2153" y="4" height="64" width="695" html.valueishtml="0"  name=t_9 visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+text(band=summary alignment="1" text="Granr Total : " border="0" color="33554432" x="27" y="8" height="64" width="928" html.valueishtml="0"  name=t_8 visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+compute(band=trailer.1 alignment="1" expression=" field_manid + ' Total : '"border="0" color="33554432" x="27" y="12" height="64" width="928" format="[GENERAL]" html.valueishtml="0"  name=compute_2 visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="2" background.color="1073741824" )
+htmltable(border="1" )
+htmlgen(clientevents="1" clientvalidation="1" clientcomputedfields="1" clientformatting="0" clientscriptable="0" generatejavascript="1" encodeselflinkargs="1" netscapelayers="0" pagingmethod=0 generatedddwframes="1" )
+xhtmlgen() cssgen(sessionspecific="0" )
+xmlgen(inline="0" )
+xsltgen()
+jsgen()
+export.xml(headgroups="1" includewhitespace="0" metadatatype=0 savemetadata=0 )
+import.xml()
+export.pdf(method=0 distill.custompostscript="0" xslfop.print="0" )
+export.xhtml()
+ 

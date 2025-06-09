@@ -1,0 +1,79 @@
+﻿$PBExportHeader$dw_gtehrr018.srd
+release 10.5;
+datawindow(units=0 timer_interval=0 color=1073741824 processing=0 HTMLDW=no print.printername="" print.documentname="" print.orientation = 0 print.margin.left = 20 print.margin.right = 20 print.margin.top = 96 print.margin.bottom = 96 print.paper.source = 0 print.paper.size = 0 print.canusedefaultprinter=yes print.prompt=no print.buttons=no print.preview.buttons=no print.cliptext=no print.overrideprintjob=no print.collate=yes print.preview.outline=yes hidegrayline=no )
+header(height=340 color="536870912" )
+summary(height=316 color="536870912" )
+footer(height=76 color="536870912" )
+detail(height=72 color="536870912" )
+table(column=(type=char(30) updatewhereclause=yes name=division dbname="division" )
+ column=(type=char(25) updatewhereclause=yes name=empid dbname="fb_employee.empid" )
+ column=(type=char(30) updatewhereclause=yes name=employeename dbname="employeename" )
+ column=(type=char(30) updatewhereclause=yes name=empdesignation dbname="fb_employee.empdesignation" )
+ column=(type=decimal(2) updatewhereclause=yes name=basicearn dbname="fb_emppayment.basicearn" )
+ column=(type=decimal(2) updatewhereclause=yes name=empda dbname="fb_emppayment.empda" )
+ column=(type=decimal(2) updatewhereclause=yes name=empvda dbname="fb_emppayment.empvda" )
+ column=(type=number updatewhereclause=yes name=totalamt dbname="totalamt" )
+ column=(type=char(9) updatewhereclause=yes name=mon dbname="mon" )
+ retrieve="SELECT initcap(FIELD_NAME) division,a.EMP_ID empid, initcap(a.EMP_NAME) employeename,
+       a.EMP_DESIG empdesignation,
+	   c.EP_BASICAMOUNT basicearn,
+	   c.EP_DAAMOUNT empda,c.EP_VDAAMOUNT empvda,
+   	   (nvl(c.EP_BASICAMOUNT,0) + nvl(c.EP_DAAMOUNT,0) + nvl(c.EP_VDAAMOUNT,0)) Totalamt,
+       	to_char(to_date(:ra_month,'MM'),'Month') mon
+  FROM FB_EMPLOYEE a, FB_NONEXEPERMAEMP b,	FB_EMPPAYMENT c, 
+       FB_EMPBASICSTAGES d,FB_EMPBASICAPPLICATIONYEAR e, fb_field f
+WHERE  a.EMP_ID = b.EMP_ID(+) AND a.EMP_ID = c.EMP_ID(+) AND 
+       b.EBS_ID = d.EBS_ID AND a.FIELD_ID = f.FIELD_ID and 
+	   a.FIELD_ID = decode(:ra_division,'ALL',a.FIELD_ID,:ra_division) and 
+	   d.EBA_ID = e.EBA_ID AND b.EMP_GRADE = e.EBA_GRADE AND
+	   a.EMP_TYPE = decode(:ra_emptype,'AE',a.EMP_TYPE,:ra_emptype) and 
+	   c.EP_MONTH = :ra_month AND c.EP_YEAR = :ra_year AND 
+	   e.EBA_VALIDITYFLAG = '1'" arguments=(("ra_division", string),("ra_year", number),("ra_month", number),("ra_emptype", string))  sort="division A empid A " )
+group(level=1 header.height=76 trailer.height=96 by=("division" ) header.color="536870912" trailer.color="536870912" )
+text(band=header alignment="0" text="Luxmi Tea Co." border="0" color="33554432" x="18" y="8" height="64" width="462" html.valueishtml="0"  name=t_co visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+text(band=header alignment="0" text="Gtehrr018" border="0" color="33554432" x="18" y="88" height="64" width="562" html.valueishtml="0"  name=t_2 visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+compute(band=header alignment="1" expression="today()"border="0" color="33554432" x="3109" y="12" height="84" width="329" format="dd/mm/yyyy" html.valueishtml="0"  name=date_1 visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+text(band=header alignment="2" text="" border="0" color="33554432" x="750" y="96" height="64" width="1957" html.valueishtml="0"  name=t_gnm visible="1"  hidesnaked=1  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912"  height.autosize=yes)
+compute(band=header alignment="2" expression="' Statement Of Monthly Rated Eemployees For The Month Of  ' +  mon   +' - '+ ra_year  "border="0" color="33554432" x="453" y="8" height="80" width="2551" format="[GENERAL]" html.valueishtml="0"  name=compute_1 visible="1"  font.face="Times New Roman" font.height="-11" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="2" background.color="1073741824" )
+line(band=header x1="18" y1="324" x2="3442" y2="324"  name=l_1 visible="1" pen.style="0" pen.width="5" pen.color="33554432"  background.mode="2" background.color="1073741824" )
+text(band=header alignment="1" text="Total" border="0" color="33554432" x="3040" y="244" height="64" width="389" html.valueishtml="0"  name=t_20 visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+text(band=header alignment="0" text="Employee ID" border="0" color="33554432" x="27" y="240" height="64" width="311" html.valueishtml="0"  name=t_11 visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+text(band=header alignment="0" text="Employee Name" border="0" color="33554432" x="704" y="240" height="64" width="389" html.valueishtml="0"  name=t_12 visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+text(band=header alignment="1" text="V.D.A" border="0" color="33554432" x="2725" y="236" height="64" width="293" html.valueishtml="0"  name=t_19 visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+text(band=header alignment="1" text="D.A" border="0" color="33554432" x="2373" y="244" height="64" width="334" html.valueishtml="0"  name=t_18 visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+text(band=header alignment="1" text="Basic" border="0" color="33554432" x="1998" y="236" height="64" width="361" html.valueishtml="0"  name=t_17 visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+text(band=header alignment="0" text="Designation" border="0" color="33554432" x="1458" y="240" height="64" width="526" html.valueishtml="0"  name=t_16 visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+column(band=header.1 id=1 alignment="0" tabsequence=32766 border="0" color="33554432" x="18" y="4" height="64" width="1417" format="[general]" html.valueishtml="0"  name=division visible="1" edit.limit=0 edit.case=any edit.focusrectangle=no edit.autoselect=no  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="2" font.pitch="2" font.charset="0" background.mode="2" background.color="1073741824" )
+column(band=detail id=8 alignment="1" tabsequence=32766 border="0" color="33554432" x="3040" y="4" height="64" width="389" format="#,##0.00" html.valueishtml="0"  name=totalamt visible="1" edit.limit=0 edit.case=any edit.focusrectangle=no edit.autoselect=no  font.face="Times New Roman" font.height="-9" font.weight="400"  font.family="2" font.pitch="2" font.charset="0" background.mode="2" background.color="1073741824" )
+column(band=detail id=2 alignment="0" tabsequence=32766 border="0" color="33554432" x="27" y="4" height="64" width="311" format="[general]" html.valueishtml="0"  name=empid visible="1" edit.limit=0 edit.case=any edit.focusrectangle=no edit.autoselect=no  font.face="Times New Roman" font.height="-9" font.weight="400"  font.family="2" font.pitch="2" font.charset="0" background.mode="2" background.color="1073741824" )
+column(band=detail id=3 alignment="0" tabsequence=32766 border="0" color="33554432" x="352" y="4" height="64" width="1093" format="[general]" html.valueishtml="0"  name=employeename visible="1" edit.limit=0 edit.case=any edit.focusrectangle=no edit.autoselect=no  font.face="Times New Roman" font.height="-9" font.weight="400"  font.family="2" font.pitch="2" font.charset="0" background.mode="2" background.color="1073741824" )
+column(band=detail id=7 alignment="1" tabsequence=32766 border="0" color="33554432" x="2725" y="4" height="64" width="293" format="#,##0.00" html.valueishtml="0"  name=empvda visible="1" edit.limit=0 edit.case=any edit.focusrectangle=no edit.autoselect=no  font.face="Times New Roman" font.height="-9" font.weight="400"  font.family="2" font.pitch="2" font.charset="0" background.mode="2" background.color="1073741824" )
+column(band=detail id=6 alignment="1" tabsequence=32766 border="0" color="33554432" x="2373" y="4" height="64" width="334" format="#,##0.00" html.valueishtml="0"  name=empda visible="1" edit.limit=0 edit.case=any edit.focusrectangle=no edit.autoselect=no  font.face="Times New Roman" font.height="-9" font.weight="400"  font.family="2" font.pitch="2" font.charset="0" background.mode="2" background.color="1073741824" )
+column(band=detail id=5 alignment="1" tabsequence=32766 border="0" color="33554432" x="1998" y="4" height="64" width="361" format="#,##0.00" html.valueishtml="0"  name=basicearn visible="1" edit.limit=0 edit.case=any edit.focusrectangle=no edit.autoselect=no  font.face="Times New Roman" font.height="-9" font.weight="400"  font.family="2" font.pitch="2" font.charset="0" background.mode="2" background.color="1073741824" )
+column(band=detail id=4 alignment="0" tabsequence=32766 border="0" color="33554432" x="1458" y="4" height="64" width="526" format="[general]" html.valueishtml="0"  name=empdesignation visible="1" edit.limit=0 edit.case=any edit.focusrectangle=no edit.autoselect=no  font.face="Times New Roman" font.height="-9" font.weight="400"  font.family="2" font.pitch="2" font.charset="0" background.mode="2" background.color="1073741824" )
+column(band=header.1 id=9 alignment="0" tabsequence=32766 border="0" color="33554432" x="3195" y="4" height="64" width="27" format="[general]" html.valueishtml="0"  name=mon visible="0" edit.limit=0 edit.case=any edit.focusrectangle=no edit.autoselect=no  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="2" font.pitch="2" font.charset="0" background.mode="2" background.color="1073741824" )
+line(band=trailer.1 x1="279" y1="0" x2="279" y2="0"  name=l_4 visible="1" pen.style="2" pen.width="5" pen.color="33554432"  background.mode="2" background.color="1073741824" )
+line(band=trailer.1 x1="0" y1="84" x2="3424" y2="84"  name=l_2 visible="1" pen.style="2" pen.width="5" pen.color="33554432"  background.mode="2" background.color="1073741824" )
+compute(band=trailer.1 alignment="1" expression="sum(totalamt for group 1)"border="0" color="33554432" x="3040" y="0" height="64" width="389" format="#,##0.00" html.valueishtml="0"  name=compute_7 visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="2" background.color="1073741824" )
+compute(band=trailer.1 alignment="1" expression="sum(empvda for group 1)"border="0" color="33554432" x="2725" y="8" height="64" width="293" format="#,##0.00" html.valueishtml="0"  name=compute_6 visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="2" background.color="1073741824" )
+compute(band=trailer.1 alignment="1" expression="sum(empda for group 1)"border="0" color="33554432" x="2373" y="4" height="64" width="334" format="#,##0.00" html.valueishtml="0"  name=compute_5 visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="2" background.color="1073741824" )
+compute(band=trailer.1 alignment="1" expression="sum(basicearn for group 1)"border="0" color="33554432" x="1998" y="4" height="64" width="361" format="#,##0.00" html.valueishtml="0"  name=compute_4 visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="2" background.color="1073741824" )
+compute(band=trailer.1 alignment="0" expression=" division + ' Total :'"border="0" color="33554432" x="539" y="4" height="64" width="978" format="[GENERAL]" html.valueishtml="0"  name=compute_2 visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="2" background.color="1073741824" )
+line(band=summary x1="37" y1="92" x2="3461" y2="92"  name=l_3 visible="1" pen.style="2" pen.width="5" pen.color="33554432"  background.mode="2" background.color="1073741824" )
+compute(band=summary alignment="1" expression="'Grand Total : '"border="0" color="33554432" x="709" y="12" height="64" width="805" format="[GENERAL]" html.valueishtml="0"  name=compute_45 visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="2" background.color="1073741824" )
+compute(band=summary alignment="1" expression="sum(totalamt for all)"border="0" color="33554432" x="3040" y="4" height="64" width="389" format="#,##0.00" html.valueishtml="0"  name=compute_27 visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="2" background.color="1073741824" )
+compute(band=summary alignment="1" expression="sum(empvda for all)"border="0" color="33554432" x="2725" y="12" height="64" width="293" format="#,##0.00" html.valueishtml="0"  name=compute_26 visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="2" background.color="1073741824" )
+compute(band=summary alignment="1" expression="sum(empda for all)"border="0" color="33554432" x="2373" y="12" height="64" width="334" format="#,##0.00" html.valueishtml="0"  name=compute_25 visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="2" background.color="1073741824" )
+compute(band=summary alignment="1" expression="sum(basicearn for all)"border="0" color="33554432" x="1998" y="8" height="64" width="361" format="#,##0.00" html.valueishtml="0"  name=compute_24 visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="2" background.color="1073741824" )
+compute(band=footer alignment="2" expression="'Page ' + page() + ' of ' + pageCount()"border="0" color="33554432" x="1335" y="4" height="64" width="782" format="[general]" html.valueishtml="0"  name=page_1 visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="2" background.color="1073741824" )
+htmltable(border="1" )
+htmlgen(clientevents="1" clientvalidation="1" clientcomputedfields="1" clientformatting="0" clientscriptable="0" generatejavascript="1" encodeselflinkargs="1" netscapelayers="0" pagingmethod=0 generatedddwframes="1" )
+xhtmlgen() cssgen(sessionspecific="0" )
+xmlgen(inline="0" )
+xsltgen()
+jsgen()
+export.xml(headgroups="1" includewhitespace="0" metadatatype=0 savemetadata=0 )
+import.xml()
+export.pdf(method=0 distill.custompostscript="0" xslfop.print="0" )
+export.xhtml()
+ 

@@ -1,0 +1,74 @@
+﻿$PBExportHeader$dw_gteccr001a.srd
+release 10.5;
+datawindow(units=0 timer_interval=0 color=1073741824 processing=0 HTMLDW=no print.printername="" print.documentname="" print.orientation = 0 print.margin.left = 110 print.margin.right = 110 print.margin.top = 96 print.margin.bottom = 96 print.paper.source = 0 print.paper.size = 0 print.canusedefaultprinter=yes print.prompt=no print.buttons=no print.preview.buttons=no print.cliptext=no print.overrideprintjob=no print.collate=yes print.preview.outline=yes hidegrayline=no )
+header(height=336 color="536870912" )
+summary(height=0 color="536870912" )
+footer(height=0 color="536870912" )
+detail(height=72 color="536870912" )
+table(column=(type=char(25) updatewhereclause=yes name=issueid dbname="fb_productissue.issueid" )
+ column=(type=datetime updatewhereclause=yes name=issuedate dbname="fb_productissue.issuedate" )
+ column=(type=datetime updatewhereclause=yes name=reqdate dbname="fb_productissue.reqdate" )
+ column=(type=char(30) updatewhereclause=yes name=category dbname="category" )
+ column=(type=char(200) updatewhereclause=yes name=product dbname="product" )
+ column=(type=char(50) updatewhereclause=yes name=exphead dbname="fb_acsubledger.exphead" )
+ column=(type=char(50) updatewhereclause=yes name=expsubhead dbname="expsubhead" )
+ column=(type=decimal(2) updatewhereclause=yes name=reqqnty dbname="fb_productissuedetails.reqqnty" )
+ column=(type=decimal(2) updatewhereclause=yes name=issueqnty dbname="fb_productissuedetails.issueqnty" )
+ column=(type=number updatewhereclause=yes name=unitprice dbname="unitprice" )
+ column=(type=decimal(2) updatewhereclause=yes name=amount dbname="fb_productissuedetails.amount" )
+ column=(type=char(25) updatewhereclause=yes name=section dbname="fb_productissuedetails.section" )
+ column=(type=char(25) updatewhereclause=yes name=costcenter dbname="fb_productissuedetails.costcenter" )
+ retrieve="select a.PRIS_ID Issueid, PRIS_DATE issuedate,PRIS_REQDATE reqdate,
+          initcap(c.SPC_NAME) category,initcap(decode(nvl(d.SSP_ID,'x'),'x',SP_NAME,g.SSP_NAME)) Product,f.ACSUBLEDGER_NAME exphead,initcap(e.EACSUBHEAD_NAME) expsubhead,PRIS_REQQUANTITY reqqnty,
+	     PRIS_ISSUEQUANTITY issueqnty,
+          DECODE(NVL(PRIS_ISSUEQUANTITY,0),0,0,PRIS_VALUE/PRIS_ISSUEQUANTITY) unitprice ,PRIS_VALUE amount,SECTION_ID section,b.ECC_ID costcenter
+  from fb_productissue a,fb_productissuedetails b,FB_STOREPRODUCTCATEGORY c,
+          fb_storeproduct d,fb_expenseacsubhead e,fb_acsubledger f,fb_storeproduct_std g	
+ where a.PRIS_ID=b.PRIS_ID and b.SP_ID=d.SP_ID(+) and d.SPC_ID=c.SPC_ID(+) and d.SSP_ID=g.ssp_id(+)
+            and b.EACSUBHEAD_ID=e.EACSUBHEAD_ID and e.EACHEAD_ID=f.ACSUBLEDGER_ID and
+              a.PRIS_DATE between TO_DATE (:ra_frdt, 'DD/MM/YYYY') and TO_DATE (:ra_todt, 'DD/MM/YYYY') and
+			  ECC_ID=:ra_ccid
+
+" arguments=(("ra_frdt", string),("ra_todt", string),("ra_ccid", string))  sort="issueid A issuedate A reqdate A expsubhead A category A product A " )
+group(level=1 header.height=80 trailer.height=32 by=("issueid" , "issuedate" ) header.color="536870912" trailer.color="536870912" )
+text(band=header alignment="1" text="Issueqnty" border="0" color="33554432" x="2514" y="256" height="64" width="242" html.valueishtml="0"  name=issueqnty_t visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+text(band=header alignment="1" text="Unitprice" border="0" color="33554432" x="2798" y="256" height="64" width="251" html.valueishtml="0"  name=unitprice_t visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+line(band=header x1="23" y1="328" x2="3429" y2="328"  name=l_1 visible="1" pen.style="0" pen.width="5" pen.color="33554432"  background.mode="2" background.color="1073741824" )
+compute(band=header alignment="0" expression="'Requisition/Issue Details From '+  ra_frdt + ' To '+ ra_todt"border="0" color="33554432" x="1769" y="12" height="64" width="832" format="[GENERAL]" html.valueishtml="0"  name=compute_1 visible="1"  font.face="Times New Roman" font.height="-11" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+text(band=header alignment="0" text="Requisition/Issue Details From " border="0" color="33554432" x="795" y="12" height="72" width="965" html.valueishtml="0"  name=t_3 visible="1"  font.face="Times New Roman" font.height="-11" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+text(band=header alignment="2" text="Requisitiondate" border="0" color="33554432" x="0" y="204" height="128" width="334" html.valueishtml="0"  name=reqdate_t visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+text(band=header alignment="0" text="Expsubhead" border="0" color="33554432" x="352" y="256" height="64" width="507" html.valueishtml="0"  name=expsubhead_t visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+text(band=header alignment="0" text="Category" border="0" color="33554432" x="896" y="256" height="64" width="526" html.valueishtml="0"  name=category_t visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+text(band=header alignment="1" text="Reqqnty" border="0" color="33554432" x="2213" y="256" height="64" width="256" html.valueishtml="0"  name=reqqnty_t visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+text(band=header alignment="0" text="Product" border="0" color="33554432" x="1445" y="256" height="64" width="722" html.valueishtml="0"  name=product_t visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+text(band=header alignment="0" text="Gteccr001a" border="0" color="33554432" x="9" y="92" height="64" width="343" html.valueishtml="0"  name=t_1 visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+text(band=header alignment="0" text="Luxmi Tea Co." border="0" color="33554432" x="9" y="28" height="64" width="571" html.valueishtml="0"  name=t_co visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+text(band=header alignment="1" text="Amount" border="0" color="33554432" x="3090" y="256" height="64" width="329" html.valueishtml="0"  name=amount_t visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+compute(band=header alignment="1" expression="today()"border="0" color="33554432" x="3086" y="32" height="84" width="329" format="[general]" html.valueishtml="0"  name=date_1 visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+text(band=header alignment="2" text="" border="0" color="33554432" x="672" y="100" height="64" width="1961" html.valueishtml="0"  name=t_gnm visible="1"  hidesnaked=1  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912"  height.autosize=yes)
+text(band=header.1 alignment="0" text="Issueid" border="0" color="33554432" x="9" y="8" height="64" width="224" html.valueishtml="0"  name=issueid_t visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+column(band=header.1 id=1 alignment="0" tabsequence=32766 border="0" color="33554432" x="219" y="8" height="76" width="407" format="[general]" html.valueishtml="0"  name=issueid visible="1" edit.limit=25 edit.case=any edit.autoselect=yes edit.autohscroll=yes  font.face="Times New Roman" font.height="-9" font.weight="400"  font.family="2" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+text(band=header.1 alignment="2" text="Issuedate" border="0" color="33554432" x="667" y="8" height="64" width="224" html.valueishtml="0"  name=issuedate_t visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+column(band=header.1 id=2 alignment="1" tabsequence=32766 border="0" color="33554432" x="891" y="8" height="76" width="279" format="dd/mm/yyyy" html.valueishtml="0"  name=issuedate visible="1" edit.limit=0 edit.case=any edit.autoselect=yes edit.autohscroll=yes  font.face="Times New Roman" font.height="-9" font.weight="400"  font.family="2" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+column(band=detail id=3 alignment="1" tabsequence=32766 border="0" color="33554432" x="23" y="4" height="76" width="279" format="dd/mm/yyyy" html.valueishtml="0"  name=reqdate visible="1" edit.limit=0 edit.case=any edit.autoselect=yes edit.autohscroll=yes  font.face="Times New Roman" font.height="-9" font.weight="400"  font.family="2" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+column(band=detail id=10 alignment="1" tabsequence=32766 border="0" color="33554432" x="2807" y="4" height="76" width="251" format="#,##0.00" html.valueishtml="0"  name=unitprice visible="1" edit.limit=0 edit.case=any edit.autoselect=yes edit.autohscroll=yes  font.face="Times New Roman" font.height="-9" font.weight="400"  font.family="2" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+column(band=detail id=8 alignment="1" tabsequence=32766 border="0" color="33554432" x="2217" y="4" height="76" width="256" format="#,##0.00" html.valueishtml="0"  name=reqqnty visible="1" edit.limit=0 edit.case=any edit.autoselect=yes edit.autohscroll=yes  font.face="Times New Roman" font.height="-9" font.weight="400"  font.family="2" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+column(band=detail id=9 alignment="1" tabsequence=32766 border="0" color="33554432" x="2519" y="4" height="76" width="242" format="#,##0.00" html.valueishtml="0"  name=issueqnty visible="1" edit.limit=0 edit.case=any edit.autoselect=yes edit.autohscroll=yes  font.face="Times New Roman" font.height="-9" font.weight="400"  font.family="2" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+column(band=detail id=11 alignment="1" tabsequence=32766 border="0" color="33554432" x="3095" y="4" height="76" width="329" format="#,##0.00" html.valueishtml="0"  name=amount visible="1" edit.limit=0 edit.case=any edit.autoselect=yes edit.autohscroll=yes  font.face="Times New Roman" font.height="-9" font.weight="400"  font.family="2" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+column(band=detail id=7 alignment="0" tabsequence=32766 border="0" color="33554432" x="357" y="4" height="76" width="507" format="[general]" html.valueishtml="0"  name=expsubhead visible="1" edit.limit=50 edit.case=any edit.autoselect=yes edit.autohscroll=yes  font.face="Times New Roman" font.height="-9" font.weight="400"  font.family="2" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+column(band=detail id=4 alignment="0" tabsequence=32766 border="0" color="33554432" x="901" y="4" height="76" width="526" format="[general]" html.valueishtml="0"  name=category visible="1" edit.limit=30 edit.case=any edit.autoselect=yes edit.autohscroll=yes  font.face="Times New Roman" font.height="-9" font.weight="400"  font.family="2" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+column(band=detail id=5 alignment="0" tabsequence=32766 border="0" color="33554432" x="1454" y="4" height="76" width="722" format="[general]" html.valueishtml="0"  name=product visible="1" edit.limit=200 edit.case=any edit.autoselect=yes edit.autohscroll=yes  font.face="Times New Roman" font.height="-9" font.weight="400"  font.family="2" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+column(band=header.1 id=6 alignment="0" tabsequence=32766 border="0" color="33554432" x="1216" y="8" height="64" width="1152" format="[general]" html.valueishtml="0"  name=exphead visible="0" edit.limit=0 edit.case=any edit.focusrectangle=no edit.autoselect=no  font.face="Times New Roman" font.height="-9" font.weight="400"  font.family="2" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+line(band=trailer.1 x1="14" y1="16" x2="3410" y2="16"  name=l_2 visible="1" pen.style="0" pen.width="5" pen.color="134217744"  background.mode="2" background.color="1073741824" )
+
+sparse(names="reqdate	expsubhead	category")htmltable(border="1" )
+htmlgen(clientevents="1" clientvalidation="1" clientcomputedfields="1" clientformatting="0" clientscriptable="0" generatejavascript="1" encodeselflinkargs="1" netscapelayers="0" pagingmethod=0 generatedddwframes="1" )
+xhtmlgen() cssgen(sessionspecific="0" )
+xmlgen(inline="0" )
+xsltgen()
+jsgen()
+export.xml(headgroups="1" includewhitespace="0" metadatatype=0 savemetadata=0 )
+import.xml()
+export.pdf(method=0 distill.custompostscript="0" xslfop.print="0" )
+export.xhtml()
+ 

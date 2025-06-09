@@ -1,0 +1,34 @@
+﻿$PBExportHeader$f_check_mep.srf
+global type f_check_mep from function_object
+end type
+
+forward prototypes
+global function integer f_check_mep (string fs_voudt)
+end prototypes
+
+global function integer f_check_mep (string fs_voudt);string ls_status
+
+select AP_STATUS into  :ls_status from fb_ac_year a,fb_acyear_period b
+where AY_YEAR_ID=AP_YEAR_ID(+) and to_date(:fs_voudt,'dd/mm/yyyy') between trunc(AP_START_DT) and trunc(AP_END_DT);
+
+if sqlca.sqlcode = -1 then
+	messagebox('Sql Error : During Checking MEP : ',sqlca.sqlerrtext);
+	return -1;
+elseif sqlca.sqlcode = 100 then
+	messagebox('Information !','Accounting Year Period Not Created, Please Create Period First !!!');
+	return -1;		
+elseif sqlca.sqlcode = 0 then
+	if ls_status = 'C' then 
+		messagebox('Information !','A/c Process Of Entered Date Is Not Allowed, As MEP For The Selected Date Is Closed, Please Check !!!')
+		return -1
+	else
+		return 1
+	end if
+end if
+	
+
+
+
+
+end function
+

@@ -1,0 +1,33 @@
+﻿$PBExportHeader$f_center.srf
+global type f_center from function_object
+end type
+
+forward prototypes
+global function integer f_center (window windname)
+end prototypes
+
+global function integer f_center (window windname);int li_screenheight, li_screenwidth, li_rc, li_x=1, li_y=1
+environment	lenv_obj
+
+If IsNull ( windname ) Or Not IsValid ( windname ) Then Return -1
+
+If GetEnvironment ( lenv_obj ) = -1 Then Return -1
+
+li_screenheight = PixelsToUnits ( lenv_obj.ScreenHeight, YPixelsToUnits! )
+li_screenwidth  = PixelsToUnits ( lenv_obj.ScreenWidth, XPixelsToUnits! )
+If Not ( li_screenheight > 0 ) Or Not ( li_screenwidth > 0 ) Then Return -1
+
+If li_screenwidth > windname.Width Then
+	li_x = ( li_screenwidth / 2 ) - ( windname.Width / 2 )
+End If
+If li_screenheight > windname.Height Then
+	li_y = ( li_screenheight / 2 ) - ( windname.Height / 2 )
+End If
+
+li_rc = windname.Move ( li_x, li_y )
+If li_rc <> 1 Then Return -1
+
+Return 1
+
+end function
+

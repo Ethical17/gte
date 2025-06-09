@@ -1,0 +1,52 @@
+﻿$PBExportHeader$dw_gteprof013a.srd
+release 10.5;
+datawindow(units=0 timer_interval=0 color=67108864 processing=0 HTMLDW=no print.printername="" print.documentname="" print.orientation = 0 print.margin.left = 110 print.margin.right = 110 print.margin.top = 96 print.margin.bottom = 96 print.paper.source = 0 print.paper.size = 0 print.canusedefaultprinter=yes print.prompt=no print.buttons=no print.preview.buttons=no print.cliptext=no print.overrideprintjob=no print.collate=yes print.preview.outline=yes hidegrayline=no )
+header(height=356 color="536870912" )
+summary(height=0 color="536870912" )
+footer(height=0 color="536870912" )
+detail(height=88 color="536870912" )
+table(column=(type=number updatewhereclause=yes name=ctc_stk dbname="ctc_stk" )
+ column=(type=number updatewhereclause=yes name=ortho_stk dbname="ortho_stk" )
+ column=(type=number updatewhereclause=yes name=green_stk dbname="green_stk" )
+ column=(type=number updatewhereclause=yes name=sample_stk dbname="sample_stk" )
+ retrieve="select sum(decode(a.TPC_ID,decode(:rs_gsn,'ME','TPC0002','TPC0001'),nvl(qty,0),0)) CTC_stk,
+       sum(decode(a.TPC_ID,decode(:rs_gsn,'ME','TPC0003','TPC0002'),nvl(qty,0),0)) Ortho_stk,
+       sum(decode(a.TPC_ID,decode(:rs_gsn,'ME','TPC0004','TPC0003'),nvl(qty,0),0)) Green_stk,
+       sum(decode(a.TPC_ID,'TPC0004',decode(:rs_gsn,'ME',0,nvl(qty,0)),0)) Sample_stk
+ from    (SELECT ddu.tpc_id tpc_id, ddp.ddp_pluckingdate pludate, NVL (SUM (ddu.ddu_quantity), 0) qty  
+           FROM fb_dailydryerproduct ddp, fb_dailydryerunsorted ddu
+          WHERE ddp.ddp_pk = ddu.ddp_pk AND ddp.ddp_type <> 'O' 
+         GROUP BY ddu.tpc_id, ddp.ddp_pluckingdate UNION ALL  
+         SELECT   tmp.tpc_id tpc_id, dtmp_sortdate pludate,-NVL (SUM (dtmp.dtmp_sortquantodayty), 0) qty 
+          FROM fb_dailysortedteamadeproduct dtmp,fb_teamadeproduct tmp WHERE dtmp.tmp_id = tmp.tmp_id 
+        GROUP BY (tmp.tpc_id, dtmp.dtmp_sortdate) union all
+        select TPC_ID, SD_DATE, sum(nvl(SD_QNTY,0) * decode(SD_TYPE,'D',1,-1)) sdd_qnty from fb_sample_dispatch  where SD_TYPE in ('D','S')
+        group by TPC_ID, SD_DATE  UNION ALL
+          select  TPC_ID,PT_DATE, sum(nvl(PT_QUANTITY,0)) trans_qnty  from fb_packteatransfer where pt_trantype = 'R' and pt_status = 'U' group by TPC_ID,PT_DATE
+        ) a, fb_teamadeproductcategory tpc 
+WHERE (tpc.tpc_id = a.tpc_id) and  (trunc(pludate) <= to_date(:ra_dt,'dd/mm/yyyy')  )" arguments=(("ra_dt", string),("rs_gsn", string)) )
+text(band=header alignment="0" text="Luxmi Tea Co." border="0" color="33554432" x="23" y="12" height="64" width="457" html.valueishtml="0"  name=t_co visible="1"  font.face="Times New Roman" font.height="-10" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+text(band=header alignment="2" text="Sorting" border="0" color="33554432" x="919" y="16" height="72" width="987" html.valueishtml="0"  name=t_10 visible="1"  font.face="Times New Roman" font.height="-11" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+compute(band=header alignment="0" expression="today()"border="0" color="33554432" x="2514" y="16" height="64" width="293" format="dd/mm/yyyy" html.valueishtml="0"  name=date_1 visible="1"  font.face="Times New Roman" font.height="-10" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+text(band=header alignment="0" text="Gteprof013" border="0" color="33554432" x="23" y="88" height="64" width="443" html.valueishtml="0"  name=t_11 visible="1"  font.face="Times New Roman" font.height="-10" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="553648127" )
+text(band=header alignment="1" text="CTC" border="0" color="33554432" x="631" y="280" height="64" width="366" html.valueishtml="0"  name=t_2 visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="2" background.color="67108864" )
+text(band=header alignment="1" text="Orthodox" border="0" color="33554432" x="1029" y="280" height="64" width="366" html.valueishtml="0"  name=t_3 visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="2" background.color="67108864" )
+text(band=header alignment="1" text="Green Tea" border="0" color="33554432" x="1422" y="280" height="64" width="366" html.valueishtml="0"  name=t_4 visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="2" background.color="67108864" )
+line(band=header x1="622" y1="352" x2="2194" y2="352"  name=l_1 visible="1" pen.style="0" pen.width="5" pen.color="33554432"  background.mode="2" background.color="1073741824" )
+text(band=header alignment="1" text="Others" border="0" color="33554432" x="1815" y="280" height="64" width="366" html.valueishtml="0"  name=t_5 visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="2" background.color="67108864" )
+text(band=header alignment="1" text="<- - - - - - - - - - - - - - - - - - Unsorted Stock - - - - - - - - - - - - - - - - ->" border="0" color="33554432" x="631" y="196" height="64" width="1550" html.valueishtml="0"  name=t_1 visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="2" background.color="67108864" )
+column(band=detail id=1 alignment="1" tabsequence=32766 border="5" color="33554432" x="635" y="8" height="64" width="366" format="#,##0.00" html.valueishtml="0"  name=ctc_stk visible="1" edit.limit=0 edit.case=any edit.focusrectangle=no edit.autoselect=no  font.face="Times New Roman" font.height="-9" font.weight="400"  font.family="2" font.pitch="2" font.charset="0" background.mode="2" background.color="67108864" )
+column(band=detail id=2 alignment="1" tabsequence=32766 border="5" color="33554432" x="1029" y="8" height="64" width="366" format="#,##0.00" html.valueishtml="0"  name=ortho_stk visible="1" edit.limit=0 edit.case=any edit.focusrectangle=no edit.autoselect=no  font.face="Times New Roman" font.height="-9" font.weight="400"  font.family="2" font.pitch="2" font.charset="0" background.mode="2" background.color="67108864" )
+column(band=detail id=3 alignment="1" tabsequence=32766 border="5" color="33554432" x="1422" y="8" height="64" width="366" format="#,##0.00" html.valueishtml="0"  name=green_stk visible="1" edit.limit=0 edit.case=any edit.focusrectangle=no edit.autoselect=no  font.face="Times New Roman" font.height="-9" font.weight="400"  font.family="2" font.pitch="2" font.charset="0" background.mode="2" background.color="67108864" )
+column(band=detail id=4 alignment="1" tabsequence=32766 border="5" color="33554432" x="1815" y="8" height="64" width="366" format="#,##0.00" html.valueishtml="0"  name=sample_stk visible="1" edit.limit=0 edit.case=any edit.focusrectangle=no edit.autoselect=no  font.face="Times New Roman" font.height="-9" font.weight="400"  font.family="2" font.pitch="2" font.charset="0" background.mode="2" background.color="67108864" )
+htmltable(border="1" )
+htmlgen(clientevents="1" clientvalidation="1" clientcomputedfields="1" clientformatting="0" clientscriptable="0" generatejavascript="1" encodeselflinkargs="1" netscapelayers="0" pagingmethod=0 generatedddwframes="1" )
+xhtmlgen() cssgen(sessionspecific="0" )
+xmlgen(inline="0" )
+xsltgen()
+jsgen()
+export.xml(headgroups="1" includewhitespace="0" metadatatype=0 savemetadata=0 )
+import.xml()
+export.pdf(method=0 distill.custompostscript="0" xslfop.print="0" )
+export.xhtml()
+ 

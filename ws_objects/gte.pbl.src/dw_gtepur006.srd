@@ -1,0 +1,69 @@
+﻿$PBExportHeader$dw_gtepur006.srd
+release 10.5;
+datawindow(units=0 timer_interval=0 color=1073741824 processing=0 HTMLDW=no print.printername="" print.documentname="" print.orientation = 0 print.margin.left = 110 print.margin.right = 110 print.margin.top = 96 print.margin.bottom = 96 print.paper.source = 0 print.paper.size = 0 print.canusedefaultprinter=yes print.prompt=no print.buttons=no print.preview.buttons=no print.cliptext=no print.overrideprintjob=no print.collate=yes print.preview.outline=yes hidegrayline=no )
+header(height=408 color="536870912" )
+summary(height=0 color="536870912" )
+footer(height=84 color="536870912" )
+detail(height=84 color="536870912" )
+table(column=(type=char(25) updatewhereclause=yes name=indentid dbname="fb_storeproduct.id" dbalias=".id" )
+ column=(type=char(200) updatewhereclause=yes name=sp_name dbname="sp_name" )
+ column=(type=char(10) updatewhereclause=yes name=unit dbname="fb_storeproduct.sp_unit" dbalias="a.sp_unit" )
+ column=(type=number updatewhereclause=yes name=indentqnty dbname="iqty" )
+ column=(type=number updatewhereclause=yes name=receivedqnty dbname="pqty" )
+ column=(type=number updatewhereclause=yes name=cncl_qnty dbname="cncl_qnty" )
+ column=(type=number updatewhereclause=yes name=due dbname="due" )
+ column=(type=datetime updatewhereclause=yes name=indent_date dbname="fb_indent.indent_date" dbalias="b.indent_date" )
+ retrieve=" SELECT c.ID, decode(nvl(a.SSP_ID,'x'),'x',SP_NAME,d.SSP_NAME)SP_NAME, SP_UNIT,sum(nvl(c.IQTY,0)) IQTY, sum(nvl(c.PQTY,0))PQTY, sum(nvl(c.cncl_qnty,0))cncl_qnty,
+               nvl(sum(nvl(c.IQTY,0)) - (sum(nvl(c.PQTY,0))+sum(nvl(c.cncl_qnty,0))),0) due,b.INDENT_DATE
+ FROM   FB_STOREPRODUCT a, FB_INDENT b, 
+			(SELECT ind.indent_id ID, inds.sp_id sp_id, inds.inddet_quantity iqty,0 pqty,inds.INDDET_CANCELQUANTITY cncl_qnty
+				  FROM fb_indent ind, fb_indentdetails inds     
+				 WHERE ind.indent_id = inds.indent_id AND ind.indent_holocalflag = '1'    
+				 UNION ALL    
+				SELECT hopi.indent_id ID, hopid.sp_id sp_id, 0 iqty,hopid.hopi_quantity pqty,0 cncl_qnty      
+				  FROM fb_hopurchaseinvoice hopi, fb_hopidetails hopid     
+				 WHERE hopi.hopi_id = hopid.hopi_id) c,fb_storeproduct_std d
+ WHERE  b.INDENT_ID=c.ID AND a.SP_ID=c.SP_ID AND a.SSP_ID = d.SSP_ID(+) and 
+                ((trunc(b.INDENT_DATE) between TO_DATE (:ra_from_dt,'dd/mm/yyyy') AND TO_DATE (:ra_to_dt,'dd/mm/yyyy')and :indentflag ='A')or
+                (:indentflag ='B')) 
+group by c.ID, decode(nvl(a.SSP_ID,'x'),'x',SP_NAME,d.SSP_NAME),SP_UNIT,b.INDENT_DATE
+having nvl(sum(nvl(c.IQTY,0)) - (sum(nvl(c.PQTY,0))+sum(nvl(c.cncl_qnty,0))),0)<>0
+ ORDER BY 1, 2
+
+" arguments=(("ra_from_dt", string),("ra_to_dt", string),("indentflag", string))  sort="indent_date D indentid A " )
+text(band=header alignment="0" text="Luxmi Tea Co." border="0" color="33554432" x="18" y="28" height="64" width="558" html.valueishtml="0"  name=t_co visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+text(band=header alignment="0" text="Gtepur006" border="0" color="33554432" x="18" y="100" height="64" width="279" html.valueishtml="0"  name=t_5 visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+compute(band=header alignment="1" expression="today()"border="0" color="33554432" x="3209" y="44" height="72" width="256" format="[general]" html.valueishtml="0"  name=date_1 visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+text(band=header alignment="2" text="" border="0" color="33554432" x="754" y="96" height="64" width="1961" html.valueishtml="0"  name=t_gnm visible="1"  hidesnaked=1  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912"  height.autosize=yes)
+compute(band=header alignment="2" expression="'O/S H.O. Indent Wise Goods Due '+if ( indentflag ='A','From '+ ra_from_dt+' To '+ ra_to_dt,'As on '+string(today(),'dd/mm/yyyy')) "border="0" color="33554432" x="754" y="24" height="64" width="1957" format="[GENERAL]" html.valueishtml="0"  name=compute_1 visible="1"  font.face="Times New Roman" font.height="-10" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+text(band=header alignment="2" text="Indent Id" border="0" color="33554432" x="5" y="328" height="64" width="379" html.valueishtml="0"  name=indentid_t visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+line(band=header x1="5" y1="404" x2="3456" y2="404"  name=l_1 visible="1" pen.style="0" pen.width="5" pen.color="33554432"  background.mode="2" background.color="1073741824" )
+text(band=header alignment="0" text="Product Name" border="0" color="33554432" x="805" y="328" height="64" width="1371" html.valueishtml="0"  name=sp_name_t visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+text(band=header alignment="1" text="Received" border="0" color="33554432" x="2752" y="328" height="64" width="329" html.valueishtml="0"  name=receivedqnty_t visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+text(band=header alignment="2" text="Unit" border="0" color="33554432" x="1842" y="328" height="64" width="165" html.valueishtml="0"  name=unit_t visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+text(band=header alignment="1" text="Indent" border="0" color="33554432" x="2043" y="328" height="64" width="256" html.valueishtml="0"  name=indentqnty_t visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+text(band=header alignment="1" text="Cancel" border="0" color="33554432" x="2391" y="328" height="64" width="256" html.valueishtml="0"  name=t_7 visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+text(band=header alignment="1" text="Due" border="0" color="33554432" x="3136" y="328" height="64" width="329" html.valueishtml="0"  name=due_t visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+text(band=header alignment="1" text="<---------------------------Quantity------------------------------->" border="0" color="33554432" x="2126" y="248" height="64" width="1344" html.valueishtml="0"  name=t_1 visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+compute(band=footer alignment="2" expression="'Page ' + page() + ' of ' + pageCount()"border="0" color="33554432" x="1403" y="8" height="72" width="654" format="[general]" html.valueishtml="0"  name=page_1 visible="1"  font.face="Times New Roman" font.height="-9" font.weight="400"  font.family="1" font.pitch="2" font.charset="0" background.mode="2" background.color="1073741824" )
+column(band=detail id=1 alignment="0" tabsequence=32766 border="0" color="33554432" x="9" y="4" height="76" width="421" format="[general]" html.valueishtml="0"  name=indentid visible="1" edit.limit=25 edit.case=any edit.autoselect=yes edit.autohscroll=yes  font.face="Times New Roman" font.height="-9" font.weight="400"  font.family="2" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+column(band=detail id=5 alignment="1" tabsequence=32766 border="0" color="33554432" x="2752" y="4" height="76" width="329" format="#,##0.00" html.valueishtml="0"  name=receivedqnty visible="1" edit.limit=0 edit.case=any edit.autoselect=yes edit.autohscroll=yes  font.face="Times New Roman" font.height="-9" font.weight="400"  font.family="2" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+column(band=detail id=7 alignment="1" tabsequence=32766 border="0" color="33554432" x="3136" y="4" height="76" width="329" format="#,##0.00;[red](#,##0.00)" html.valueishtml="0"  name=due visible="1" edit.limit=0 edit.case=any edit.focusrectangle=no edit.autoselect=no  font.face="Times New Roman" font.height="-9" font.weight="400"  font.family="2" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+column(band=detail id=3 alignment="2" tabsequence=32766 border="0" color="33554432" x="1842" y="4" height="76" width="165" format="[general]" html.valueishtml="0"  name=unit visible="1" edit.limit=0 edit.case=any edit.focusrectangle=no edit.autoselect=no  font.face="Times New Roman" font.height="-9" font.weight="400"  font.family="2" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+column(band=detail id=2 alignment="0" tabsequence=32766 border="0" color="33554432" x="805" y="4" height="76" width="983" format="[general]" html.valueishtml="0"  name=sp_name visible="1" edit.limit=200 edit.case=any edit.autoselect=yes edit.autohscroll=yes  font.face="Times New Roman" font.height="-9" font.weight="400"  font.family="2" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+column(band=detail id=4 alignment="1" tabsequence=32766 border="0" color="33554432" x="2062" y="4" height="76" width="215" format="#,##0.00" html.valueishtml="0"  name=indentqnty visible="1" edit.limit=0 edit.case=any edit.autoselect=yes edit.autohscroll=yes  font.face="Times New Roman" font.height="-9" font.weight="400"  font.family="2" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+column(band=detail id=6 alignment="1" tabsequence=32766 border="0" color="33554432" x="2437" y="4" height="76" width="215" format="#,##0.00" html.valueishtml="0"  name=cncl_qnty visible="1" edit.limit=0 edit.case=any edit.focusrectangle=no edit.autoselect=no  font.face="Times New Roman" font.height="-9" font.weight="400"  font.family="2" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+column(band=detail id=8 alignment="0" tabsequence=32766 border="0" color="33554432" x="448" y="4" height="76" width="270" format="dd/mm/yyyy" html.valueishtml="0"  name=indent_date visible="1" edit.limit=0 edit.case=any edit.autoselect=yes edit.autohscroll=yes  font.face="Times New Roman" font.height="-9" font.weight="400"  font.family="2" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+text(band=header alignment="2" text="Indent Date" border="0" color="33554432" x="439" y="328" height="64" width="334" html.valueishtml="0"  name=indent_date_t visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+
+sparse(names="indentid	indent_date")htmltable(border="1" )
+htmlgen(clientevents="1" clientvalidation="1" clientcomputedfields="1" clientformatting="0" clientscriptable="0" generatejavascript="1" encodeselflinkargs="1" netscapelayers="0" pagingmethod=0 generatedddwframes="1" )
+xhtmlgen() cssgen(sessionspecific="0" )
+xmlgen(inline="0" )
+xsltgen()
+jsgen()
+export.xml(headgroups="1" includewhitespace="0" metadatatype=0 savemetadata=0 )
+import.xml()
+export.pdf(method=0 distill.custompostscript="0" xslfop.print="0" )
+export.xhtml()
+ 

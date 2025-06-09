@@ -1,0 +1,79 @@
+﻿$PBExportHeader$dw_gteinr008.srd
+release 10.5;
+datawindow(units=0 timer_interval=0 color=1073741824 processing=0 HTMLDW=no print.printername="" print.documentname="" print.orientation = 0 print.margin.left = 110 print.margin.right = 110 print.margin.top = 96 print.margin.bottom = 96 print.paper.source = 0 print.paper.size = 0 print.canusedefaultprinter=yes print.prompt=no print.buttons=no print.preview.buttons=no print.cliptext=no print.overrideprintjob=no print.collate=yes print.preview.outline=yes hidegrayline=no )
+header(height=396 color="536870912" )
+summary(height=80 color="536870912" )
+footer(height=92 color="536870912" )
+detail(height=72 color="536870912" )
+table(column=(type=char(50) updatewhereclause=yes name=eachead_name dbname="eachead_name" )
+ column=(type=char(50) updatewhereclause=yes name=eacsubhead_manid dbname="eacsubhead_manid" )
+ column=(type=char(200) updatewhereclause=yes name=sp_name dbname="sp_name" )
+ column=(type=char(25) updatewhereclause=yes name=spc_id dbname="spc_id" )
+ column=(type=char(30) updatewhereclause=yes name=spc_name dbname="spc_name" )
+ column=(type=number updatewhereclause=yes name=issuequantity dbname="issuequantity" )
+ column=(type=number updatewhereclause=yes name=value dbname="value" )
+ column=(type=number updatewhereclause=yes name=rate dbname="rate" )
+ column=(type=char(1) updatewhereclause=yes name=confirmflag dbname="pris_confirmflag" )
+ column=(type=char(1) updatewhereclause=yes name=pris_active dbname="pris_active" )
+ column=(type=char(10) updatewhereclause=yes name=sp_unit dbname="sp_unit" )
+ column=(type=char(30) updatewhereclause=yes name=division dbname="division" )
+ retrieve="SELECT initcap(C.ACSUBLEDGER_NAME) EACHEAD_NAME, A.EACSUBHEAD_MANID,decode(nvl(e.SSP_ID,'x'),'x',SP_NAME,g.SSP_NAME)SP_NAME, e.SPC_ID,SPC_NAME,
+        SUM(B.PRIS_ISSUEQUANTITY)ISSUEQUANTITY, 
+		SUM(B.PRIS_VALUE) VALUE,
+		SUM(B.PRIS_VALUE)/SUM(B.PRIS_ISSUEQUANTITY) RATE, 
+		D.PRIS_CONFIRMFLAG, D.PRIS_ACTIVE, E.SP_UNIT, initcap(FIELD_NAME) division
+   FROM FB_EXPENSEACSUBHEAD A,  FB_PRODUCTISSUEDETAILS B,  (select * from fb_acsubledger where nvl(EXP_HEAD_IND,'N')='Y') C, 
+		    FB_PRODUCTISSUE D,  FB_STOREPRODUCT E,FB_STOREPRODUCTCATEGORY f,fb_storeproduct_std g, fb_field h 
+ WHERE  A.EACSUBHEAD_ID=B.EACSUBHEAD_ID AND A.EACHEAD_ID=C.ACSUBLEDGER_ID AND B.PRIS_ID=D.PRIS_ID AND 
+       B.SP_ID=E.SP_ID AND e.SPC_ID=f.SPC_ID and e.SSP_ID=g.ssp_id(+) and 
+	   D.PRIS_CONFIRMFLAG='1' AND D.PRIS_ACTIVE='1'  and d.PRIS_DIVISION = h.FIELD_ID and  d.PRIS_DIVISION = decode(:ra_div,'ALL',d.PRIS_DIVISION,:ra_div)
+       AND trunc(D.PRIS_DATE) between TO_DATE (:ra_fr_dt,'DD/MM/YYYY') and TO_DATE (:ra_to_dt,'DD/MM/YYYY')and
+	   e.SPC_ID = decode(:ra_SPC_ID,'ALL',e.SPC_ID,:ra_SPC_ID) and
+	   e.SP_ID =  decode(:ra_SP_ID,'ALL',e.SP_ID,:ra_SP_ID)
+ GROUP BY initcap(C.ACSUBLEDGER_NAME), A.EACSUBHEAD_MANID,decode(nvl(e.SSP_ID,'x'),'x',SP_NAME,g.SSP_NAME),D.PRIS_CONFIRMFLAG, D.PRIS_ACTIVE, E.SP_UNIT,e.SPC_ID,SPC_NAME, initcap(FIELD_NAME)" arguments=(("RA_FR_DT", string),("RA_TO_DT", string),("ra_SPC_ID", string),("ra_SP_ID", string),("ra_div", string))  sort="division A spc_name A sp_name A eacsubhead_manid A " )
+group(level=1 header.height=76 trailer.height=0 trailer.height.autosize=yes by=("division" ) header.color="536870912" trailer.color="536870912" )
+group(level=2 header.height=72 trailer.height=0 by=("spc_name" , "spc_id" ) header.color="536870912" trailer.color="536870912" )
+group(level=3 header.height=76 trailer.height=0 trailer.height.autosize=yes by=("sp_name" , "sp_unit" ) header.color="536870912" trailer.color="536870912" )
+text(band=header alignment="0" text="Gteinr008" border="0" color="33554432" x="27" y="100" height="64" width="261" html.valueishtml="0"  name=t_3 visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+text(band=header alignment="0" text="Luxmi Tea Co." border="0" color="33554432" x="27" y="32" height="64" width="553" html.valueishtml="0"  name=t_co visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+compute(band=header alignment="1" expression="today()"border="0" color="33554432" x="3058" y="48" height="72" width="247" format="[general]" html.valueishtml="0"  name=date_1 visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+text(band=header alignment="2" text="" border="0" color="33554432" x="695" y="96" height="64" width="1961" html.valueishtml="0"  name=t_gnm visible="1"  hidesnaked=1  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912"  height.autosize=yes)
+compute(band=header alignment="2" expression="'Item/Expense Head Wise Consumption From '+ RA_FR_DT +' To '+ RA_TO_DT "border="0" color="33554432" x="713" y="24" height="64" width="1929" format="[GENERAL]" html.valueishtml="0"  name=compute_3 visible="1"  font.face="Times New Roman" font.height="-10" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+line(band=header x1="9" y1="392" x2="3342" y2="392"  name=l_1 visible="1" pen.style="0" pen.width="5" pen.color="33554432"  background.mode="2" background.color="1073741824" )
+text(band=header alignment="2" text="IssueQuantity" border="0" color="33554432" x="2427" y="256" height="128" width="352" html.valueishtml="0"  name=issuequantity_t visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+text(band=header alignment="2" text="Value" border="0" color="33554432" x="2976" y="320" height="64" width="329" html.valueishtml="0"  name=value_t visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+text(band=header alignment="1" text="AverageRate" border="0" color="33554432" x="2025" y="256" height="128" width="329" html.valueishtml="0"  name=rate_t visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+text(band=header alignment="0" text="Exp Subhead" border="0" color="33554432" x="1006" y="320" height="64" width="951" html.valueishtml="0"  name=eacsubhead_manid_t visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+text(band=header alignment="0" text="Exp Head" border="0" color="33554432" x="256" y="320" height="64" width="622" html.valueishtml="0"  name=eachead_name_t visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+column(band=header.1 id=12 alignment="0" tabsequence=32766 border="0" color="33554432" x="23" y="8" height="64" width="823" format="[general]" html.valueishtml="0"  name=division visible="1" edit.limit=0 edit.case=any edit.focusrectangle=no edit.autoselect=no  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="2" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+text(band=header.2 alignment="1" text="Category :" border="0" color="33554432" x="14" y="4" height="64" width="274" html.valueishtml="0"  name=spc_name_t visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+column(band=header.2 id=5 alignment="0" tabsequence=32766 border="0" color="33554432" x="306" y="4" height="64" width="983" format="[general]" html.valueishtml="0"  name=spc_name visible="1" edit.limit=0 edit.case=any edit.focusrectangle=no edit.autoselect=no  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="2" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+column(band=header.2 id=4 alignment="0" tabsequence=32766 border="0" color="33554432" x="1367" y="4" height="64" width="576" format="[general]" html.valueishtml="0"  name=spc_id visible="0" edit.limit=0 edit.case=any edit.focusrectangle=no edit.autoselect=no  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="2" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+text(band=header.3 alignment="1" text="Product :" border="0" color="33554432" x="14" y="8" height="64" width="274" html.valueishtml="0"  name=sp_name_t visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+column(band=header.3 id=3 alignment="0" tabsequence=32766 border="0" color="33554432" x="302" y="8" height="64" width="983" format="[general]" html.valueishtml="0"  name=sp_name visible="1" edit.limit=200 edit.case=any edit.autoselect=yes edit.autohscroll=yes  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="2" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+column(band=header.3 id=11 alignment="0" tabsequence=32766 border="0" color="33554432" x="1367" y="8" height="64" width="302" format="[general]" html.valueishtml="0"  name=sp_unit visible="1" edit.limit=10 edit.case=any edit.autoselect=yes edit.autohscroll=yes  font.face="Times New Roman" font.height="-9" font.weight="400"  font.family="2" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+column(band=detail id=2 alignment="0" tabsequence=32766 border="0" color="33554432" x="1006" y="4" height="64" width="951" format="[general]" html.valueishtml="0"  name=eacsubhead_manid visible="1" edit.limit=50 edit.case=any edit.autoselect=yes edit.autohscroll=yes  font.face="Times New Roman" font.height="-9" font.weight="400"  font.family="2" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+column(band=detail id=1 alignment="0" tabsequence=32766 border="0" color="33554432" x="256" y="4" height="64" width="622" format="[general]" html.valueishtml="0"  name=eachead_name visible="1" edit.limit=50 edit.case=any edit.autoselect=yes edit.autohscroll=yes  font.face="Times New Roman" font.height="-9" font.weight="400"  font.family="2" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+column(band=detail id=6 alignment="1" tabsequence=32766 border="0" color="33554432" x="2432" y="4" height="64" width="329" format="#,##0.00" html.valueishtml="0"  name=issuequantity visible="1" edit.limit=0 edit.case=any edit.autoselect=yes edit.autohscroll=yes  font.face="Times New Roman" font.height="-9" font.weight="400"  font.family="2" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+column(band=detail id=8 alignment="1" tabsequence=32766 border="0" color="33554432" x="2025" y="4" height="64" width="329" format="#,##0.00" html.valueishtml="0"  name=rate visible="1" edit.limit=0 edit.case=any edit.autoselect=yes edit.autohscroll=yes  font.face="Times New Roman" font.height="-9" font.weight="400"  font.family="2" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+column(band=detail id=7 alignment="1" tabsequence=32766 border="0" color="33554432" x="2976" y="4" height="64" width="329" format="#,##0.00" html.valueishtml="0"  name=value visible="1" edit.limit=0 edit.case=any edit.autoselect=yes edit.autohscroll=yes  font.face="Times New Roman" font.height="-9" font.weight="400"  font.family="2" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+compute(band=trailer.2 alignment="1" expression="sum(issuequantity for group 3)"border="0" color="33554432" x="2432" y="4" height="76" width="329" format="#,##0.00" html.valueishtml="0"  name=compute_4 visible="1~tif (count( 1 for group 2) >1 ,1,0)"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+compute(band=trailer.2 alignment="1" expression="sum(value for group 3)"border="0" color="33554432" x="2976" y="4" height="76" width="329" format="#,##0.00" html.valueishtml="0"  name=compute_5 visible="1~tif (count( 1 for group 2) >1 ,1,0)"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+compute(band=trailer.1 alignment="1" expression="sum(issuequantity for group 2)"border="0" color="33554432" x="2432" y="4" height="76" width="329" format="#,##0.00" html.valueishtml="0"  name=compute_1 visible="1~tif (count( 1 for group 2) >1 ,1,0)"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+compute(band=trailer.1 alignment="1" expression="sum(value for group 2)"border="0" color="33554432" x="2976" y="4" height="76" width="329" format="#,##0.00" html.valueishtml="0"  name=compute_2 visible="1~tif (count( 1 for group 2) >1 ,1,0)"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+line(band=summary x1="2322" y1="76" x2="3342" y2="76"  name=l_4 visible="1~tif ( ra_SPC_ID ='ALL',1,0)" pen.style="0" pen.width="5" pen.color="134217744"  background.mode="2" background.color="1073741824" )
+text(band=summary alignment="1" text="Grand Total :" border="0" color="33554432" x="1609" y="8" height="64" width="315" html.valueishtml="0"  name=t_4 visible="1~tif ( ra_SPC_ID ='ALL',1,0)"  font.face="Times New Roman" font.height="-8" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="2" background.color="1073741824" )
+compute(band=summary alignment="1" expression="sum(value for all)"border="0" color="33554432" x="2976" y="8" height="64" width="329" format="#,##0.00" html.valueishtml="0"  name=compute_7 visible="1~tif ( ra_SPC_ID ='ALL',1,0)"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+compute(band=footer alignment="2" expression="'Page ' + page() + ' of ' + pageCount()"border="0" color="33554432" x="1376" y="12" height="72" width="599" format="[general]" html.valueishtml="0"  name=page_1 visible="1"  font.face="Times New Roman" font.height="-9" font.weight="400"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+
+sparse(names="sp_name	sp_unit	eachead_name")htmltable(border="1" )
+htmlgen(clientevents="1" clientvalidation="1" clientcomputedfields="1" clientformatting="0" clientscriptable="0" generatejavascript="1" encodeselflinkargs="1" netscapelayers="0" pagingmethod=0 generatedddwframes="1" )
+xhtmlgen() cssgen(sessionspecific="0" )
+xmlgen(inline="0" )
+xsltgen()
+jsgen()
+export.xml(headgroups="1" includewhitespace="0" metadatatype=0 savemetadata=0 )
+import.xml()
+export.pdf(method=0 distill.custompostscript="0" xslfop.print="0" )
+export.xhtml()
+ 

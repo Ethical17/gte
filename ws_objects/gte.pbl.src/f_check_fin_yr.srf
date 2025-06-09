@@ -1,0 +1,26 @@
+﻿$PBExportHeader$f_check_fin_yr.srf
+global type f_check_fin_yr from function_object
+end type
+
+forward prototypes
+global function integer f_check_fin_yr (datetime fd_date)
+end prototypes
+
+global function integer f_check_fin_yr (datetime fd_date);long ll_st_year,ll_end_year
+if long(string(today(),'mm')) < 4 then
+	ll_st_year  = ((long(string(today(),'YYYY'))-1)*100)+4;
+	ll_end_year = (long(string(today(),'YYYY'))*100)+3;
+else
+	ll_st_year  = (long(string(today(),'YYYY'))*100)+4;
+	ll_end_year = ((long(string(today(),'YYYY'))+1)*100)+3;
+end if;
+
+//if (long(right(string(fd_date,'dd/mm/yyyy'),4)) * 100 + long(mid(string(fd_date,'dd/mm/yyyy'),4,2))) < ll_st_year or &
+//   (long(right(string(fd_date,'dd/mm/yyyy'),4)) * 100 + long(mid(string(fd_date,'dd/mm/yyyy'),4,2)))  > ll_end_year then	
+//	messagebox('Warning!','Date Should Be Between Current Financial Year, Please Check !!!')
+//	return -1
+//end if
+
+return 1
+end function
+

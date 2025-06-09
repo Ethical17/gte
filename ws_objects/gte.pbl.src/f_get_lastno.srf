@@ -1,0 +1,31 @@
+﻿$PBExportHeader$f_get_lastno.srf
+global type f_get_lastno from function_object
+end type
+
+forward prototypes
+global function long f_get_lastno (string fs_type, string fs_acyr)
+end prototypes
+
+global function long f_get_lastno (string fs_type, string fs_acyr);long ll_temp
+
+select (nvl(sn_srl_no,0) + 1) into :ll_temp from fb_serial_no where sn_doc_type = :fs_type and SN_ACCT_YEAR = :fs_acyr;
+
+if sqlca.sqlcode = -1 then
+	messagebox('Sql Error During Getting Last No',sqlca.sqlerrtext)
+	return -1
+elseif sqlca.sqlcode = 100 then
+
+	INSERT INTO FB_SERIAL_NO ( SN_DOC_TYPE, SN_SRL_NO, SN_ACCT_YEAR ) VALUES ( :fs_type, 1, :fs_acyr); 
+	if sqlca.sqlcode = -1 then
+		messagebox('Sql Error During Getting Last No',sqlca.sqlerrtext)
+		return -1
+	end if
+	commit using sqlca;
+	ll_temp=1
+	return ll_temp
+elseif sqlca.sqlcode = 0 then
+	return ll_temp
+end if
+
+end function
+

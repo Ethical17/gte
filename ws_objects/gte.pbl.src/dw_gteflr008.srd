@@ -1,0 +1,62 @@
+﻿$PBExportHeader$dw_gteflr008.srd
+release 10.5;
+datawindow(units=0 timer_interval=0 color=1073741824 processing=0 HTMLDW=no print.printername="" print.documentname="" print.orientation = 0 print.margin.left = 20 print.margin.right = 20 print.margin.top = 96 print.margin.bottom = 96 print.paper.source = 0 print.paper.size = 0 print.canusedefaultprinter=yes print.prompt=no print.buttons=no print.preview.buttons=no print.cliptext=no print.overrideprintjob=no print.collate=yes print.preview.outline=yes hidegrayline=no )
+header(height=320 color="536870912" )
+summary(height=0 color="536870912" )
+footer(height=76 color="536870912" )
+detail(height=76 color="536870912" )
+table(column=(type=char(25) updatewhereclause=yes name=nurseryid dbname="nurseryid" )
+ column=(type=datetime updatewhereclause=yes name=transactiondate dbname="transactiondate" )
+ column=(type=char(20) updatewhereclause=yes name=plantjat dbname="plantjat" )
+ column=(type=char(8) updatewhereclause=yes name=transactiontype dbname="transactiontype" )
+ column=(type=char(25) updatewhereclause=yes name=trasnferto dbname="trasnferto" )
+ column=(type=char(50) updatewhereclause=yes name=section_name dbname="section_name" )
+ column=(type=char(20) updatewhereclause=yes name=sectionorgroupstate dbname="sectionorgroupstate" )
+ column=(type=char(10) updatewhereclause=yes name=location_id dbname="location_id" )
+ column=(type=decimal(0) updatewhereclause=yes name=noofplantes dbname="noofplantes" )
+ retrieve="select NURSERY_ID nurseryid, NURSERY_DATE transactiondate, NURSERY_PLANTJAT plantjat, 
+	   decode(NURSERY_TRAN_TYPE,'T','Transfer','A','Added','D','Dead') transactiontype,
+	   decode(NURSERY_TRANFER_TO,'G','To Group Estate','P','To Section For Plantation','') trasnferto, 
+	   initcap(SECTION_NAME) SECTION_NAME ,a.SECTION_ID sectionorgroupstate, LOCATION_ID, NURSERY_NOPLANTINC noofplantes
+from fb_nurserydetails a,
+	 (select SECTION_NAME, SECTION_ID from fb_section where nvl(SECTION_ACTIVE_IND,'N')='Y'
+	  union
+	  select UNIT_NAME,UNIT_ID from fb_gardenmaster) b
+where a.SECTION_ID = b.SECTION_ID" )
+text(band=header alignment="0" text="Luxmi Tea Co." border="0" color="33554432" x="18" y="8" height="64" width="462" html.valueishtml="0"  name=t_co visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+text(band=header alignment="0" text="Gteflr008" border="0" color="33554432" x="18" y="88" height="64" width="562" html.valueishtml="0"  name=t_2 visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+text(band=header alignment="0" text="Nursery ID" border="0" color="33554432" x="18" y="244" height="64" width="270" html.valueishtml="0"  name=nurseryid_t visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+text(band=header alignment="2" text="Date" border="0" color="33554432" x="398" y="244" height="64" width="352" html.valueishtml="0"  name=transactiondate_t visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+text(band=header alignment="0" text="Plant Jat" border="0" color="33554432" x="768" y="244" height="64" width="215" html.valueishtml="0"  name=plantjat_t visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+text(band=header alignment="0" text="Type" border="0" color="33554432" x="1422" y="244" height="64" width="192" html.valueishtml="0"  name=transactiontype_t visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+text(band=header alignment="0" text="Section/Group Estate" border="0" color="33554432" x="2309" y="244" height="64" width="507" html.valueishtml="0"  name=section_name_t visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+text(band=header alignment="0" text="Transfer For" border="0" color="33554432" x="1696" y="244" height="64" width="507" html.valueishtml="0"  name=trasnferto_t visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+column(band=header id=7 alignment="0" tabsequence=32766 border="0" color="33554432" x="750" y="124" height="64" width="635" format="[general]" html.valueishtml="0"  name=sectionorgroupstate visible="0" edit.limit=0 edit.case=any edit.focusrectangle=no edit.autoselect=no  font.face="Times New Roman" font.height="-9" font.weight="400"  font.family="2" font.pitch="2" font.charset="0" background.mode="2" background.color="1073741824" )
+text(band=header alignment="0" text="Location" border="0" color="33554432" x="3186" y="244" height="64" width="320" html.valueishtml="0"  name=location_id_t visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+text(band=header alignment="1" text="No OfPlants" border="0" color="33554432" x="3584" y="176" height="132" width="219" html.valueishtml="0"  name=noofplantes_t visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+compute(band=header alignment="1" expression="today()"border="0" color="33554432" x="3493" y="12" height="84" width="329" format="dd/mm/yyyy" html.valueishtml="0"  name=date_1 visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+line(band=header x1="14" y1="316" x2="3822" y2="316"  name=l_1 visible="1" pen.style="0" pen.width="5" pen.color="33554432"  background.mode="2" background.color="1073741824" )
+text(band=header alignment="2" text="Nursery Stock Ledger" border="0" color="33554432" x="1147" y="12" height="72" width="1545" html.valueishtml="0"  name=t_14 visible="1"  font.face="Times New Roman" font.height="-11" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="2" background.color="1073741824" )
+text(band=header alignment="2" text="" border="0" color="33554432" x="937" y="96" height="64" width="1961" html.valueishtml="0"  name=t_gnm visible="1"  hidesnaked=1  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912"  height.autosize=yes)
+column(band=detail id=1 alignment="0" tabsequence=32766 border="0" color="33554432" x="18" y="4" height="64" width="366" format="[general]" html.valueishtml="0"  name=nurseryid visible="1" edit.limit=0 edit.case=any edit.focusrectangle=no edit.autoselect=no  font.face="Times New Roman" font.height="-9" font.weight="400"  font.family="2" font.pitch="2" font.charset="0" background.mode="2" background.color="1073741824" )
+column(band=detail id=2 alignment="0" tabsequence=32766 border="0" color="33554432" x="398" y="4" height="64" width="352" format="dd/mm/yyyy" html.valueishtml="0"  name=transactiondate visible="1" edit.limit=0 edit.case=any edit.focusrectangle=no edit.autoselect=no  font.face="Times New Roman" font.height="-9" font.weight="400"  font.family="2" font.pitch="2" font.charset="0" background.mode="2" background.color="1073741824" )
+column(band=detail id=3 alignment="0" tabsequence=32766 border="0" color="33554432" x="768" y="4" height="64" width="640" format="[general]" html.valueishtml="0"  name=plantjat visible="1" edit.limit=0 edit.case=any edit.focusrectangle=no edit.autoselect=no  font.face="Times New Roman" font.height="-9" font.weight="400"  font.family="2" font.pitch="2" font.charset="0" background.mode="2" background.color="1073741824" )
+column(band=detail id=4 alignment="0" tabsequence=32766 border="0" color="33554432" x="1422" y="4" height="64" width="256" format="[general]" html.valueishtml="0"  name=transactiontype visible="1" edit.limit=0 edit.case=any edit.focusrectangle=no edit.autoselect=no  font.face="Times New Roman" font.height="-9" font.weight="400"  font.family="2" font.pitch="2" font.charset="0" background.mode="2" background.color="1073741824" )
+column(band=detail id=5 alignment="0" tabsequence=32766 border="0" color="33554432" x="1696" y="4" height="64" width="594" format="[general]" html.valueishtml="0"  name=trasnferto visible="1" edit.limit=0 edit.case=any edit.focusrectangle=no edit.autoselect=no  font.face="Times New Roman" font.height="-9" font.weight="400"  font.family="2" font.pitch="2" font.charset="0" background.mode="2" background.color="1073741824" )
+column(band=detail id=6 alignment="0" tabsequence=32766 border="0" color="33554432" x="2304" y="4" height="64" width="864" format="[general]" html.valueishtml="0"  name=section_name visible="1" edit.limit=0 edit.case=any edit.focusrectangle=no edit.autoselect=no  font.face="Times New Roman" font.height="-9" font.weight="400"  font.family="2" font.pitch="2" font.charset="0" background.mode="2" background.color="1073741824" )
+column(band=detail id=8 alignment="0" tabsequence=32766 border="0" color="33554432" x="3186" y="4" height="64" width="320" format="[general]" html.valueishtml="0"  name=location_id visible="1" edit.limit=0 edit.case=any edit.focusrectangle=no edit.autoselect=no  font.face="Times New Roman" font.height="-9" font.weight="400"  font.family="2" font.pitch="2" font.charset="0" background.mode="2" background.color="1073741824" )
+column(band=detail id=9 alignment="1" tabsequence=32766 border="0" color="33554432" x="3525" y="4" height="64" width="293" format="#,##0" html.valueishtml="0"  name=noofplantes visible="1" edit.limit=0 edit.case=any edit.focusrectangle=no edit.autoselect=no  font.face="Times New Roman" font.height="-9" font.weight="400"  font.family="2" font.pitch="2" font.charset="0" background.mode="2" background.color="1073741824" )
+compute(band=footer alignment="0" expression="'Total Records : '+ string(rowcount())"border="0" color="33554432" x="23" y="4" height="64" width="530" format="[GENERAL]" html.valueishtml="0"  name=compute_1 visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="2" background.color="1073741824" )
+text(band=footer alignment="1" text="Nursery Stock" border="0" color="33554432" x="3127" y="4" height="64" width="695" html.valueishtml="0"  name=t_9 visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+compute(band=footer alignment="2" expression="'Page ' + page() + ' of ' + pageCount()"border="0" color="33554432" x="1527" y="4" height="64" width="782" format="[general]" html.valueishtml="0"  name=page_1 visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="2" background.color="1073741824" )
+htmltable(border="1" )
+htmlgen(clientevents="1" clientvalidation="1" clientcomputedfields="1" clientformatting="0" clientscriptable="0" generatejavascript="1" encodeselflinkargs="1" netscapelayers="0" pagingmethod=0 generatedddwframes="1" )
+xhtmlgen() cssgen(sessionspecific="0" )
+xmlgen(inline="0" )
+xsltgen()
+jsgen()
+export.xml(headgroups="1" includewhitespace="0" metadatatype=0 savemetadata=0 )
+import.xml()
+export.pdf(method=0 distill.custompostscript="0" xslfop.print="0" )
+export.xhtml()
+ 

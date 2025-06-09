@@ -1,0 +1,19 @@
+﻿$PBExportHeader$f_upd_lastno_withoutyear.srf
+global type f_upd_lastno_withoutyear from function_object
+end type
+
+forward prototypes
+global function long f_upd_lastno_withoutyear (string fs_type, long fl_lastno)
+end prototypes
+
+global function long f_upd_lastno_withoutyear (string fs_type, long fl_lastno);
+update fb_serial_no set sn_srl_no = :fl_lastno where sn_doc_type = :fs_type ;
+
+if sqlca.sqlcode = -1 then
+	messagebox('Sql Error During Updating Last No',sqlca.sqlerrtext)
+	return -1
+else
+	return 0
+end if
+end function
+

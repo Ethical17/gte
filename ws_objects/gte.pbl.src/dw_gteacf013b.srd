@@ -1,0 +1,41 @@
+﻿$PBExportHeader$dw_gteacf013b.srd
+release 10.5;
+datawindow(units=0 timer_interval=0 color=1073741824 processing=0 HTMLDW=no print.printername="" print.documentname="" print.orientation = 0 print.margin.left = 110 print.margin.right = 110 print.margin.top = 96 print.margin.bottom = 96 print.paper.source = 0 print.paper.size = 0 print.canusedefaultprinter=yes print.prompt=no print.buttons=no print.preview.buttons=no print.cliptext=no print.overrideprintjob=no print.collate=yes print.preview.outline=yes hidegrayline=no )
+header(height=76 color="536870912" )
+summary(height=92 color="536870912" )
+footer(height=0 color="536870912" )
+detail(height=84 color="536870912" )
+table(column=(type=char(50) updatewhereclause=yes name=acsubledgername dbname="fb_acsubledger.acsubledgername" dbalias="c.acsubledgername" )
+ column=(type=char(25) updatewhereclause=yes name=acsubledgerid dbname="fb_expenseacsubhead.acsubledgerid" dbalias="d.acsubledgerid" )
+ column=(type=char(25) updatewhereclause=yes name=eacsubhead_id dbname="fb_employee.eacsubhead_id" dbalias="b.eacsubhead_id" )
+ column=(type=char(50) updatewhereclause=yes name=eacsubhead_name dbname="fb_expenseacsubhead.eacsubhead_name" dbalias="d.eacsubhead_name" )
+ column=(type=number updatewhereclause=yes name=grwages dbname="grwages" )
+ retrieve="select ACSUBLEDGER_NAME acsubledgername,d.EACHEAD_ID acsubledgerid,b.EACSUBHEAD_ID,d.EACSUBHEAD_MANID EACSUBHEAD_NAME,
+            sum(EP_BASICAMOUNT+EP_DAAMOUNT+EP_VDAAMOUNT+ EP_HRAMOUNT+ EP_ELECTRICAMOUNT+ EP_FUELAMOUNT) grwages     
+   from fb_emppayment a,FB_EMPLOYEE b,fb_acsubledger c,FB_EXPENSEACSUBHEAD d
+ where a.EMP_ID=b.EMP_ID(+) and d.EACHEAD_ID=c.ACSUBLEDGER_ID(+) and b.EACSUBHEAD_ID=d.EACSUBHEAD_ID(+)
+            and  ((EP_YEAR*100)+EP_MONTH)= :ra_yrmm
+ group by ACSUBLEDGER_NAME,d.EACHEAD_ID,b.EACSUBHEAD_ID,d.EACSUBHEAD_MANID" arguments=(("ra_yrmm", string)) )
+text(band=header alignment="1" text="Grwages" border="0" color="33554432" x="3406" y="0" height="64" width="329" html.valueishtml="0"  name=grwages_t visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+text(band=header alignment="0" text="Acsubledger" border="0" color="33554432" x="5" y="0" height="64" width="969" html.valueishtml="0"  name=acsubledger visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+text(band=header alignment="0" text="Expense Subhead" border="0" color="33554432" x="1728" y="8" height="64" width="1006" html.valueishtml="0"  name=t_1 visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+text(band=header alignment="0" text="Expense Subheadid" border="0" color="33554432" x="2789" y="12" height="64" width="507" html.valueishtml="0"  name=t_2 visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+text(band=header alignment="0" text="Acsubledgerid" border="0" color="33554432" x="1179" y="4" height="64" width="507" html.valueishtml="0"  name=fb_acsubledger_acsubledgerid_t visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+column(band=detail id=5 alignment="1" tabsequence=32766 border="0" color="33554432" x="3406" y="0" height="76" width="329" format="#,##0.00" html.valueishtml="0"  name=grwages visible="1" edit.limit=0 edit.case=any edit.autoselect=yes edit.autohscroll=yes  font.face="Times New Roman" font.height="-9" font.weight="400"  font.family="2" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+column(band=detail id=1 alignment="0" tabsequence=32766 border="0" color="33554432" x="5" y="4" height="76" width="1152" format="[general]" html.valueishtml="0"  name=acsubledgername visible="1" edit.limit=0 edit.case=any edit.focusrectangle=no edit.autoselect=no  font.face="Times New Roman" font.height="-9" font.weight="400"  font.family="2" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+column(band=detail id=4 alignment="0" tabsequence=32766 border="0" color="33554432" x="1728" y="4" height="64" width="1006" format="[general]" html.valueishtml="0"  name=eacsubhead_name visible="1" edit.limit=0 edit.case=any edit.focusrectangle=no edit.autoselect=no  font.face="Times New Roman" font.height="-9" font.weight="400"  font.family="2" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+column(band=detail id=3 alignment="0" tabsequence=32766 border="0" color="33554432" x="2789" y="4" height="64" width="507" format="[general]" html.valueishtml="0"  name=eacsubhead_id visible="1" edit.limit=0 edit.case=any edit.focusrectangle=no edit.autoselect=no  font.face="Times New Roman" font.height="-9" font.weight="400"  font.family="2" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+column(band=detail id=2 alignment="0" tabsequence=32766 border="0" color="33554432" x="1179" y="8" height="64" width="507" format="[general]" html.valueishtml="0"  name=acsubledgerid visible="1" edit.limit=0 edit.case=any edit.focusrectangle=no edit.autoselect=no  font.face="Times New Roman" font.height="-9" font.weight="400"  font.family="2" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+compute(band=summary alignment="1" expression="sum(grwages for all)"border="0" color="33554432" x="3406" y="0" height="76" width="329" format="#,##0.00" html.valueishtml="0"  name=compute_1 visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+
+sparse(names="acsubledgername	eacsubhead_name	eacsubhead_id")htmltable(border="1" )
+htmlgen(clientevents="1" clientvalidation="1" clientcomputedfields="1" clientformatting="0" clientscriptable="0" generatejavascript="1" encodeselflinkargs="1" netscapelayers="0" pagingmethod=0 generatedddwframes="1" )
+xhtmlgen() cssgen(sessionspecific="0" )
+xmlgen(inline="0" )
+xsltgen()
+jsgen()
+export.xml(headgroups="1" includewhitespace="0" metadatatype=0 savemetadata=0 )
+import.xml()
+export.pdf(method=0 distill.custompostscript="0" xslfop.print="0" )
+export.xhtml()
+ 

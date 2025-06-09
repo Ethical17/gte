@@ -1,0 +1,183 @@
+﻿$PBExportHeader$f_issue_fifo.srf
+global type f_issue_fifo from function_object
+end type
+
+forward prototypes
+global function integer f_issue_fifo (string fs_srl_no, string fs_div)
+end prototypes
+
+global function integer f_issue_fifo (string fs_srl_no, string fs_div);string ls_SP_ID,ls_EACSUBHEAD_ID,ls_SECTION_ID,ls_ECC_ID,ls_rowid,ls_det_rowid,ls_dt,ls_temp
+double ld_PRIS_ISSUEQUANTITY,ld_PRIS_REQQUANTITY,ld_det_qty,ld_rate,ld_AVL_STOCK
+double ld_clos_qnty;
+double ld_temp,ld_temp1,ld_temp2
+
+declare c1 cursor for 
+select rowid,SP_ID,EACSUBHEAD_ID,PRIS_ISSUEQUANTITY,PRIS_REQQUANTITY,ECC_ID,SECTION_ID,AVL_STOCK
+from fb_productissuedetails 
+where PRIS_ID = :fs_srl_no;
+
+open c1;
+
+if sqlca.sqlcode = -1 then 
+	messagebox('Error At Cursor','Error During Opening Cursor C1 : '+sqlca.sqlerrtext)
+	return -1
+else
+	setnull(ls_rowid);setnull(ls_SP_ID);setnull(ls_EACSUBHEAD_ID);setnull(ls_SECTION_ID);setnull(ls_ECC_ID);ld_PRIS_ISSUEQUANTITY = 0;ld_PRIS_REQQUANTITY = 0;ld_AVL_STOCK=0;
+	fetch c1 into :ls_rowid,:ls_SP_ID,:ls_EACSUBHEAD_ID,:ld_PRIS_ISSUEQUANTITY,:ld_PRIS_REQQUANTITY,:ls_ECC_ID,:ls_SECTION_ID,:ld_AVL_STOCK;
+	
+	do while sqlca.sqlcode <> 100
+		
+		ld_clos_qnty = ld_PRIS_ISSUEQUANTITY;
+	
+		declare c2 cursor for 
+		select rowid,to_char(ds_date,'dd/mm/yyyy'),round((nvl(DS_QTY,0) - nvl(DS_ADJ_QTY,0)),2) DS_QTY,DS_RATE
+		from fb_daily_stock
+		where DS_REC_IND = 'R' and nvl(DS_QTY,0) - nvl(DS_ADJ_QTY,0) > 0 and DS_ITEM_CD = :ls_SP_ID and DS_SECTION_ID=:fs_div
+		order by DS_DATE ,ROWID;
+		
+         open c2;                 
+              
+		if sqlca.sqlcode = -1 then 
+			messagebox('Error At Cursor','Error During Opening Cursor C2 : '+sqlca.sqlerrtext)
+			return -1
+		else
+			setnull(ls_det_rowid);setnull(ls_dt);ld_det_qty=0;ld_rate=0;
+			fetch c2 into :ls_det_rowid,:ls_dt,:ld_det_qty,:ld_rate;
+			
+			do while sqlca.sqlcode <> 100		
+
+			   if ld_det_qty > 0 then
+				
+				if ld_clos_qnty > ld_det_qty then 
+					
+				 select distinct 'x' into :ls_temp from fb_productissuedetails
+				 where PRIS_ID = :fs_srl_no and  SP_ID=:ls_SP_ID and decode(nvl(PRIS_ISSUEQUANTITY,0),0,1,(nvl(PRIS_VALUE,0)/nvl(PRIS_ISSUEQUANTITY,0)))=:ld_rate and 
+						 EACSUBHEAD_ID =:ls_EACSUBHEAD_ID and nvl(SECTION_ID,'x')=nvl(:ls_SECTION_ID,'x') and rowid<>:ls_rowid ;		   	  
+			 
+				if sqlca.sqlcode = -1 then 
+					messagebox('Sql Error During geting Issue detail : '+ls_SP_ID,sqlca.sqlerrtext);
+					rollback using sqlca;
+					return -1;		
+				elseif sqlca.sqlcode = 100 then					
+					insert into fb_productissuedetails(PRIS_ID,SP_ID,EACSUBHEAD_ID,PRIS_ISSUEQUANTITY,PRIS_REQQUANTITY,PRIS_VALUE,ECC_ID,SECTION_ID,AVL_STOCK)
+					values(:fs_srl_no,:ls_SP_ID,:ls_EACSUBHEAD_ID,:ld_det_qty,:ld_PRIS_REQQUANTITY,nvl(:ld_rate,0) * nvl(:ld_det_qty,0),:ls_ECC_ID,:ls_SECTION_ID,:ld_AVL_STOCK);
+					if sqlca.sqlcode = -1 then 
+						messagebox('SQL Error','Error During Insertion 1 : '+sqlca.sqlerrtext)
+						return -1
+					end if;
+                     elseif sqlca.sqlcode = 0 then	
+					update fb_productissuedetails set PRIS_ISSUEQUANTITY=nvl(PRIS_ISSUEQUANTITY,0) + nvl(:ld_det_qty,0),
+															    PRIS_VALUE=nvl(PRIS_VALUE,0 ) + nvl(:ld_rate,0) * nvl(:ld_det_qty,0)
+					where PRIS_ID = :fs_srl_no and  SP_ID=:ls_SP_ID and decode(nvl(PRIS_ISSUEQUANTITY,0),0,1,(nvl(PRIS_VALUE,0)/nvl(PRIS_ISSUEQUANTITY,0)))=:ld_rate and 
+						 EACSUBHEAD_ID =:ls_EACSUBHEAD_ID and nvl(SECTION_ID,'x')=nvl(:ls_SECTION_ID,'x')  and rowid<>:ls_rowid;	
+						
+					 if sqlca.sqlcode = -1 then
+						messagebox('Sql Error During Issue Update : ',sqlca.sqlerrtext);
+						rollback using sqlca;
+						return -1;
+					 end if;		 
+				end if;		
+				
+					update fb_daily_stock set DS_ADJ_QTY = nvl(DS_ADJ_QTY,0) + :ld_det_qty where rowid = :ls_det_rowid;
+					if sqlca.sqlcode = -1 then 
+						messagebox('SQL Error','Error During Updation 1 : '+sqlca.sqlerrtext)
+						return -1
+					end if;
+					
+				elseif ld_clos_qnty <= ld_det_qty then 
+					
+//				     select distinct nvl(PRIS_VALUE,0), nvl(PRIS_ISSUEQUANTITY,0), nvl(PRIS_VALUE,0)/nvl(PRIS_ISSUEQUANTITY,0) 
+//					  into :ld_temp,:ld_temp1,:ld_temp2 from fb_productissuedetails
+//					where PRIS_ID = :fs_srl_no and  SP_ID=:ls_SP_ID and decode(nvl(PRIS_ISSUEQUANTITY,0),0,1,(nvl(PRIS_VALUE,0)/nvl(PRIS_ISSUEQUANTITY,0)))=:ld_rate and 
+//						      EACSUBHEAD_ID =:ls_EACSUBHEAD_ID and SECTION_ID=:ls_SECTION_ID  and  rowid<>:ls_rowid;	
+//								
+//					if ls_SP_ID ='SP00100' then			
+//						rollback using sqlca;							
+//					end if
+
+//				 	messagebox('ls_SP_ID',ls_SP_ID)
+//				 	messagebox('ls_EACSUBHEAD_ID',ls_EACSUBHEAD_ID)
+//				 	messagebox('ls_SECTION_ID',ls_SECTION_ID)
+//				 	messagebox('ls_rowid',ls_rowid)
+//				 	messagebox('ld_rate',string(ld_rate))
+					 
+				     select distinct 'x' into :ls_temp from fb_productissuedetails
+					where PRIS_ID = :fs_srl_no and  SP_ID=:ls_SP_ID and decode(nvl(PRIS_ISSUEQUANTITY,0),0,1,(nvl(PRIS_VALUE,0) / nvl(PRIS_ISSUEQUANTITY,0)))=:ld_rate and 
+						      EACSUBHEAD_ID =:ls_EACSUBHEAD_ID and nvl(SECTION_ID,'x')=nvl(:ls_SECTION_ID,'x')  and  rowid <> :ls_rowid ;
+
+ 							messagebox('sqlca.sqlcode',string(sqlca.sqlcode))
+
+					if sqlca.sqlcode = -1 then
+						messagebox('Sql Error During geting Issue detail : '+ls_SP_ID,sqlca.sqlerrtext);
+						rollback using sqlca;
+						return -1;		
+					elseif sqlca.sqlcode = 100 then	
+						
+						insert into fb_productissuedetails(PRIS_ID,SP_ID,EACSUBHEAD_ID,PRIS_ISSUEQUANTITY,PRIS_REQQUANTITY,PRIS_VALUE,ECC_ID,SECTION_ID,AVL_STOCK)
+						values(:fs_srl_no,:ls_SP_ID,:ls_EACSUBHEAD_ID,:ld_clos_qnty,:ld_PRIS_REQQUANTITY,nvl(:ld_rate,0) * nvl(:ld_clos_qnty,0),:ls_ECC_ID,:ls_SECTION_ID,:ld_AVL_STOCK);
+						
+						if sqlca.sqlcode = -1 then 
+							messagebox('SQL Error','Error During Insertion 1 : '+sqlca.sqlerrtext)
+							return -1
+						end if;
+						
+							messagebox('sqlca.sqlcode Insert',string(sqlca.sqlcode))
+							messagebox('SQL Error','Error During Testing: '+sqlca.sqlerrtext)
+						
+					 elseif sqlca.sqlcode = 0 then	
+						update fb_productissuedetails set PRIS_ISSUEQUANTITY=nvl(PRIS_ISSUEQUANTITY,0) + nvl(:ld_clos_qnty,0),
+																   PRIS_VALUE=nvl(PRIS_VALUE,0 ) + nvl(:ld_rate,0) * nvl(:ld_clos_qnty,0)
+						where PRIS_ID = :fs_srl_no and  SP_ID=:ls_SP_ID and decode(nvl(PRIS_ISSUEQUANTITY,0),0,1,(nvl(PRIS_VALUE,0) / nvl(PRIS_ISSUEQUANTITY,0)))=:ld_rate and 
+						 		EACSUBHEAD_ID =:ls_EACSUBHEAD_ID and nvl(SECTION_ID,'x')=nvl(:ls_SECTION_ID,'x')  and rowid<>:ls_rowid;	
+							
+						 if sqlca.sqlcode = -1 then
+							messagebox('Sql Error During Issue Update : ',sqlca.sqlerrtext);
+							rollback using sqlca;
+							return -1;
+						 end if;		 
+					end if;			
+
+					update fb_daily_stock set DS_ADJ_QTY = nvl(DS_ADJ_QTY,0) + :ld_clos_qnty where rowid = :ls_det_rowid;
+					
+					if sqlca.sqlcode = -1 then 
+						messagebox('SQL Error','Error During Updation 1 : '+sqlca.sqlerrtext)
+						return -1
+					end if;
+
+					exit;
+				end if;
+
+				ld_clos_qnty = ld_clos_qnty - ld_det_qty;
+			end if;
+				setnull(ls_det_rowid);setnull(ls_dt);ld_det_qty=0;ld_rate=0;
+				fetch c2 into :ls_det_rowid,:ls_dt,:ld_det_qty,:ld_rate;
+				
+			loop
+			ld_clos_qnty = 0;
+			close c2;		
+		end if;
+
+//		messagebox('ls_rowid',ls_rowid)
+
+		delete from fb_productissuedetails where rowid = :ls_rowid;
+		
+		if sqlca.sqlcode = -1 then 
+			messagebox('SQL Error','Error During Deletion Of Record : '+sqlca.sqlerrtext)
+			return -1
+		end if;	
+
+		setnull(ls_rowid);setnull(ls_SP_ID);setnull(ls_EACSUBHEAD_ID);setnull(ls_SECTION_ID);setnull(ls_ECC_ID);ld_PRIS_ISSUEQUANTITY = 0;ld_PRIS_REQQUANTITY = 0;ld_AVL_STOCK=0;
+		fetch c1 into :ls_rowid,:ls_SP_ID,:ls_EACSUBHEAD_ID,:ld_PRIS_ISSUEQUANTITY,:ld_PRIS_REQQUANTITY,:ls_ECC_ID,:ls_SECTION_ID,:ld_AVL_STOCK;
+
+	loop
+	close c1;
+end if;
+
+//		messagebox('Return','aa')
+//  commit using sqlca;
+  
+return 1;
+
+
+end function
+

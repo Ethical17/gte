@@ -1,0 +1,25 @@
+﻿$PBExportHeader$f_check_numeric_sp.srf
+global type f_check_numeric_sp from function_object
+end type
+
+forward prototypes
+global function integer f_check_numeric_sp (string fs_value)
+end prototypes
+
+global function integer f_check_numeric_sp (string fs_value);long l_ctr,i,l_ascii
+string ls_char
+
+select length(:fs_value) into :l_ctr from dual;
+for i = 1 to l_ctr
+	select substr(:fs_value,:i,1) into :ls_char from dual;
+	if (ls_char <> '0' and ls_char <> '1' and ls_char <> '2' and ls_char <> '3' and ls_char <> '4' and ls_char <> '5' and ls_char <> '6' and ls_char <> '7' and ls_char <> '8' and ls_char <> '9' and ls_char <> ',' and ls_char <> '/' and ls_char <> '-')  then
+ 		messagebox("Alert !","Values allowed are (, / - and 0-9) only !!!")
+		return -1
+	end if
+next 
+
+return 1
+
+
+end function
+

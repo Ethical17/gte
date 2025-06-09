@@ -1,0 +1,49 @@
+﻿$PBExportHeader$f_check_pan.srf
+global type f_check_pan from function_object
+end type
+
+forward prototypes
+global function integer f_check_pan (string fs_value)
+end prototypes
+
+global function integer f_check_pan (string fs_value);long l_ctr,i,l_ascii 
+string ls_char
+
+
+select length(:fs_value) into :l_ctr from dual;
+ 
+ if l_ctr <> 10 then
+  	  messagebox("Alert !","PAN No. Should Be 10 Digits, Please Check !!!")
+	  return -1
+end if
+
+      if f_check_initial_space(fs_value) = -1 then return 1
+ 	 if f_check_alphanumeric(fs_value) = -1 then return 1
+
+for i =  1 to l_ctr step 1 
+	select substr(:fs_value,:i,1) into :ls_char from dual;
+	select ascii(:ls_char) into :l_ascii from dual;
+
+	if (i<=5  or  i=10)  then		
+	     if (l_ascii < 65 or l_ascii > 90 ) then
+			messagebox("Alert !","First 5 Characters And 10th Character Should be Alphabet , Please Check !!!")
+			return -1
+		end if			
+	elseif (i >= 6 and i <= 9) then  
+		if (l_ascii < 48 or l_ascii > 57)  then 		
+			messagebox("Alert !","Position 6 to 9 Characters Should be Numeric , Please Check !!!") 
+			return -1 
+		end if		
+	end if	
+	
+	if (l_ascii = 32)  then
+		messagebox("Alert !","Space is not allowed in PAN No., Please Check !!!")
+		return -1
+	end if
+next 
+
+return 1
+	
+
+end function
+

@@ -1,0 +1,48 @@
+﻿$PBExportHeader$dw_gtehrr021.srd
+release 10.5;
+datawindow(units=0 timer_interval=0 color=16777215 processing=0 HTMLDW=no print.printername="" print.documentname="" print.orientation = 0 print.margin.left = 110 print.margin.right = 110 print.margin.top = 96 print.margin.bottom = 96 print.paper.source = 0 print.paper.size = 0 print.canusedefaultprinter=yes print.prompt=no print.buttons=no print.preview.buttons=no print.cliptext=no print.overrideprintjob=no print.collate=yes print.preview.outline=yes hidegrayline=no )
+header(height=316 color="536870912" )
+summary(height=0 color="536870912" )
+footer(height=100 color="536870912" )
+detail(height=80 color="536870912" )
+table(column=(type=char(30) updatewhereclause=yes name=division dbname="division" )
+ column=(type=char(25) update=yes updatewhereclause=yes name=emp_id dbname="fb_empattendance.emp_id" )
+ column=(type=char(30) updatewhereclause=yes name=emp_name dbname="fb_employee.emp_name" )
+ column=(type=number updatewhereclause=yes name=working dbname="working" )
+ column=(type=number updatewhereclause=yes name=el_opening dbname="el_opening" )
+ retrieve="select initcap(FIELD_NAME) division, a.EMP_ID,EMP_NAME, sum(decode(nvl(EATTEN_STATUS,'AB'),'WK',1,0)) Working,
+           round(sum(decode(nvl(EATTEN_STATUS,'AB'),'WK',1,0)) / 20) el_opening
+  from fb_empattendance a,fb_employee b, FB_FIELD c 
+where a.emp_id= b.emp_id(+) and a.field_id = c.field_id and to_char(EATTEN_DATE,'YYYY') = (:ra_year - 1) and
+          a.FIELD_ID = decode(nvl(:ra_field,'ALL'),'ALL',a.FIELD_ID,:ra_field) and EMP_TYPE = 'SS'
+group by initcap(FIELD_NAME),a.emp_id,EMP_NAME" arguments=(("ra_year", number),("ra_field", string))  sort="division A emp_id A " )
+group(level=1 header.height=80 trailer.height=0 by=("division" ) header.color="536870912" trailer.color="536870912" )
+compute(band=header alignment="0" expression="'Earnd Leave Opening For The Year : '+string( ra_year )"border="0" color="33554432" x="526" y="16" height="72" width="1271" format="[GENERAL]" html.valueishtml="0"  name=compute_3 visible="1"  font.face="Times New Roman" font.height="-11" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="2" background.color="16777215" )
+text(band=header alignment="0" text="Emp. ID" border="0" color="33554432" x="23" y="236" height="64" width="247" html.valueishtml="0"  name=emp_id_t visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+text(band=header alignment="0" text="Luxmi Tea Co." border="0" color="33554432" x="18" y="8" height="64" width="462" html.valueishtml="0"  name=t_co visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+text(band=header alignment="0" text="Gtehrr021" border="0" color="33554432" x="18" y="88" height="64" width="462" html.valueishtml="0"  name=t_4 visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+text(band=header alignment="0" text="Name" border="0" color="33554432" x="288" y="236" height="64" width="293" html.valueishtml="0"  name=emp_name_t visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+text(band=header alignment="2" text="Work Days" border="0" color="33554432" x="1312" y="236" height="64" width="288" html.valueishtml="0"  name=working_t visible="1"  font.face="Times New Roman" font.height="-10" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+text(band=header alignment="1" text="Earned Leave" border="0" color="33554432" x="1879" y="236" height="64" width="329" html.valueishtml="0"  name=el_opening_t visible="1"  font.face="Times New Roman" font.height="-10" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+compute(band=header alignment="1" expression="today()"border="0" color="33554432" x="1970" y="16" height="64" width="293" format="dd/mm/yyyy" html.valueishtml="0"  name=date_1 visible="1"  font.face="Times New Roman" font.height="-10" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+line(band=header x1="14" y1="312" x2="2263" y2="312"  name=l_1 visible="1" pen.style="0" pen.width="5" pen.color="33554432"  background.mode="2" background.color="1073741824" )
+column(band=header.1 id=1 alignment="0" tabsequence=32766 border="0" color="33554432" x="27" y="8" height="64" width="690" format="[general]" html.valueishtml="0"  name=division visible="1" edit.limit=0 edit.case=any edit.focusrectangle=no edit.autoselect=no  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="2" font.pitch="2" font.charset="0" background.mode="2" background.color="16777215" )
+column(band=detail id=2 alignment="0" tabsequence=32766 border="0" color="33554432" x="23" y="8" height="64" width="238" format="[general]" html.valueishtml="0" protect="0~tif(isnull( eatten_rosend_dt ),0,1)"  name=emp_id visible="1" dddw.name=dw_popup_employee dddw.displaycolumn=em_emp_cd dddw.datacolumn=em_emp_cd dddw.percentwidth=10 dddw.lines=200 dddw.limit=0 dddw.allowedit=no dddw.useasborder=no dddw.case=any dddw.vscrollbar=yes  font.face="Times New Roman" font.height="-9" font.weight="400"  font.family="2" font.pitch="2" font.charset="0" background.mode="2" background.color="16777215" )
+column(band=detail id=3 alignment="0" tabsequence=32766 border="0" color="33554432" x="283" y="8" height="64" width="754" format="[general]" html.valueishtml="0"  name=emp_name visible="1" edit.limit=0 edit.case=any edit.focusrectangle=no edit.autoselect=no  font.face="Times New Roman" font.height="-9" font.weight="400"  font.family="2" font.pitch="2" font.charset="0" background.mode="2" background.color="16777215" )
+text(band=footer alignment="0" text="Total Records : " border="0" color="0" x="18" y="4" height="72" width="384" html.valueishtml="0"  name=t_7 visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="2" background.color="16777215" )
+compute(band=footer alignment="0" expression="rowcount()"border="0" color="0" x="421" y="4" height="72" width="215" format="[GENERAL]" html.valueishtml="0"  name=compute_1 visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="2" background.color="16777215" )
+compute(band=footer alignment="0" expression="'Page ' + page() + ' of ' + pageCount()"border="0" color="33554432" x="695" y="12" height="72" width="891" format="[general]" html.valueishtml="0"  name=page_1 visible="1"  font.face="Times New Roman" font.height="-9" font.weight="400"  font.family="1" font.pitch="2" font.charset="0" background.mode="2" background.color="1073741824" )
+column(band=detail id=4 alignment="1" tabsequence=32766 border="0" color="33554432" x="1312" y="8" height="64" width="288" format="##0" html.valueishtml="0"  name=working visible="1" edit.limit=0 edit.case=any edit.focusrectangle=no edit.autoselect=no  font.face="Times New Roman" font.height="-9" font.weight="400"  font.family="2" font.pitch="2" font.charset="0" background.mode="2" background.color="16777215" )
+column(band=detail id=5 alignment="1" tabsequence=32766 border="0" color="33554432" x="1879" y="8" height="64" width="329" format="##0" html.valueishtml="0"  name=el_opening visible="1" edit.limit=0 edit.case=any edit.focusrectangle=no edit.autoselect=no  font.face="Times New Roman" font.height="-9" font.weight="400"  font.family="2" font.pitch="2" font.charset="0" background.mode="2" background.color="16777215" )
+
+sparse(names="emp_id")htmltable(border="1" )
+htmlgen(clientevents="1" clientvalidation="1" clientcomputedfields="1" clientformatting="0" clientscriptable="0" generatejavascript="1" encodeselflinkargs="1" netscapelayers="0" pagingmethod=0 generatedddwframes="1" )
+xhtmlgen() cssgen(sessionspecific="0" )
+xmlgen(inline="0" )
+xsltgen()
+jsgen()
+export.xml(headgroups="1" includewhitespace="0" metadatatype=0 savemetadata=0 )
+import.xml()
+export.pdf(method=0 distill.custompostscript="0" xslfop.print="0" )
+export.xhtml()
+ 

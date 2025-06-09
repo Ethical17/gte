@@ -1,0 +1,47 @@
+﻿$PBExportHeader$f_get_lotno.srf
+global type f_get_lotno from function_object
+end type
+
+forward prototypes
+global function string f_get_lotno (string fs_sino)
+end prototypes
+
+global function string f_get_lotno (string fs_sino);string ls_lotnos,ls_lot,ls_firstread
+
+ls_firstread='Y'
+
+declare  c1 cursor for
+select distinct DTP_LOTNO 
+from fb_dailyteapacked a,fb_dtpdetails b 
+where a.dtp_id= b.dtp_id and DTPD_ID in (select DTPD_ID from fb_sidetails where SI_ID = :fs_sino) order by 1;
+
+open c1;
+if sqlca.sqlcode =-1 then
+	messagebox('SQL ERROR: During Lotno Select',sqlca.sqlerrtext)
+	return 'error'
+end if
+
+fetch c1 into :ls_lot;
+
+	if sqlca.sqlcode =-1 then
+		messagebox('SQL ERROR: During Lotno Cursor',sqlca.sqlerrtext)
+		return 'error1'
+	end if
+
+do while sqlca.sqlcode <> 100 
+
+	if ls_firstread ='Y'  then
+		ls_lotnos = ls_lot; ls_firstread ='N';
+	else
+		ls_lotnos = ls_lotnos +', '+ls_lot
+	end if
+	
+	fetch c1 into :ls_lot;
+	
+loop
+close c1;
+
+return ls_lotnos
+
+end function
+

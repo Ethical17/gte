@@ -1,0 +1,41 @@
+﻿$PBExportHeader$dw_gteacf018a.srd
+release 10.5;
+datawindow(units=0 timer_interval=0 color=1073741824 processing=0 HTMLDW=no print.printername="" print.documentname="" print.orientation = 0 print.margin.left = 110 print.margin.right = 110 print.margin.top = 96 print.margin.bottom = 96 print.paper.source = 0 print.paper.size = 0 print.canusedefaultprinter=yes print.prompt=no print.buttons=no print.preview.buttons=no print.cliptext=no print.overrideprintjob=no print.collate=yes print.preview.outline=yes hidegrayline=no )
+header(height=0 color="536870912" )
+summary(height=0 color="536870912" )
+footer(height=0 color="536870912" )
+detail(height=640 color="536870912" )
+table(column=(type=number updatewhereclause=yes name=grosswages dbname="grosswages" )
+ column=(type=number updatewhereclause=yes name=pfded dbname="pfded" )
+ column=(type=number updatewhereclause=yes name=fpfded dbname="fpfded" )
+ retrieve="SELECT sum(nvl(c.LA_AMOUNT,0)) grosswages, sum(nvl(c.LA_PF,0)) pfded, sum(nvl(c.LA_FPF,0)) fpfded
+  FROM FB_EMPLOYEE a,FB_ARREARFORSHEET b, FB_LABOURARREAR c,FB_ARREARPERIOD d
+ WHERE a.LS_ID = b.LS_ID AND a.EMP_ID = c.LABOUR_ID AND b.AFS_ID = c.AFS_ID AND 
+       		b.AP_ID = d.AP_ID AND d.AP_ID=:ra_ap_id and 
+	   		d.AP_STARTDATE = to_date(:ra_frdt,'dd/mm/yyyy') AND d.AP_ENDDATE = to_date(:ra_todt,'dd/mm/yyyy')" arguments=(("ra_ap_id", string),("ra_frdt", string),("ra_todt", string)) )
+compute(band=detail alignment="0" expression="'Arrear To Account For The Period Of '+ ra_frdt +' To '+ ra_todt "border="0" color="33554432" x="581" y="8" height="76" width="1952" format="[GENERAL]" html.valueishtml="0"  name=compute_2 visible="1"  font.face="Times New Roman" font.height="-10" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="2" background.color="1073741824" )
+text(band=detail alignment="0" text="Gteacf018" border="0" color="33554432" x="27" y="12" height="64" width="256" html.valueishtml="0"  name=t_4 visible="1"  font.face="Times New Roman" font.height="-10" font.weight="400"  font.family="1" font.pitch="2" font.charset="0" background.mode="2" background.color="1073741824" )
+text(band=detail alignment="1" text="FPF Deduction:" border="0" color="33554432" x="1111" y="316" height="64" width="393" html.valueishtml="0"  name=fpfded_t visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+text(band=detail alignment="1" text="PF Deduction:" border="0" color="33554432" x="1138" y="240" height="64" width="366" html.valueishtml="0"  name=pfded_t visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+text(band=detail alignment="1" text="Cnt:" border="0" color="33554432" x="41" y="152" height="64" width="366" html.valueishtml="0"  name=cnt_t visible="1"  font.face="Times New Roman" font.height="-9" font.weight="400"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+column(band=detail id=2 alignment="1" tabsequence=32766 border="0" color="33554432" x="1586" y="240" height="76" width="329" format="#,##0.00" html.valueishtml="0"  name=pfded visible="1" edit.limit=0 edit.case=any edit.focusrectangle=no edit.autoselect=yes edit.autohscroll=yes  font.face="Times New Roman" font.height="-9" font.weight="400"  font.family="2" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+column(band=detail id=3 alignment="1" tabsequence=32766 border="0" color="33554432" x="1586" y="316" height="76" width="329" format="#,##0.00" html.valueishtml="0"  name=fpfded visible="1" edit.limit=0 edit.case=any edit.focusrectangle=no edit.autoselect=yes edit.autohscroll=yes  font.face="Times New Roman" font.height="-9" font.weight="400"  font.family="2" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+text(band=detail alignment="1" text="PF Total:" border="0" color="33554432" x="1111" y="396" height="64" width="393" html.valueishtml="0"  name=t_1 visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+text(band=detail alignment="1" text="Net Payable:" border="0" color="33554432" x="1106" y="528" height="64" width="398" html.valueishtml="0"  name=t_3 visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+compute(band=detail alignment="1" expression=" pfded + fpfded "border="0" color="33554432" x="1586" y="396" height="64" width="329" format="#,##0.00" html.valueishtml="0"  name=pf_total visible="1"  font.face="Times New Roman" font.height="-9" font.weight="400"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+compute(band=detail alignment="1" expression="grosswages  - net_dedu "border="0" color="33554432" x="1586" y="528" height="76" width="329" format="#,##0.00" html.valueishtml="0"  name=compute_1 visible="1"  font.face="Times New Roman" font.height="-9" font.weight="400"  font.family="1" font.pitch="2" font.charset="0" background.mode="2" background.color="1073741824" )
+text(band=detail alignment="1" text="Grosswages:" border="0" color="33554432" x="155" y="240" height="64" width="366" html.valueishtml="0"  name=grosswages_t visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+text(band=detail alignment="1" text="Net Deduction:" border="0" color="33554432" x="123" y="528" height="64" width="398" html.valueishtml="0"  name=t_2 visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+column(band=detail id=1 alignment="1" tabsequence=32766 border="0" color="33554432" x="594" y="240" height="76" width="329" format="#,##0.00" html.valueishtml="0"  name=grosswages visible="1" edit.limit=0 edit.case=any edit.focusrectangle=no edit.autoselect=yes edit.autohscroll=yes  font.face="Times New Roman" font.height="-9" font.weight="400"  font.family="2" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+compute(band=detail alignment="1" expression="pf_total"border="0" color="33554432" x="594" y="540" height="64" width="329" format="#,##0.00" html.valueishtml="0"  name=net_dedu visible="1"  font.face="Times New Roman" font.height="-9" font.weight="400"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+htmltable(border="1" )
+htmlgen(clientevents="1" clientvalidation="1" clientcomputedfields="1" clientformatting="0" clientscriptable="0" generatejavascript="1" encodeselflinkargs="1" netscapelayers="0" pagingmethod=0 generatedddwframes="1" )
+xhtmlgen() cssgen(sessionspecific="0" )
+xmlgen(inline="0" )
+xsltgen()
+jsgen()
+export.xml(headgroups="1" includewhitespace="0" metadatatype=0 savemetadata=0 )
+import.xml()
+export.pdf(method=0 distill.custompostscript="0" xslfop.print="0" )
+export.xhtml()
+ 

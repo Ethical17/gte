@@ -1,0 +1,157 @@
+﻿$PBExportHeader$f_stocktransfer_fifo.srf
+global type f_stocktransfer_fifo from function_object
+end type
+
+forward prototypes
+global function integer f_stocktransfer_fifo (string fs_srl_no, string fs_div)
+end prototypes
+
+global function integer f_stocktransfer_fifo (string fs_srl_no, string fs_div);string ls_SP_ID,ls_EACSUBHEAD_ID,ls_SECTION_ID,ls_ECC_ID,ls_rowid,ls_det_rowid,ls_dt,ls_temp, ls_hsn
+double ld_PRIS_ISSUEQUANTITY,ld_PRIS_REQQUANTITY,ld_det_qty,ld_rate,ld_AVL_STOCK, ld_cgst_prcnt, ld_sgst_prcnt, ld_igst_prcnt
+double ld_clos_qnty;
+
+declare c1 cursor for 
+select  rowid,SP_ID, PRIS_ISSUEQUANTITY, PRIS_REQQUANTITY, AVL_STOCK, PRIS_CGST_PER, PRIS_SGST_PER, PRIS_IGST_PER, PRIS_HSN_NO	 
+from fb_producttransferdetails 
+where PRIS_ID = :fs_srl_no;
+
+open c1;   
+
+if sqlca.sqlcode = -1 then 
+	messagebox('Error At Cursor','Error During Opening Cursor C1 : '+sqlca.sqlerrtext)
+	return -1
+else
+	setnull(ls_rowid);setnull(ls_SP_ID);ld_PRIS_ISSUEQUANTITY = 0;ld_PRIS_REQQUANTITY = 0;ld_AVL_STOCK=0 ; 
+	ld_cgst_prcnt = 0; ld_sgst_prcnt = 0;ld_igst_prcnt = 0; setnull(ls_hsn);
+	fetch c1 into :ls_rowid,:ls_SP_ID,:ld_PRIS_ISSUEQUANTITY,:ld_PRIS_REQQUANTITY,:ld_AVL_STOCK, :ld_cgst_prcnt, :ld_sgst_prcnt, :ld_igst_prcnt, :ls_hsn;
+	
+	do while sqlca.sqlcode <> 100  
+		
+		ld_clos_qnty = ld_PRIS_ISSUEQUANTITY;
+		
+		declare c2 cursor for 
+		select rowid,to_char(ds_date,'dd/mm/yyyy'),(nvl(DS_QTY,0) - nvl(DS_ADJ_QTY,0)) DS_QTY,DS_RATE
+		from fb_daily_stock
+		where DS_REC_IND = 'R' and nvl(DS_QTY,0) - nvl(DS_ADJ_QTY,0) > 0 and DS_ITEM_CD = :ls_SP_ID and DS_SECTION_ID=:fs_div
+		order by DS_DATE ;
+		
+         open c2;                 
+              
+		if sqlca.sqlcode = -1 then 
+			messagebox('Error At Cursor','Error During Opening Cursor C2 : '+sqlca.sqlerrtext)
+			return -1
+		else
+			setnull(ls_det_rowid);setnull(ls_dt);ld_det_qty=0;ld_rate=0;
+			fetch c2 into :ls_det_rowid,:ls_dt,:ld_det_qty,:ld_rate;
+			
+			do while sqlca.sqlcode <> 100				
+				
+				if ld_clos_qnty > ld_det_qty and round(ld_det_qty,2) > 0 then 
+					 select distinct 'x' into :ls_temp from fb_producttransferdetails
+					where PRIS_ID = :fs_srl_no and  SP_ID=:ls_SP_ID and nvl(PRIS_VALUE,0)/nvl(PRIS_ISSUEQUANTITY,0)=:ld_rate and rowid<>:ls_rowid;		   	  
+				 
+					if sqlca.sqlcode = -1 then
+						messagebox('Sql Error During geting Transfer detail : ',sqlca.sqlerrtext);
+						rollback using sqlca;
+						return -1;		
+					elseif sqlca.sqlcode = 100 then							
+						insert into fb_producttransferdetails(PRIS_ID, SP_ID, PRIS_ISSUEQUANTITY, PRIS_REQQUANTITY, PRIS_VALUE, AVL_STOCK, PRIS_CGST_PER, PRIS_CGST_AMT, PRIS_SGST_PER, PRIS_SGST_AMT, PRIS_IGST_PER, PRIS_IGST_AMT, PRIS_HSN_NO)
+						values(:fs_srl_no,:ls_SP_ID,:ld_det_qty,:ld_PRIS_REQQUANTITY,nvl(:ld_rate,0) * nvl(:ld_det_qty,0),:ld_AVL_STOCK, :ld_cgst_prcnt,(nvl(:ld_rate,0) * nvl(:ld_det_qty,0))*(:ld_cgst_prcnt/100), :ld_sgst_prcnt,(nvl(:ld_rate,0) * nvl(:ld_det_qty,0))*(:ld_sgst_prcnt/100), :ld_igst_prcnt,(nvl(:ld_rate,0) * nvl(:ld_det_qty,0))*(:ld_igst_prcnt/100), :ls_hsn);
+						
+						if sqlca.sqlcode = -1 then 
+							messagebox('SQL Error','Error During Insertion 1 : '+sqlca.sqlerrtext)
+							return -1
+						end if;
+                           elseif sqlca.sqlcode = 0 then	
+						update fb_producttransferdetails set PRIS_ISSUEQUANTITY=nvl(PRIS_ISSUEQUANTITY,0) + nvl(:ld_det_qty,0),
+																	 PRIS_VALUE=nvl(PRIS_VALUE,0 ) + nvl(:ld_rate,0) * nvl(:ld_det_qty,0),
+																	 PRIS_CGST_AMT = nvl(PRIS_CGST_AMT,0 ) + ((nvl(:ld_rate,0) * nvl(:ld_det_qty,0))*(:ld_cgst_prcnt/100)),
+																	PRIS_SGST_AMT = nvl(PRIS_SGST_AMT,0 ) + ((nvl(:ld_rate,0) * nvl(:ld_det_qty,0))*(:ld_sgst_prcnt/100)),
+																	PRIS_IGST_AMT = nvl(PRIS_IGST_AMT,0 ) + ((nvl(:ld_rate,0) * nvl(:ld_det_qty,0))*(:ld_igst_prcnt/100))
+						where PRIS_ID = :fs_srl_no and  SP_ID=:ls_SP_ID and nvl(PRIS_VALUE,0)/nvl(PRIS_ISSUEQUANTITY,0)=:ld_rate and rowid<>:ls_rowid;	
+							
+						 if sqlca.sqlcode = -1 then
+							messagebox('Sql Error During Transfer Update 1 : ',sqlca.sqlerrtext);
+							rollback using sqlca;
+							return -1;
+						 end if;		 
+					end if;		
+					
+					update fb_daily_stock set DS_ADJ_QTY = nvl(DS_ADJ_QTY,0) + :ld_det_qty where rowid = :ls_det_rowid;
+					if sqlca.sqlcode = -1 then 
+						messagebox('SQL Error','Error During Updation 1 : '+sqlca.sqlerrtext)
+						return -1
+					end if;
+					
+					ld_clos_qnty = ld_clos_qnty - ld_det_qty;
+					
+				elseif ld_clos_qnty <= ld_det_qty then 
+				     select distinct 'x' into :ls_temp from fb_producttransferdetails
+					where PRIS_ID = :fs_srl_no and  SP_ID=:ls_SP_ID and nvl(PRIS_VALUE,0)/nvl(PRIS_ISSUEQUANTITY,0)=:ld_rate and rowid<>:ls_rowid;		   	  
+				 
+					if sqlca.sqlcode = -1 then
+						messagebox('Sql Error During geting Issue detail : ',sqlca.sqlerrtext);
+						rollback using sqlca;
+						return -1;		
+					elseif sqlca.sqlcode = 100 then	
+						insert into fb_producttransferdetails(PRIS_ID, SP_ID, PRIS_ISSUEQUANTITY, PRIS_REQQUANTITY, PRIS_VALUE, AVL_STOCK, PRIS_CGST_PER, PRIS_CGST_AMT, PRIS_SGST_PER, PRIS_SGST_AMT, PRIS_IGST_PER, PRIS_IGST_AMT, PRIS_HSN_NO)
+						values(:fs_srl_no,:ls_SP_ID,:ld_clos_qnty,:ld_PRIS_REQQUANTITY,nvl(:ld_rate,0) * nvl(:ld_clos_qnty,0),:ld_AVL_STOCK, :ld_cgst_prcnt,(nvl(:ld_rate,0) * nvl(:ld_clos_qnty,0))*(:ld_cgst_prcnt/100), :ld_sgst_prcnt,(nvl(:ld_rate,0) * nvl(:ld_clos_qnty,0))*(:ld_sgst_prcnt/100), :ld_igst_prcnt,(nvl(:ld_rate,0) * nvl(:ld_clos_qnty,0))*(:ld_igst_prcnt/100), :ls_hsn);
+						
+						if sqlca.sqlcode = -1 then 
+							messagebox('SQL Error','Error During Insertion 2 : '+sqlca.sqlerrtext)
+							return -1
+						end if;
+					elseif sqlca.sqlcode = 0 then	
+						update fb_producttransferdetails set PRIS_ISSUEQUANTITY=nvl(PRIS_ISSUEQUANTITY,0) + nvl(:ld_clos_qnty,0),
+											 PRIS_VALUE=nvl(PRIS_VALUE,0 ) + nvl(:ld_rate,0) * nvl(:ld_clos_qnty,0),
+											 PRIS_CGST_AMT = nvl(PRIS_CGST_AMT,0 ) + ((nvl(:ld_rate,0) * nvl(:ld_clos_qnty,0))*(:ld_cgst_prcnt/100)),
+											PRIS_SGST_AMT = nvl(PRIS_SGST_AMT,0 ) + ((nvl(:ld_rate,0) * nvl(:ld_clos_qnty,0))*(:ld_sgst_prcnt/100)),
+											PRIS_IGST_AMT = nvl(PRIS_IGST_AMT,0 ) + ((nvl(:ld_rate,0) * nvl(:ld_clos_qnty,0))*(:ld_igst_prcnt/100))
+						where PRIS_ID = :fs_srl_no and  SP_ID=:ls_SP_ID and nvl(PRIS_VALUE,0)/nvl(PRIS_ISSUEQUANTITY,0)=:ld_rate and rowid<>:ls_rowid;	
+	
+						 if sqlca.sqlcode = -1 then
+							messagebox('Sql Error During Transfer Update 2: ',sqlca.sqlerrtext);
+							rollback using sqlca;
+							return -1;
+						 end if;		 
+					end if;		
+					
+					update fb_daily_stock set DS_ADJ_QTY = nvl(DS_ADJ_QTY,0) + :ld_clos_qnty where rowid = :ls_det_rowid;
+					if sqlca.sqlcode = -1 then 
+						messagebox('SQL Error','Error During Updation 1 : '+sqlca.sqlerrtext)
+						return -1
+					end if;
+
+					exit;
+				end if;
+
+				
+				
+				setnull(ls_det_rowid);setnull(ls_dt);ld_det_qty=0;ld_rate=0;
+				fetch c2 into :ls_det_rowid,:ls_dt,:ld_det_qty,:ld_rate;
+				
+			loop
+			ld_clos_qnty = 0;
+			close c2;		
+		end if;
+
+		delete from fb_producttransferdetails where rowid = :ls_rowid;
+		
+		if sqlca.sqlcode = -1 then 
+			messagebox('SQL Error','Error During Deletion Of Record : '+sqlca.sqlerrtext)
+			return -1
+		end if;	
+
+		setnull(ls_rowid);setnull(ls_SP_ID);ld_PRIS_ISSUEQUANTITY = 0;ld_PRIS_REQQUANTITY = 0;ld_AVL_STOCK=0;
+		ld_cgst_prcnt = 0; ld_sgst_prcnt = 0;ld_igst_prcnt = 0; setnull(ls_hsn);		
+	      fetch c1 into :ls_rowid,:ls_SP_ID,:ld_PRIS_ISSUEQUANTITY,:ld_PRIS_REQQUANTITY,:ld_AVL_STOCK, :ld_cgst_prcnt, :ld_sgst_prcnt, :ld_igst_prcnt, :ls_hsn;
+	
+	loop
+	close c1;
+end if;
+
+return 1;
+
+
+end function
+

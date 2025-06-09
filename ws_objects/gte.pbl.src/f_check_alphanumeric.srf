@@ -1,0 +1,29 @@
+﻿$PBExportHeader$f_check_alphanumeric.srf
+global type f_check_alphanumeric from function_object
+end type
+
+forward prototypes
+global function integer f_check_alphanumeric (string fs_value)
+end prototypes
+
+global function integer f_check_alphanumeric (string fs_value);long l_ctr,i,l_ascii,l_ct
+string ls_char
+
+l_ct = 0
+
+select length(:fs_value) into :l_ctr from dual;
+for i = 1 to l_ctr
+	select substr(:fs_value,:i,1) into :ls_char from dual;
+	select ascii(:ls_char) into :l_ascii from dual;
+	//65 90 97 122
+	if (l_ascii > 64 and l_ascii < 91) or (l_ascii > 96 and l_ascii < 123)  then
+ 		l_ct = 1		
+	end if
+next 
+if l_ct = 0  and len(fs_value) > 0 then
+	messagebox('Alert !',"Value must be alphanumeric !!!")
+	return -1
+end if
+return 1
+end function
+

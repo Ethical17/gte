@@ -1,0 +1,37 @@
+﻿$PBExportHeader$f_check_special_char_2.srf
+global type f_check_special_char_2 from function_object
+end type
+
+forward prototypes
+global function integer f_check_special_char_2 (string fs_value)
+end prototypes
+
+global function integer f_check_special_char_2 (string fs_value);long l_ctr,i,l_ascii
+string ls_char
+
+select length(:fs_value) into :l_ctr from dual;
+for i = 1 to l_ctr
+	select substr(:fs_value,:i,1) into :ls_char from dual;
+	select ascii(:ls_char) into :l_ascii from dual;
+	//allows alphabets, number, - and /
+	if (l_ascii > 32 and l_ascii < 45)  then
+ 		messagebox("Alert !","Special character ("+ ls_char +") are not allowed !!!")
+		return -1
+	elseif (l_ascii > 45 and l_ascii < 47)  then
+		messagebox("Alert !","Special character ("+ ls_char +") are not allowed !!!")
+		return -1
+	elseif (l_ascii > 57 and l_ascii < 65) then
+		messagebox("Alert !","Special character ("+ ls_char +") are not allowed !!!")
+		return -1
+	elseif	(l_ascii > 90 and l_ascii < 97) then
+		messagebox("Alert !","Special character ("+ ls_char +") are not allowed !!!")
+		return -1
+	elseif	(l_ascii > 122 and l_ascii < 127) then
+		messagebox("Alert !","Special character ("+ ls_char +") are not allowed !!!")
+		return -1
+	end if
+next 
+
+return 1
+end function
+

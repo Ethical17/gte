@@ -1,0 +1,132 @@
+﻿$PBExportHeader$dw_gteacr005_new.srd
+release 10.5;
+datawindow(units=0 timer_interval=0 color=1073741824 processing=0 HTMLDW=no print.printername="" print.documentname="" print.orientation = 0 print.margin.left = 50 print.margin.right = 50 print.margin.top = 96 print.margin.bottom = 96 print.paper.source = 0 print.paper.size = 0 print.canusedefaultprinter=yes print.prompt=no print.buttons=no print.preview.buttons=no print.cliptext=no print.overrideprintjob=no print.collate=yes print.preview.outline=yes hidegrayline=no )
+header(height=380 color="536870912" )
+summary(height=0 color="536870912" )
+footer(height=100 color="536870912" )
+detail(height=0 color="536870912" )
+table(column=(type=char(25) updatewhereclause=yes name=vd_gl_cd dbname="fb_vou_det.vd_gl_cd" dbalias="d.vd_gl_cd" )
+ column=(type=char(78) updatewhereclause=yes name=gl_description dbname="gl_description" )
+ column=(type=char(25) updatewhereclause=yes name=vd_sgl_cd dbname="fb_vou_det.vd_sgl_cd" dbalias="d.vd_sgl_cd" )
+ column=(type=char(78) updatewhereclause=yes name=subledger dbname="subledger" )
+ column=(type=number updatewhereclause=yes name=dr_mop_bal dbname="dr_mop_bal" )
+ column=(type=number updatewhereclause=yes name=cr_mop_bal dbname="cr_mop_bal" )
+ column=(type=number updatewhereclause=yes name=mon_dr dbname="mon_dr" )
+ column=(type=number updatewhereclause=yes name=mon_cr dbname="mon_cr" )
+ column=(type=number updatewhereclause=yes name=dr_cols dbname="dr_cols" )
+ column=(type=number updatewhereclause=yes name=cr_cols dbname="cr_cols" )
+ column=(type=datetime updatewhereclause=yes name=fr_dt dbname="fr_dt" )
+ column=(type=datetime updatewhereclause=yes name=to_dt dbname="to_dt" )
+ retrieve="select VD_GL_CD,initcap(ACLEDGER_NAME)||' ('||VD_GL_CD||')' gl_description,
+       VD_SGL_CD,initcap(ACSUBLEDGER_NAME)||' ('||VD_SGL_CD||')' SubLedger,
+		sum(decode(sign(trunc(VH_VOU_DATE) - to_date(:fr_dt,'dd/mm/yyyy')),1,0,
+	                decode(a.ACLEDGER_CUMLATIVE_IND,'C',decode(a.ACLEDGER_DCIND,'C',0,(decode(VD_DC_IND,'D',1,-1) * nvl(VD_AMOUNT,0))),
+	                                                                       'H',decode(a.ACLEDGER_DCIND,'C',0,(decode(VD_DC_IND,'D',1,-1) * nvl(VD_AMOUNT,0))),0))) dr_MOP_BAL,
+             sum(decode(sign(trunc(VH_VOU_DATE) - to_date(:fr_dt,'dd/mm/yyyy')),1,0,
+	                decode(a.ACLEDGER_CUMLATIVE_IND,'C',decode(a.ACLEDGER_DCIND,'D',0,(decode(VD_DC_IND,'C',1,-1) * nvl(VD_AMOUNT,0))),
+			                                                               'H',decode(a.ACLEDGER_DCIND,'D',0,(decode(VD_DC_IND,'C',1,-1) * nvl(VD_AMOUNT,0))),0))) cr_MOP_BAL,
+ 	        sum(decode(a.ACLEDGER_CUMLATIVE_IND,'H',0,decode(sign(trunc(VH_VOU_DATE)- to_date(:fr_dt,'dd/mm/yyyy')),1,decode(VD_DC_IND,'D',nvl(VD_AMOUNT,0),0),0))) mon_dr,
+             sum(decode(a.ACLEDGER_CUMLATIVE_IND,'H',0,decode(sign(trunc(VH_VOU_DATE)- to_date(:fr_dt,'dd/mm/yyyy')),1,decode(VD_DC_IND,'C',nvl(VD_AMOUNT,0),0),0))) mon_cr,
+	        sum(decode(a.ACLEDGER_CUMLATIVE_IND,'C',decode(a.ACLEDGER_ACTYPE,'A',(decode(VD_DC_IND,'D',1,-1) * nvl(VD_AMOUNT,0)),'E',(decode(VD_DC_IND,'D',1,-1) * nvl(VD_AMOUNT,0)),0),
+				                                                         'H',decode(trunc(VH_VOU_DATE),to_date(:to_dt,'dd/mm/yyyy'),0,decode(a.ACLEDGER_ACTYPE,'A',(decode(VD_DC_IND,'D',1,-1) * nvl(VD_AMOUNT,0)),'E',(decode(VD_DC_IND,'D',1,-1) * nvl(VD_AMOUNT,0)),0)),
+			                                                                  decode(sign(trunc(VH_VOU_DATE)- to_date(:fr_dt,'dd/mm/yyyy')),1,decode(a.ACLEDGER_ACTYPE,'A',(decode(VD_DC_IND,'D',1,-1) * nvl(VD_AMOUNT,0)),'E',(decode(VD_DC_IND,'D',1,-1) * nvl(VD_AMOUNT,0)),0)))) dr_cols,
+             sum(decode(a.ACLEDGER_CUMLATIVE_IND,'C',decode(a.ACLEDGER_ACTYPE,'L',(decode(VD_DC_IND,'C',1,-1) * nvl(VD_AMOUNT,0)),'I',(decode(VD_DC_IND,'C',1,-1) * nvl(VD_AMOUNT,0)),0),
+                                      	                                   'H',decode(trunc(VH_VOU_DATE),to_date(:to_dt,'dd/mm/yyyy'),0,decode(a.ACLEDGER_ACTYPE,'L',(decode(VD_DC_IND,'C',1,-1) * nvl(VD_AMOUNT,0)),'I',(decode(VD_DC_IND,'C',1,-1) * nvl(VD_AMOUNT,0)),0)),
+			                                                                  decode(sign(trunc(VH_VOU_DATE) - to_date(:fr_dt,'dd/mm/yyyy')),1,decode(a.ACLEDGER_ACTYPE,'L',(decode(VD_DC_IND,'C',1,-1) * nvl(VD_AMOUNT,0)),'I',(decode(VD_DC_IND,'C',1,-1) * nvl(VD_AMOUNT,0)),0)))) cr_cols,
+	   to_date(:fr_dt,'dd/mm/yyyy') fr_dt,
+	   to_date(:to_dt,'dd/mm/yyyy') to_dt 
+from fb_vou_head h,fb_vou_det d,fb_acledger a,fb_acsubledger c
+ where VH_DOC_SRL=VD_DOC_SRL and VD_GL_CD= a.ACLEDGER_ID and 
+       VD_SGL_CD=c.ACSUBLEDGER_ID and  
+       VD_GL_CD = decode(:ra_gl_cd,'ALL',VD_GL_CD,:ra_gl_cd) and
+       ((a.ACLEDGER_CUMLATIVE_IND in ('C','H') and VH_VOU_DATE <= to_date(:to_dt,'dd/mm/yyyy') ) or
+	   (a.ACLEDGER_CUMLATIVE_IND in ('N') and VH_VOU_DATE between 
+	   to_date(decode(sign(to_number(to_char(to_date(:fr_dt,'dd/mm/yyyy'),'mm')) - 04),-1,to_number(to_char(to_date(:fr_dt,'dd/mm/yyyy'),'yyyy')) - 1,to_number(to_char(to_date(:fr_dt,'dd/mm/yyyy'),'yyyy')))||'0401','yyyymmdd') and to_date(:to_dt,'dd/mm/yyyy') ) )
+        and VH_APPROVED_BY is not null 
+group by VD_GL_CD,initcap(ACLEDGER_NAME)||' ('||VD_GL_CD||')',
+       VD_SGL_CD,initcap(ACSUBLEDGER_NAME)||' ('||VD_SGL_CD||')',
+	   to_date(:fr_dt,'dd/mm/yyyy'),to_date(:to_dt,'dd/mm/yyyy') 
+having  (sum(decode(sign(trunc(VH_VOU_DATE) - to_date(:fr_dt,'dd/mm/yyyy')),-1,
+                    decode(a.ACLEDGER_CUMLATIVE_IND,'C',decode(a.ACLEDGER_DCIND,'C',0,(decode(VD_DC_IND,'D',1,-1) * nvl(VD_AMOUNT,0)) ),
+                                                                            'H',decode(a.ACLEDGER_DCIND,'C',0,(decode(VD_DC_IND,'D',1,-1) * nvl(VD_AMOUNT,0)) ),
+														 'N',(decode(VD_DC_IND,'D',1,-1) * nvl(VD_AMOUNT,0)),0),0)) -
+         sum(decode(sign(trunc(VH_VOU_DATE) - to_date(:fr_dt,'dd/mm/yyyy')),-1,
+                    decode(a.ACLEDGER_CUMLATIVE_IND,'C',decode(a.ACLEDGER_DCIND,'D',0,(decode(VD_DC_IND,'C',1,-1) * nvl(VD_AMOUNT,0)) ),
+                                                                           'H',decode(a.ACLEDGER_DCIND,'D',0,(decode(VD_DC_IND,'C',1,-1) * nvl(VD_AMOUNT,0)) ),0),0))) <> 0
+        or
+        sum(decode(a.ACLEDGER_CUMLATIVE_IND,'H',0,decode(sign(trunc(VH_VOU_DATE)- to_date(:fr_dt,'dd/mm/yyyy')),-1,0,decode(VD_DC_IND,'D',nvl(VD_AMOUNT,0),0) ))) <> 0                                                                         
+        or 
+        (sum(decode(sign(trunc(VH_VOU_DATE) - to_date(:fr_dt,'dd/mm/yyyy')),-1,
+                    decode(a.ACLEDGER_CUMLATIVE_IND,'C',decode(a.ACLEDGER_DCIND,'C',0,(decode(VD_DC_IND,'D',1,-1) * nvl(VD_AMOUNT,0)) ),
+                                                                            'H',decode(a.ACLEDGER_DCIND,'C',0,(decode(VD_DC_IND,'D',1,-1) * nvl(VD_AMOUNT,0)) ),
+                                                                            'N',(decode(VD_DC_IND,'D',1,-1) * nvl(VD_AMOUNT,0)),0),0)) -
+         sum(decode(sign(trunc(VH_VOU_DATE) - to_date(:fr_dt,'dd/mm/yyyy')),-1,
+                    decode(a.ACLEDGER_CUMLATIVE_IND,'C',decode(a.ACLEDGER_DCIND,'D',0,(decode(VD_DC_IND,'C',1,-1) * nvl(VD_AMOUNT,0)) ),
+                                                                           'H',decode(a.ACLEDGER_DCIND,'D',0,(decode(VD_DC_IND,'C',1,-1) * nvl(VD_AMOUNT,0)) ),0),0))) +
+       sum(decode(a.ACLEDGER_CUMLATIVE_IND,'H',0,decode(sign(trunc(VH_VOU_DATE)- to_date(:fr_dt,'dd/mm/yyyy')),-1,0,decode(VD_DC_IND,'D',nvl(VD_AMOUNT,0),0) ))) <> 0
+       or
+       sum(decode(a.ACLEDGER_CUMLATIVE_IND,'H',0,decode(sign(trunc(VH_VOU_DATE)- to_date(:fr_dt,'dd/mm/yyyy')),-1,0,decode(VD_DC_IND,'C',nvl(VD_AMOUNT,0),0)))) <> 0
+        or 
+        (sum(decode(sign(trunc(VH_VOU_DATE) - to_date(:fr_dt,'dd/mm/yyyy')),-1,
+                    decode(a.ACLEDGER_CUMLATIVE_IND,'C',decode(a.ACLEDGER_DCIND,'C',0,(decode(VD_DC_IND,'D',1,-1) * nvl(VD_AMOUNT,0)) ),
+                                                                            'H',decode(a.ACLEDGER_DCIND,'C',0,(decode(VD_DC_IND,'D',1,-1) * nvl(VD_AMOUNT,0)) ),
+                                                                           'N',(decode(VD_DC_IND,'D',1,-1) * nvl(VD_AMOUNT,0)),0),0)) -
+         sum(decode(sign(trunc(VH_VOU_DATE) - to_date(:fr_dt,'dd/mm/yyyy')),-1,
+                    decode(a.ACLEDGER_CUMLATIVE_IND,'C',decode(a.ACLEDGER_DCIND,'D',0,(decode(VD_DC_IND,'C',1,-1) * nvl(VD_AMOUNT,0)) ),
+                                                                           'H',decode(a.ACLEDGER_DCIND,'D',0,(decode(VD_DC_IND,'C',1,-1) * nvl(VD_AMOUNT,0)) ),0),0))) +
+       sum(decode(a.ACLEDGER_CUMLATIVE_IND,'H',0,decode(sign(trunc(VH_VOU_DATE)- to_date(:fr_dt,'dd/mm/yyyy')),-1,0,decode(VD_DC_IND,'D',nvl(VD_AMOUNT,0),0) ))) -
+       sum(decode(a.ACLEDGER_CUMLATIVE_IND,'H',0,decode(sign(trunc(VH_VOU_DATE)- to_date(:fr_dt,'dd/mm/yyyy')),-1,0,decode(VD_DC_IND,'C',nvl(VD_AMOUNT,0),0)))) <> 0" arguments=(("ra_gl_cd", string),("fr_dt", string),("to_dt", string))  sort="vd_gl_cd A subledger A " )
+group(level=1 header.height=72 trailer.height=76 by=("vd_gl_cd" , "gl_description" ) header.color="536870912" trailer.color="536870912" )
+group(level=2 header.height=0 trailer.height=80 by=("subledger" ) header.color="536870912" trailer.color="536870912" )
+text(band=header alignment="0" text="Luxmi Tea Co." border="0" color="33554432" x="32" y="8" height="64" width="539" html.valueishtml="0"  name=t_co visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+text(band=header alignment="0" text="Gteacr005" border="0" color="33554432" x="32" y="76" height="64" width="265" html.valueishtml="0"  name=t_7 visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+compute(band=header alignment="1" expression="today()"border="0" color="33554432" x="3127" y="12" height="64" width="329" format="dd/mm/yyyy" html.valueishtml="0"  name=date_1 visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+text(band=header alignment="2" text="" border="0" color="33554432" x="750" y="100" height="64" width="1957" html.valueishtml="0"  name=t_gnm visible="1"  hidesnaked=1  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912"  height.autosize=yes)
+text(band=header alignment="2" text="Sub Ledger" border="0" color="33554432" x="41" y="304" height="64" width="274" html.valueishtml="0"  name=subledger_t visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+line(band=header x1="0" y1="376" x2="3456" y2="376"  name=l_1 visible="1" pen.style="0" pen.width="5" pen.color="33554432"  background.mode="2" background.color="1073741824" )
+compute(band=header alignment="2" expression=" 'General Ledger For The Period Of '+ string( fr_dt  ,'dd/mm/yyyy') + ' To ' + string(  to_dt  ,'dd/mm/yyyy')"border="0" color="33554432" x="594" y="12" height="80" width="2267" format="[GENERAL]" html.valueishtml="0"  name=compute_1 visible="1"  font.face="Times New Roman" font.height="-10" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+text(band=header alignment="1" text="Balance" border="0" color="33554432" x="1541" y="304" height="64" width="347" html.valueishtml="0"  name=t_1 visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+text(band=header alignment="1" text="Debit In This Period" border="0" color="33554432" x="1925" y="236" height="128" width="352" html.valueishtml="0"  name=sub_code_t visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+text(band=header alignment="1" text="Balance Outstanding" border="0" color="33554432" x="3081" y="236" height="128" width="352" html.valueishtml="0"  name=t_4 visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+text(band=header alignment="1" text="Credit in This Period" border="0" color="33554432" x="2665" y="236" height="128" width="393" html.valueishtml="0"  name=t_3 visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+text(band=header alignment="1" text="Total" border="0" color="33554432" x="2313" y="300" height="64" width="352" html.valueishtml="0"  name=t_2 visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+text(band=header.1 alignment="2" text="Ledger :" border="0" color="33554432" x="9" y="4" height="64" width="288" html.valueishtml="0"  name=gl_description_t visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+column(band=header.1 id=2 alignment="0" tabsequence=32766 border="0" color="33554432" x="302" y="4" height="64" width="1093" format="[general]" html.valueishtml="0"  name=gl_description visible="1" edit.limit=30 edit.case=any edit.autoselect=yes edit.autohscroll=yes  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="2" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+column(band=header.1 id=11 alignment="0" tabsequence=32766 border="0" color="33554432" x="2839" y="4" height="64" width="55" format="[shortdate] [time]" html.valueishtml="0"  name=fr_dt visible="0" edit.limit=0 edit.case=any edit.focusrectangle=no edit.autoselect=no  font.face="Times New Roman" font.height="-9" font.weight="400"  font.family="2" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+column(band=header.1 id=12 alignment="0" tabsequence=32766 border="0" color="33554432" x="2976" y="4" height="64" width="55" format="[shortdate] [time]" html.valueishtml="0"  name=to_dt visible="0" edit.limit=0 edit.case=any edit.focusrectangle=no edit.autoselect=no  font.face="Times New Roman" font.height="-9" font.weight="400"  font.family="2" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+column(band=header.1 id=1 alignment="0" tabsequence=32766 border="0" color="33554432" x="1417" y="4" height="64" width="46" format="[general]" html.valueishtml="0"  name=vd_gl_cd visible="0" edit.limit=0 edit.case=any edit.focusrectangle=no edit.autoselect=no  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="2" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+column(band=detail id=4 alignment="0" tabsequence=32766 border="0" color="33554432" x="50" y="4" height="64" width="1138" format="[general]" html.valueishtml="0"  name=subledger visible="0" edit.limit=0 edit.case=any edit.focusrectangle=no edit.autoselect=no  font.face="Times New Roman" font.height="-9" font.weight="400"  font.family="2" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+compute(band=trailer.2 alignment="0" expression=" subledger "border="0" color="33554432" x="50" y="8" height="64" width="1138" format="[GENERAL]" html.valueishtml="0"  name=compute_12 visible="1"  font.face="Times New Roman" font.height="-9" font.weight="400"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+text(band=trailer.1 alignment="0" text="Grand Total" border="0" color="33554432" x="23" y="8" height="64" width="453" html.valueishtml="0"  name=t_5 visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+text(band=footer alignment="1" text="General Ledger" border="0" color="33554432" x="2949" y="4" height="64" width="453" html.valueishtml="0"  name=t_8 visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+compute(band=footer alignment="2" expression="'Page ' + page() + ' of ' + pageCount()"border="0" color="33554432" x="1335" y="4" height="72" width="791" format="[general]" html.valueishtml="0"  name=page_1 visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+column(band=detail id=3 alignment="0" tabsequence=32766 border="0" color="33554432" x="1198" y="4" height="64" width="50" format="[general]" html.valueishtml="0"  name=vd_sgl_cd visible="0" edit.limit=0 edit.case=any edit.focusrectangle=no edit.autoselect=no  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="2" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+column(band=detail id=5 alignment="0" tabsequence=0 border="0" color="33554432" x="1234" y="8" height="64" width="347" html.valueishtml="0"  name=dr_mop_bal visible="0" edit.limit=0 edit.case=any edit.focusrectangle=no edit.autoselect=no  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="2" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+column(band=detail id=6 alignment="0" tabsequence=0 border="0" color="33554432" x="1600" y="8" height="64" width="347" html.valueishtml="0"  name=cr_mop_bal visible="0" edit.limit=0 edit.case=any edit.focusrectangle=no edit.autoselect=no  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="2" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+column(band=detail id=7 alignment="0" tabsequence=0 border="0" color="33554432" x="1989" y="8" height="64" width="347" html.valueishtml="0"  name=mon_dr visible="0" edit.limit=0 edit.case=any edit.focusrectangle=no edit.autoselect=no  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="2" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+column(band=detail id=8 alignment="0" tabsequence=0 border="0" color="33554432" x="2354" y="8" height="64" width="347" html.valueishtml="0"  name=mon_cr visible="0" edit.limit=0 edit.case=any edit.focusrectangle=no edit.autoselect=no  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="2" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+column(band=detail id=9 alignment="0" tabsequence=0 border="0" color="33554432" x="2725" y="8" height="64" width="347" html.valueishtml="0"  name=dr_cols visible="0" edit.limit=0 edit.case=any edit.focusrectangle=no edit.autoselect=no  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="2" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+column(band=detail id=10 alignment="0" tabsequence=0 border="0" color="33554432" x="3099" y="8" height="64" width="347" html.valueishtml="0"  name=cr_cols visible="0" edit.limit=0 edit.case=any edit.focusrectangle=no edit.autoselect=no  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="2" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+compute(band=trailer.2 alignment="1" expression=" sum(dr_mop_bal for group 2)"border="0" color="33554432" x="1234" y="8" height="64" width="347" format="#,##0.00" html.valueishtml="0"  name=compute_7 visible="1"  font.face="Times New Roman" font.height="-8" font.weight="400"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+compute(band=trailer.2 alignment="1" expression="sum(cr_mop_bal for group 2)"border="0" color="33554432" x="1605" y="8" height="64" width="347" format="#,##0.00" html.valueishtml="0"  name=compute_8 visible="1"  font.face="Times New Roman" font.height="-8" font.weight="400"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+compute(band=trailer.2 alignment="1" expression="sum(mon_dr for group 2)"border="0" color="33554432" x="1970" y="8" height="64" width="347" format="#,##0.00" html.valueishtml="0"  name=compute_9 visible="1"  font.face="Times New Roman" font.height="-8" font.weight="400"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+compute(band=trailer.2 alignment="1" expression="sum(mon_cr for group 2)"border="0" color="33554432" x="2341" y="8" height="64" width="347" format="#,##0.00" html.valueishtml="0"  name=compute_10 visible="1"  font.face="Times New Roman" font.height="-8" font.weight="400"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+compute(band=trailer.2 alignment="1" expression="sum(dr_cols for group 2)"border="0" color="33554432" x="2706" y="8" height="64" width="343" format="#,##0.00" html.valueishtml="0"  name=compute_11 visible="1"  font.face="Times New Roman" font.height="-8" font.weight="400"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+compute(band=trailer.2 alignment="1" expression="sum(cr_cols for group 2)"border="0" color="33554432" x="3067" y="8" height="64" width="343" format="#,##0.00" html.valueishtml="0"  name=compute_13 visible="1"  font.face="Times New Roman" font.height="-8" font.weight="400"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+compute(band=trailer.1 alignment="1" expression=" sum(dr_mop_bal for all)"border="0" color="33554432" x="1234" y="4" height="64" width="347" format="#,##0.00" html.valueishtml="0"  name=compute_2 visible="1"  font.face="Times New Roman" font.height="-8" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+compute(band=trailer.1 alignment="1" expression="sum(cr_mop_bal for all)"border="0" color="33554432" x="1605" y="4" height="64" width="347" format="#,##0.00" html.valueishtml="0"  name=compute_3 visible="1"  font.face="Times New Roman" font.height="-8" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+compute(band=trailer.1 alignment="1" expression="sum(mon_dr for all)"border="0" color="33554432" x="1970" y="4" height="64" width="347" format="#,##0.00" html.valueishtml="0"  name=compute_4 visible="1"  font.face="Times New Roman" font.height="-8" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+compute(band=trailer.1 alignment="1" expression="sum(mon_cr for all)"border="0" color="33554432" x="2341" y="4" height="64" width="347" format="#,##0.00" html.valueishtml="0"  name=compute_5 visible="1"  font.face="Times New Roman" font.height="-8" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+compute(band=trailer.1 alignment="1" expression="sum(dr_cols for all)"border="0" color="33554432" x="2706" y="4" height="64" width="343" format="#,##0.00" html.valueishtml="0"  name=compute_6 visible="1"  font.face="Times New Roman" font.height="-8" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+compute(band=trailer.1 alignment="1" expression="sum(cr_cols for all)"border="0" color="33554432" x="3067" y="4" height="64" width="343" format="#,##0.00" html.valueishtml="0"  name=compute_14 visible="1"  font.face="Times New Roman" font.height="-8" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+htmltable(border="1" )
+htmlgen(clientevents="1" clientvalidation="1" clientcomputedfields="1" clientformatting="0" clientscriptable="0" generatejavascript="1" encodeselflinkargs="1" netscapelayers="0" pagingmethod=0 generatedddwframes="1" )
+xhtmlgen() cssgen(sessionspecific="0" )
+xmlgen(inline="0" )
+xsltgen()
+jsgen()
+export.xml(headgroups="1" includewhitespace="0" metadatatype=0 savemetadata=0 )
+import.xml()
+export.pdf(method=0 distill.custompostscript="0" xslfop.print="0" )
+export.xhtml()
+ 

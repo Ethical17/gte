@@ -1,0 +1,105 @@
+﻿$PBExportHeader$f_check_email.srf
+global type f_check_email from function_object
+end type
+
+forward prototypes
+global function integer f_check_email (string fs_value)
+end prototypes
+
+global function integer f_check_email (string fs_value);long l_ctr,i,l_ascii,l_ct,place_nbr,place_nbr1,place_atr
+string ls_char
+l_ct = 0
+
+
+select length(:fs_value) into :l_ctr from dual;
+ls_char = left(fs_value,1)
+select ascii(:ls_char) into :l_ascii from dual;
+if (l_ascii = 32)  then
+	messagebox("Alert !","First Character Should not be space, Please Check !!!")
+	return -1
+elseif (l_ascii > 32 and l_ascii < 42)  then
+	messagebox("Alert !","First Character Should not be special character ("+ ls_char +"), Please Check !!!")
+	return -1
+elseif (l_ascii > 42 and l_ascii < 48)  then
+	messagebox("Alert !","First Character Should not be special character ("+ ls_char +"), Please Check !!!")
+	return -1
+elseif (l_ascii > 57 and l_ascii < 65) then
+	messagebox("Alert !","First Character Should not be special character ("+ ls_char +"), Please Check !!!")
+	return -1
+elseif	(l_ascii > 90 and l_ascii < 97) then
+	messagebox("Alert !","First Character Should not be special character ("+ ls_char +"), Please Check !!!")
+	return -1
+elseif	(l_ascii > 122 and l_ascii < 127) then
+	messagebox("Alert !","First Character Should not be special character ("+ ls_char +"), Please Check !!!")
+	return -1
+elseif	(l_ascii > 47 and l_ascii < 58) then
+	messagebox("Alert !","First Character Should not be numeric value ("+ ls_char +"), Please Check !!!")
+	return -1
+end if
+for i = l_ctr to l_ctr -1 step -1
+	select substr(:fs_value,:i,1) into :ls_char from dual;
+	select ascii(:ls_char) into :l_ascii from dual;
+	if (l_ascii > 32 and l_ascii < 42)  then
+		messagebox("Alert !","Last & Second Last Character Should not be special character ("+ ls_char +"), Please Check !!!")
+		return -1
+	elseif (l_ascii > 42 and l_ascii < 48)  then
+		messagebox("Alert !","Last & Second Last Character Should not be special character ("+ ls_char +"), Please Check !!!")
+		return -1
+	elseif (l_ascii > 57 and l_ascii < 65) then
+		messagebox("Alert !","Last & Second Last Character Should not be special character ("+ ls_char +"), Please Check !!!")
+		return -1
+	elseif	(l_ascii > 90 and l_ascii < 97) then
+		messagebox("Alert !","Last & Second Last Character Should not be special character ("+ ls_char +"), Please Check !!!")
+		return -1
+	elseif	(l_ascii > 122 and l_ascii < 127) then
+		messagebox("Alert !","Last & Second Last Character Should not be special character ("+ ls_char +"), Please Check !!!")
+		return -1
+	elseif	(l_ascii > 47 and l_ascii < 58) then
+		messagebox("Alert !","Last & Second Last Character Should not be numeric value ("+ ls_char +"), Please Check !!!")
+		return -1
+	end if
+next
+
+for i = 1 to l_ctr
+	select substr(:fs_value,:i,1) into :ls_char from dual;
+	select ascii(:ls_char) into :l_ascii from dual;
+	if (l_ascii = 32)  then
+		messagebox("Alert !","Space is not allowed in email address, Please Check !!!")
+		return -1
+	end if
+	if l_ascii = 64 then
+ 		l_ct = l_ct + 1		
+	end if
+next 
+if l_ct = 0 then
+	messagebox('Alert !',"There is no @ in the email address, Please Check !!!")
+	return -1
+elseif l_ct > 1 then
+	messagebox('Alert !',"More Than one @ is not allowed in email address, Please Check !!!")
+	return -1
+end if
+place_nbr1 = pos(fs_value, ".")
+place_atr = pos(fs_value, "@")
+place_nbr = lastpos(fs_value, ".")
+
+if place_nbr - place_nbr1 = 1 then
+	messagebox("Alert !","Two consecutive '.' are not allowed in email address, Please Check !!!")
+	return -1	
+end if
+
+if place_nbr - place_atr = 1 then
+	messagebox("Alert !","Two consecutive '.' are not allowed in email address, Please Check !!!")
+	return -1	
+end if
+
+if isnull(place_nbr) then place_nbr = 0
+if place_nbr > 0 and (l_ctr - place_nbr) < 2 then
+	messagebox("Alert !","'.' cannot be the last or second last character in email address, Please Check !!!")
+	return -1	
+end if
+
+return 1
+
+
+end function
+

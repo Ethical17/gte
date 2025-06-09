@@ -1,0 +1,57 @@
+﻿$PBExportHeader$dw_gteacr023b.srd
+release 10.5;
+datawindow(units=0 timer_interval=0 color=1073741824 processing=0 HTMLDW=no print.printername="" print.documentname="" print.orientation = 2 print.margin.left = 110 print.margin.right = 110 print.margin.top = 96 print.margin.bottom = 96 print.paper.source = 0 print.paper.size = 0 print.canusedefaultprinter=yes print.prompt=no print.buttons=no print.preview.buttons=no print.cliptext=no print.overrideprintjob=no print.collate=yes print.preview.outline=yes hidegrayline=no )
+header(height=4 color="536870912" )
+summary(height=0 color="536870912" )
+footer(height=88 color="536870912" )
+detail(height=100 color="536870912" )
+table(column=(type=char(29) updatewhereclause=yes name=particulars dbname="particulars" )
+ column=(type=char(25) updatewhereclause=yes name=fb_acsubledger_acledger_id dbname="fb_acsubledger.acledger_id" dbalias=".acledger_id" )
+ column=(type=char(25) updatewhereclause=yes name=fb_acsubledger_acsubledger_id dbname="fb_acsubledger.acsubledger_id" dbalias=".acsubledger_id" )
+ column=(type=char(25) updatewhereclause=yes name=fb_vou_det_vd_gl_cd dbname="fb_vou_det.vd_gl_cd" dbalias=".vd_gl_cd" )
+ column=(type=char(50) updatewhereclause=yes name=fb_vou_det_vd_sgl_cd dbname="fb_vou_det.vd_sgl_cd" dbalias=".vd_sgl_cd" )
+ column=(type=char(1) updatewhereclause=yes name=so dbname="so" )
+ retrieve="select distinct 'Mismatch ledger in Voucher' Particulars,ACLEDGER_ID,ACSUBLEDGER_ID,vd_gl_cd,vd_sgl_cd,'A' so
+  from fb_vou_det,fb_acsubledger
+where ACSUBLEDGER_ID = vd_sgl_cd and ACLEDGER_ID != vd_gl_cd
+union
+select 'Mismatch subledger in Voucher',vd_gl_cd,EACHEAD_ID Ac_Subledger,vd_sgl_cd,a.ACSUBLEDGER_name,'B' so
+  from fb_vou_det,FB_EXPENSEACSUBHEAD,fb_acsubledger a,fb_acsubledger b
+where EACSUBHEAD_ID=VD_EXPSUBHEAD and EACHEAD_ID != vd_sgl_cd and vd_sgl_cd = a.ACSUBLEDGER_ID and EACHEAD_ID =b.ACSUBLEDGER_ID 
+ group by vd_gl_cd,vd_sgl_cd,a.ACSUBLEDGER_name,EACHEAD_ID,b.ACSUBLEDGER_name,VD_EXPSUBHEAD,EACSUBHEAD_ID
+union
+select distinct 'Attendance LWW ID Mismatch',attn_pd.LWW_ID,to_char(LWW_STARTDATE,'dd/mm/yyyy')||'-'||to_char(LWW_ENDDATE,'dd/mm/yyyy')paid_period ,
+         to_char(LDA_DATE,'dd/mm/yyyy'), attn.LWW_ID,'C' so
+ from (select LDA_DATE, LABOUR_ID, KAMSUB_ID,LWW_ID
+           from fb_labourdailyattendance
+         where LDA_DATE between to_date(:ra_frdt,'dd/mm/yyyy') and to_date(:ra_todt,'dd/mm/yyyy'))attn,
+         (select LWW_ID,LWW_STARTDATE, LWW_ENDDATE from fb_labourwagesweek
+          where lww_startdate between to_date(:ra_frdt,'dd/mm/yyyy') and to_date(:ra_todt,'dd/mm/yyyy') or
+                    LWW_ENDDATE between to_date(:ra_frdt,'dd/mm/yyyy') and to_date(:ra_todt,'dd/mm/yyyy'))attn_pd
+where LDA_DATE between LWW_STARTDATE and LWW_ENDDATE and attn.LWW_ID <> attn_pd.LWW_ID    
+ order by 1 " arguments=(("ra_frdt", string),("ra_todt", string)) )
+group(level=1 header.height=96 trailer.height=0 by=("so" ) header.color="536870912" trailer.color="536870912" )
+line(band=header.1 x1="18" y1="88" x2="3584" y2="88"  name=l_1 visible="1" pen.style="0" pen.width="5" pen.color="33554432"  background.mode="2" background.color="1073741824" )
+text(band=header.1 alignment="0" text="Particulars" border="0" color="33554432" x="18" y="8" height="64" width="795" html.valueishtml="0"  name=t_1 visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+column(band=header.1 id=6 alignment="0" tabsequence=32766 border="0" color="33554432" x="3374" y="12" height="64" width="23" format="[general]" html.valueishtml="0"  name=so visible="0" edit.limit=0 edit.case=any edit.focusrectangle=no edit.autoselect=no  font.face="Times New Roman" font.height="-9" font.weight="400"  font.family="1" font.pitch="2" font.charset="0" background.mode="2" background.color="1073741824" )
+compute(band=header.1 alignment="0" expression="if( so  ='A','Voucher Sub Ledger',if( so ='B','Sub Ledger Name' ,if( so ='C','Attendance LWW Id',' ')))"border="0" color="33554432" x="2432" y="8" height="64" width="1120" format="[GENERAL]" html.valueishtml="0"  name=compute_4 visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="2" background.color="1073741824" )
+compute(band=header.1 alignment="2" expression="if( so  ='A','Ac Ledger',if( so ='B','Ac Ledger' ,if( so ='C','Pament~~rLWW Id',' ')))"border="0" color="33554432" x="855" y="8" height="64" width="494" format="[GENERAL]" html.valueishtml="0"  name=compute_1 visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="2" background.color="1073741824" )
+compute(band=header.1 alignment="2" expression="if( so  ='A','Ac Sub Ledger',if( so ='B','Ac SubLedger' ,if( so ='C','Payment Period',' ')))"border="0" color="33554432" x="1408" y="8" height="64" width="439" format="[GENERAL]" html.valueishtml="0"  name=compute_2 visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="2" background.color="1073741824" )
+compute(band=header.1 alignment="2" expression="if( so  ='A','Voucher Ledger',if( so ='B','Vou Subledger' ,if( so ='C','Attendance Date',' ')))"border="0" color="33554432" x="1925" y="8" height="64" width="475" format="[GENERAL]" html.valueishtml="0"  name=compute_3 visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="2" background.color="1073741824" )
+column(band=detail id=1 alignment="0" tabsequence=32766 border="0" color="33554432" x="18" y="0" height="64" width="795" format="[general]" html.valueishtml="0"  name=particulars visible="1" edit.limit=0 edit.case=any edit.focusrectangle=no edit.autoselect=no  font.face="Times New Roman" font.height="-9" font.weight="400"  font.family="1" font.pitch="2" font.charset="0" background.mode="2" background.color="1073741824" )
+column(band=detail id=3 alignment="2" tabsequence=32766 border="0" color="33554432" x="1344" y="4" height="64" width="521" format="[general]" html.valueishtml="0"  name=fb_acsubledger_acsubledger_id visible="1" edit.limit=0 edit.case=any edit.focusrectangle=no edit.autoselect=no  font.face="Times New Roman" font.height="-9" font.weight="400"  font.family="1" font.pitch="2" font.charset="0" background.mode="2" background.color="1073741824" )
+column(band=detail id=2 alignment="2" tabsequence=32766 border="0" color="33554432" x="846" y="8" height="64" width="466" format="[general]" html.valueishtml="0"  name=fb_acsubledger_acledger_id visible="1" edit.limit=0 edit.case=any edit.focusrectangle=no edit.autoselect=no  font.face="Times New Roman" font.height="-9" font.weight="400"  font.family="1" font.pitch="2" font.charset="0" background.mode="2" background.color="1073741824" )
+column(band=detail id=4 alignment="2" tabsequence=32766 border="0" color="33554432" x="1897" y="8" height="64" width="498" format="[general]" html.valueishtml="0"  name=fb_vou_det_vd_gl_cd visible="1" edit.limit=0 edit.case=any edit.focusrectangle=no edit.autoselect=no  font.face="Times New Roman" font.height="-9" font.weight="400"  font.family="1" font.pitch="2" font.charset="0" background.mode="2" background.color="1073741824" )
+column(band=detail id=5 alignment="0" tabsequence=32766 border="0" color="33554432" x="2409" y="8" height="64" width="1143" format="[general]" html.valueishtml="0"  name=fb_vou_det_vd_sgl_cd visible="1" edit.limit=0 edit.case=any edit.focusrectangle=no edit.autoselect=no  font.face="Times New Roman" font.height="-9" font.weight="400"  font.family="1" font.pitch="2" font.charset="0" background.mode="2" background.color="1073741824" )
+compute(band=footer alignment="0" expression="'Page ' + page() + ' of ' + pageCount()"border="0" color="33554432" x="1609" y="8" height="72" width="891" format="[general]" html.valueishtml="0"  name=page_1 visible="1"  font.face="Times New Roman" font.height="-9" font.weight="400"  font.family="1" font.pitch="2" font.charset="0" background.mode="2" background.color="1073741824" )
+htmltable(border="1" )
+htmlgen(clientevents="1" clientvalidation="1" clientcomputedfields="1" clientformatting="0" clientscriptable="0" generatejavascript="1" encodeselflinkargs="1" netscapelayers="0" pagingmethod=0 generatedddwframes="1" )
+xhtmlgen() cssgen(sessionspecific="0" )
+xmlgen(inline="0" )
+xsltgen()
+jsgen()
+export.xml(headgroups="1" includewhitespace="0" metadatatype=0 savemetadata=0 )
+import.xml()
+export.pdf(method=0 distill.custompostscript="0" xslfop.print="0" )
+export.xhtml()
+ 

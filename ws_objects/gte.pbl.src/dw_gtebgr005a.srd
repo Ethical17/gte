@@ -1,0 +1,99 @@
+﻿$PBExportHeader$dw_gtebgr005a.srd
+release 10.5;
+datawindow(units=0 timer_interval=0 color=16777215 processing=0 HTMLDW=no print.printername="" print.documentname="" print.orientation = 0 print.margin.left = 110 print.margin.right = 110 print.margin.top = 96 print.margin.bottom = 96 print.paper.source = 0 print.paper.size = 0 print.canusedefaultprinter=yes print.prompt=no print.buttons=no print.preview.buttons=no print.cliptext=no print.overrideprintjob=no print.collate=yes print.preview.outline=yes hidegrayline=no )
+header(height=384 color="536870912" )
+summary(height=72 color="536870912" )
+footer(height=88 color="536870912" )
+detail(height=84 color="536870912" )
+table(column=(type=decimal(0) updatewhereclause=yes name=mtmb_year dbname="mtmb_year" )
+ column=(type=char(22) updatewhereclause=yes name=rec_ty dbname="rec_ty" )
+ column=(type=char(81) updatewhereclause=yes name=fy_year dbname="fy_year" )
+ column=(type=number updatewhereclause=yes name=final_ownc_own_factory dbname="final_ownc_own_factory" )
+ column=(type=number updatewhereclause=yes name=as_fact dbname="as_fact" )
+ column=(type=number updatewhereclause=yes name=org_ownc_own_factory dbname="org_ownc_own_factory" )
+ retrieve="select aa.MTMB_YEAR,aa.rec_ty,to_char(aa.MTMB_YEAR)||'-'||to_char(aa.MTMB_YEAR+1)fy_year, 
+       final_ownc_own_factory,(final_ownc_own_factory - org_ownc_own_factory)as_fact,org_ownc_own_factory
+from ( select MTMB_YEAR,'Own Crop Own factory'rec_ty,
+		      sum(MTMB_APRTEAMADEOWN + MTMB_MAYTEAMADEOWN + MTMB_JUNTEAMADEOWN + MTMB_JULTEAMADEOWN + 
+			      MTMB_AUGTEAMADEOWN + MTMB_SEPTEAMADEOWN + MTMB_OCTTEAMADEOWN + MTMB_NOVTEAMADEOWN + 
+				  MTMB_DECTEAMADEOWN + MTMB_JANTEAMADEOWN + MTMB_FEBTEAMADEOWN + MTMB_MARTEAMADEOWN )final_ownc_own_factory			  
+		 from FB_MONTHLYTEAMADEBUDGET a
+		where MTMB_YEAR=:ra_year
+		group by MTMB_YEAR ,'Own Crop Own factory' union all
+		select MTMB_YEAR,'Own Crop other factory'rec_ty,
+		      sum(MTMB_JANTMOWN_OF+ MTMB_FEBTMOWN_OF+ MTMB_MARTMOWN_OF+ MTMB_APRTMOWN_OF+ MTMB_MAYTMOWN_OF+ MTMB_JUNTMOWN_OF+ MTMB_JULTMOWN_OF+ MTMB_AUGTMOWN_OF+ MTMB_SEPTMOWN_OF+ MTMB_OCTTMOWN_OF+ MTMB_NOVTMOWN_OF+ MTMB_DECTMOWN_OF)final_ownc_oth_factory  	   
+		 from FB_MONTHLYTEAMADEBUDGET a
+		where MTMB_YEAR=:ra_year
+		group by MTMB_YEAR ,'Own Crop other factory' union all
+		select MTMB_YEAR,'Other Crop Own factory'rec_ty,
+		      sum(MTMB_JANTMOF_OWN+ MTMB_FEBTMOF_OWN+ MTMB_MARTMOF_OWN+ MTMB_APRTMOF_OWN+ MTMB_MAYTMOF_OWN+ MTMB_JUNTMOF_OWN+ MTMB_JULTMOF_OWN+ MTMB_AUGTMOF_OWN+ MTMB_SEPTMOF_OWN+ MTMB_OCTTMOF_OWN+ MTMB_NOVTMOF_OWN+ MTMB_DECTMOF_OWN)final_othc_own_factory
+		 from FB_MONTHLYTEAMADEBUDGET a
+		where MTMB_YEAR=:ra_year
+		group by MTMB_YEAR ,'Other Crop Own factory' union all
+		select MTMB_YEAR,'Purchase Leaf'rec_ty,
+		       sum(MTMB_APRTEAMADEPUR + MTMB_MAYTEAMADEPUR + MTMB_JUNTEAMADEPUR + MTMB_JULTEAMADEPUR + 
+			      MTMB_AUGTEAMADEPUR + MTMB_SEPTEAMADEPUR + MTMB_OCTTEAMADEPUR + MTMB_NOVTEAMADEPUR + 
+				  MTMB_DECTEAMADEPUR + MTMB_JANTEAMADEPUR + MTMB_FEBTEAMADEPUR + MTMB_MARTEAMADEPUR)final_pur_leaf
+		 from FB_MONTHLYTEAMADEBUDGET a
+		where MTMB_YEAR=:ra_year
+		group by MTMB_YEAR)aa,
+		(select MTMB_YEAR,'Own Crop Own factory'rec_ty,
+		       sum(MTMB_APRTEAMADEOWN + MTMB_MAYTEAMADEOWN + MTMB_JUNTEAMADEOWN + MTMB_JULTEAMADEOWN + 
+			       MTMB_AUGTEAMADEOWN + MTMB_SEPTEAMADEOWN + MTMB_OCTTEAMADEOWN + MTMB_NOVTEAMADEOWN + 
+				   MTMB_DECTEAMADEOWN + MTMB_JANTEAMADEOWN + MTMB_FEBTEAMADEOWN + MTMB_MARTEAMADEOWN )org_ownc_own_factory
+		  from FB_MONTHLYTEAMADEBUDGET_LOGS a
+		where MTMB_YEAR=:ra_year  and OLD_ENTRY_BY is null and MTMB_ENTRY_DT is not null
+		group by MTMB_YEAR ,'Own Crop Own factory'union all
+		select MTMB_YEAR,'Own Crop other factory'rec_ty,
+		       sum(MTMB_JANTMOWN_OF+ MTMB_FEBTMOWN_OF+ MTMB_MARTMOWN_OF+ MTMB_APRTMOWN_OF+ MTMB_MAYTMOWN_OF+ MTMB_JUNTMOWN_OF+ MTMB_JULTMOWN_OF+ MTMB_AUGTMOWN_OF+ MTMB_SEPTMOWN_OF+ MTMB_OCTTMOWN_OF+ MTMB_NOVTMOWN_OF+ MTMB_DECTMOWN_OF)org_ownc_oth_factory
+		 from FB_MONTHLYTEAMADEBUDGET_LOGS a
+		where MTMB_YEAR=:ra_year  and OLD_ENTRY_BY is null and MTMB_ENTRY_DT is not null
+		group by MTMB_YEAR,'Own Crop other factory' union all
+		select MTMB_YEAR,'Other Crop Own factory'rec_ty,
+		       sum(MTMB_JANTMOF_OWN+ MTMB_FEBTMOF_OWN+ MTMB_MARTMOF_OWN+ MTMB_APRTMOF_OWN+ MTMB_MAYTMOF_OWN+ MTMB_JUNTMOF_OWN+ MTMB_JULTMOF_OWN+ MTMB_AUGTMOF_OWN+ MTMB_SEPTMOF_OWN+ MTMB_OCTTMOF_OWN+ MTMB_NOVTMOF_OWN+ MTMB_DECTMOF_OWN)org_othc_own_factory			
+		 from FB_MONTHLYTEAMADEBUDGET_LOGS a
+		where MTMB_YEAR=:ra_year  and OLD_ENTRY_BY is null and MTMB_ENTRY_DT is not null
+		group by MTMB_YEAR ,'Other Crop Own factory' union all
+		select MTMB_YEAR,'Purchase Leaf'rec_ty,
+		       sum(MTMB_APRTEAMADEPUR + MTMB_MAYTEAMADEPUR + MTMB_JUNTEAMADEPUR + MTMB_JULTEAMADEPUR + 
+			       MTMB_AUGTEAMADEPUR + MTMB_SEPTEAMADEPUR + MTMB_OCTTEAMADEPUR + MTMB_NOVTEAMADEPUR + 
+				   MTMB_DECTEAMADEPUR + MTMB_JANTEAMADEPUR + MTMB_FEBTEAMADEPUR + MTMB_MARTEAMADEPUR)org_pur_leaf
+		 from FB_MONTHLYTEAMADEBUDGET_LOGS a
+		where MTMB_YEAR=:ra_year  and OLD_ENTRY_BY is null and MTMB_ENTRY_DT is not null
+		group by MTMB_YEAR,'Purchase Leaf')bb		
+where aa.MTMB_YEAR=bb.MTMB_YEAR(+) and aa.rec_ty=bb.rec_ty
+
+" arguments=(("userid", string),("ra_year", number)) )
+compute(band=header alignment="2" expression=" 'Tea Made Budget For The Year '+   fy_year   "border="0" color="0" x="978" y="24" height="72" width="1312" format="[GENERAL]" html.valueishtml="0"  name=compute_29 visible="1"  font.face="Times New Roman" font.height="-11" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="2" background.color="16777215" )
+text(band=header alignment="2" text="" border="0" color="33554432" x="658" y="132" height="64" width="1957" html.valueishtml="0"  name=t_gnm visible="1"  hidesnaked=1  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912"  height.autosize=yes)
+text(band=header alignment="0" text="Luxmi Tea Co." border="0" color="0" x="37" y="20" height="64" width="585" html.valueishtml="0"  name=t_co visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="2" background.color="16777215" )
+text(band=header alignment="0" text="Gtebgr005a" border="0" color="0" x="37" y="92" height="64" width="274" html.valueishtml="0"  name=t_1 visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="2" background.color="16777215" )
+line(band=detail x1="14" y1="76" x2="3255" y2="76"  name=l_2 visible="1" pen.style="2" pen.width="5" pen.color="134217728"  background.mode="2" background.color="1073741824" )
+compute(band=footer alignment="0" expression="'Page ' + page() + ' of ' + pageCount()"border="0" color="0" x="1335" y="8" height="72" width="603" format="[general]" html.valueishtml="0"  name=page_1 visible="1"  font.face="Times New Roman" font.height="-9" font.weight="400"  font.family="1" font.pitch="2" font.charset="0" background.mode="2" background.color="16777215" )
+column(band=header id=1 alignment="0" tabsequence=0 border="0" color="33554432" x="905" y="248" height="56" width="265" html.valueishtml="0"  name=mtmb_year visible="0" edit.limit=0 edit.case=any edit.focusrectangle=no edit.autoselect=no  font.face="Times New Roman" font.height="-8" font.weight="400"  font.family="1" font.pitch="2" font.charset="0" background.mode="2" background.color="1073741824" )
+column(band=header id=3 alignment="0" tabsequence=0 border="0" color="33554432" x="2592" y="28" height="56" width="265" html.valueishtml="0"  name=fy_year visible="0" edit.limit=0 edit.case=any edit.focusrectangle=no edit.autoselect=no  font.face="Times New Roman" font.height="-8" font.weight="400"  font.family="1" font.pitch="2" font.charset="0" background.mode="2" background.color="1073741824" )
+text(band=header alignment="0" text="Expense SubHead" border="0" color="33554432" x="23" y="300" height="64" width="434" html.valueishtml="0"  name=eacsubhead_name_t visible="1"  font.face="Times New Roman" font.height="-10" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="2" background.color="16777215" )
+line(band=header x1="18" y1="376" x2="3255" y2="376"  name=l_1 visible="1" pen.style="0" pen.width="5" pen.color="33554432"  background.mode="2" background.color="67108864" )
+text(band=header alignment="1" text="Addition/SubstractionAmount" border="0" color="33554432" x="1897" y="232" height="128" width="549" html.valueishtml="0"  name=t_11 visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="2" background.color="16777215" )
+text(band=header alignment="1" text="Original Amount" border="0" color="33554432" x="1271" y="296" height="64" width="416" html.valueishtml="0"  name=mwb_junmandays_t visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="2" background.color="16777215" )
+compute(band=header alignment="0" expression="today()"border="0" color="0" x="3008" y="52" height="72" width="247" format="[general]" html.valueishtml="0"  name=date_1 visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="2" background.color="16777215" )
+text(band=header alignment="1" text="Final Amount" border="0" color="33554432" x="2921" y="292" height="64" width="334" html.valueishtml="0"  name=t_14 visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="2" background.color="16777215" )
+column(band=detail id=2 alignment="0" tabsequence=0 border="0" color="33554432" x="5" y="8" height="56" width="1234" html.valueishtml="0"  name=rec_ty visible="1" edit.limit=0 edit.case=any edit.focusrectangle=no edit.autoselect=no  font.face="Times New Roman" font.height="-8" font.weight="400"  font.family="1" font.pitch="2" font.charset="0" background.mode="2" background.color="1073741824" )
+column(band=detail id=6 alignment="1" tabsequence=0 border="0" color="33554432" x="1326" y="8" height="56" width="357" html.valueishtml="0"  name=org_ownc_own_factory visible="1" edit.limit=0 edit.case=any edit.focusrectangle=no edit.autoselect=no  font.face="Times New Roman" font.height="-8" font.weight="400"  font.family="1" font.pitch="2" font.charset="0" background.mode="2" background.color="1073741824" )
+column(band=detail id=5 alignment="1" tabsequence=0 border="0" color="33554432" x="2085" y="8" height="56" width="357" html.valueishtml="0"  name=as_fact visible="1" edit.limit=0 edit.case=any edit.focusrectangle=no edit.autoselect=no  font.face="Times New Roman" font.height="-8" font.weight="400"  font.family="1" font.pitch="2" font.charset="0" background.mode="2" background.color="1073741824" )
+column(band=detail id=4 alignment="1" tabsequence=0 border="0" color="33554432" x="2898" y="8" height="56" width="357" html.valueishtml="0"  name=final_ownc_own_factory visible="1" edit.limit=0 edit.case=any edit.focusrectangle=no edit.autoselect=no  font.face="Times New Roman" font.height="-8" font.weight="400"  font.family="1" font.pitch="2" font.charset="0" background.mode="2" background.color="1073741824" )
+text(band=summary alignment="1" text="Grand Total  :" border="0" color="0" x="782" y="8" height="52" width="329" html.valueishtml="0"  name=t_2 visible="1"  font.face="Times New Roman" font.height="-8" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="2" background.color="16777215" )
+compute(band=summary alignment="1" expression="sum(as_fact for all)"border="0" color="33554432" x="2085" y="8" height="56" width="357" format="[general]" html.valueishtml="0"  name=compute_2 visible="1"  font.face="Times New Roman" font.height="-8" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="2" background.color="1073741824" )
+compute(band=summary alignment="1" expression="sum(org_ownc_own_factory for all)"border="0" color="33554432" x="1326" y="8" height="56" width="357" format="[general]" html.valueishtml="0"  name=compute_1 visible="1"  font.face="Times New Roman" font.height="-8" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="2" background.color="1073741824" )
+compute(band=summary alignment="1" expression="sum(final_ownc_own_factory for all)"border="0" color="33554432" x="2898" y="8" height="56" width="357" format="[general]" html.valueishtml="0"  name=compute_3 visible="1"  font.face="Times New Roman" font.height="-8" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="2" background.color="1073741824" )
+htmltable(border="1" )
+htmlgen(clientevents="1" clientvalidation="1" clientcomputedfields="1" clientformatting="0" clientscriptable="0" generatejavascript="1" encodeselflinkargs="1" netscapelayers="0" pagingmethod=0 generatedddwframes="1" )
+xhtmlgen() cssgen(sessionspecific="0" )
+xmlgen(inline="0" )
+xsltgen()
+jsgen()
+export.xml(headgroups="1" includewhitespace="0" metadatatype=0 savemetadata=0 )
+import.xml()
+export.pdf(method=0 distill.custompostscript="0" xslfop.print="0" )
+export.xhtml()
+ 

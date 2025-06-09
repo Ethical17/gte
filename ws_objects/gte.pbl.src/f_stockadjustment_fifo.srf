@@ -1,0 +1,155 @@
+﻿$PBExportHeader$f_stockadjustment_fifo.srf
+global type f_stockadjustment_fifo from function_object
+end type
+
+forward prototypes
+global function integer f_stockadjustment_fifo (string fs_srl_no, string fs_div)
+end prototypes
+
+global function integer f_stockadjustment_fifo (string fs_srl_no, string fs_div);string ls_SP_ID,ls_EACHEAD_ID,ls_EACSUBHEAD_ID,ls_remark,ls_ECC_ID,ls_rowid,ls_det_rowid,ls_dt,ls_ENTRY_BY,ls_temp
+double ld_PRIS_ISSUEQUANTITY,ld_PRIS_REQQUANTITY,ld_det_qty,ld_rate,ld_AVL_STOCK
+double ld_clos_qnty;
+date ld_ADJ_DATE, ld_ENTRY_DT 
+
+declare c1 cursor for 
+ select rowid,SP_ID,EACHEAD_ID, EACSUBHEAD_ID , abs(SA_QUANTITY), SA_REMARK,SA_ADJ_DATE,SA_ENTRY_BY, SA_ENTRY_DT  
+  from fb_stores_adjustment
+  where SA_ADJ_ID = :fs_srl_no and SA_QUANTITY < 0;
+
+open c1;
+
+if sqlca.sqlcode = -1 then 
+	messagebox('Error At Cursor','Error During Opening Cursor C1 : '+sqlca.sqlerrtext)
+	return -1
+else
+	setnull(ls_rowid);setnull(ls_SP_ID);setnull(ls_EACHEAD_ID);setnull(ls_EACSUBHEAD_ID);setnull(ls_remark);setnull(ld_ADJ_DATE);setnull(ls_ENTRY_BY);setnull(ld_ENTRY_DT);  
+	ld_PRIS_ISSUEQUANTITY = 0;
+	fetch c1 into :ls_rowid,:ls_SP_ID,:ls_EACHEAD_ID,:ls_EACSUBHEAD_ID,:ld_PRIS_ISSUEQUANTITY,:ls_remark,:ld_ADJ_DATE,:ls_ENTRY_BY,:ld_ENTRY_DT;
+	
+	do while sqlca.sqlcode <> 100
+		
+		ld_clos_qnty = ld_PRIS_ISSUEQUANTITY;
+		
+		declare c2 cursor for 
+		select rowid,to_char(ds_date,'dd/mm/yyyy'),(nvl(DS_QTY,0) - nvl(DS_ADJ_QTY,0)) DS_QTY,DS_RATE
+		from fb_daily_stock
+		where DS_REC_IND = 'R' and nvl(DS_QTY,0) - nvl(DS_ADJ_QTY,0) > 0 and DS_ITEM_CD = :ls_SP_ID and DS_SECTION_ID=:fs_div
+		order by DS_DATE,rowid ;
+		
+         open c2;                 
+              
+		if sqlca.sqlcode = -1 then 
+			messagebox('Error At Cursor','Error During Opening Cursor C2 : '+sqlca.sqlerrtext)
+			return -1
+		else
+			setnull(ls_det_rowid);setnull(ls_dt);ld_det_qty=0;ld_rate=0;
+			fetch c2 into :ls_det_rowid,:ls_dt,:ld_det_qty,:ld_rate;
+			
+			do while sqlca.sqlcode <> 100				
+				
+				if ld_clos_qnty > ld_det_qty then 
+					select distinct 'x' into :ls_temp from fb_stores_adjustment
+					where SA_ADJ_ID = :fs_srl_no and  SP_ID=:ls_SP_ID and nvl(SA_UNITPRICE,0)=:ld_rate and
+							EACSUBHEAD_ID = :ls_EACSUBHEAD_ID and rowid<>:ls_rowid;		   	  
+				 
+					if sqlca.sqlcode = -1 then
+						messagebox('Sql Error During geting Stock Adjustment detail : ',sqlca.sqlerrtext);
+						rollback using sqlca;
+						return -1;		
+					elseif sqlca.sqlcode = 100 then	
+						insert into fb_stores_adjustment(SA_ADJ_ID, SP_ID, SA_ADJ_DATE, EACHEAD_ID, EACSUBHEAD_ID, SA_ENTRY_BY, SA_ENTRY_DT, SA_QUANTITY,SA_REMARK, SA_UNITPRICE, SA_VALUE,SA_STOCKIND)
+						values(:fs_srl_no,:ls_SP_ID,:ld_ADJ_DATE,:ls_EACHEAD_ID,:ls_EACSUBHEAD_ID, :ls_ENTRY_BY, :ld_ENTRY_DT,(:ld_det_qty * (-1)),:ls_remark,nvl(:ld_rate,0) ,nvl(:ld_rate,0) * (nvl(:ld_det_qty,0) * (-1)),'Y');
+	
+						if sqlca.sqlcode = -1 then 
+							messagebox('SQL Error','Error During Insertion 1 : '+sqlca.sqlerrtext)
+							return -1
+						end if;
+					elseif sqlca.sqlcode = 0 then	
+						update fb_stores_adjustment set SA_QUANTITY=nvl(SA_QUANTITY,0) + (nvl(:ld_det_qty,0) * (-1)),
+																	 SA_VALUE=nvl(SA_VALUE,0 ) + (nvl(:ld_rate,0) * (nvl(:ld_det_qty,0)* (-1)) )
+						where SA_ADJ_ID = :fs_srl_no and  SP_ID=:ls_SP_ID and nvl(SA_UNITPRICE,0)=:ld_rate and
+								EACSUBHEAD_ID = :ls_EACSUBHEAD_ID  and rowid<>:ls_rowid;	
+							
+						 if sqlca.sqlcode = -1 then
+							messagebox('Sql Error During Stock Adjustment Update 1 : ',sqlca.sqlerrtext);
+							rollback using sqlca;
+							return -1;
+						 end if;		 
+					end if;		
+					
+					update fb_daily_stock set DS_ADJ_QTY = nvl(DS_ADJ_QTY,0) + :ld_det_qty where rowid = :ls_det_rowid;
+					if sqlca.sqlcode = -1 then 
+						messagebox('SQL Error','Error During Updation 1 : '+sqlca.sqlerrtext)
+						return -1
+					end if;
+					
+					ld_clos_qnty = ld_clos_qnty - ld_det_qty;
+					
+				elseif ld_clos_qnty <= ld_det_qty then 
+					select distinct 'x' into :ls_temp from fb_stores_adjustment
+					where SA_ADJ_ID = :fs_srl_no and  SP_ID=:ls_SP_ID and nvl(SA_UNITPRICE,0)=:ld_rate and
+							EACSUBHEAD_ID = :ls_EACSUBHEAD_ID  and rowid<>:ls_rowid;		   	  
+				 
+					if sqlca.sqlcode = -1 then
+						messagebox('Sql Error During geting Stock Adjustment detail : ',sqlca.sqlerrtext);
+						rollback using sqlca;
+						return -1;		
+					elseif sqlca.sqlcode = 100 then	
+						insert into fb_stores_adjustment(SA_ADJ_ID, SP_ID, SA_ADJ_DATE, EACHEAD_ID, EACSUBHEAD_ID, SA_ENTRY_BY, SA_ENTRY_DT, SA_QUANTITY,SA_REMARK, SA_UNITPRICE, SA_VALUE,SA_STOCKIND)
+						values(:fs_srl_no,:ls_SP_ID,:ld_ADJ_DATE,:ls_EACHEAD_ID,:ls_EACSUBHEAD_ID, :ls_ENTRY_BY, :ld_ENTRY_DT,(:ld_clos_qnty * (-1)),:ls_remark,nvl(:ld_rate,0) ,nvl(:ld_rate,0) * (:ld_clos_qnty * (-1)),'Y');
+						
+						if sqlca.sqlcode = -1 then 
+							messagebox('SQL Error','Error During Insertion 2 : '+sqlca.sqlerrtext)
+							return -1
+						end if;
+					elseif sqlca.sqlcode = 0 then	
+						update fb_stores_adjustment set SA_QUANTITY=nvl(SA_QUANTITY,0) + (nvl(:ld_clos_qnty,0) * (-1)),
+																	 SA_VALUE=nvl(SA_VALUE,0 ) + (nvl(:ld_rate,0) * (nvl(:ld_clos_qnty,0) * (-1)))
+						where SA_ADJ_ID = :fs_srl_no and  SP_ID=:ls_SP_ID and nvl(SA_UNITPRICE,0)=:ld_rate and
+								EACSUBHEAD_ID = :ls_EACSUBHEAD_ID  and rowid<>:ls_rowid;	
+							
+						 if sqlca.sqlcode = -1 then
+							messagebox('Sql Error During Stock Adjustment Update 2 : ',sqlca.sqlerrtext);
+							rollback using sqlca;
+							return -1;
+						 end if;		 
+					end if;		
+					
+					update fb_daily_stock set DS_ADJ_QTY = nvl(DS_ADJ_QTY,0) + :ld_clos_qnty where rowid = :ls_det_rowid;
+					if sqlca.sqlcode = -1 then 
+						messagebox('SQL Error','Error During Updation 1 : '+sqlca.sqlerrtext)
+						return -1
+					end if;
+
+					exit;
+				end if;
+
+				
+				
+				setnull(ls_det_rowid);setnull(ls_dt);ld_det_qty=0;ld_rate=0;
+				fetch c2 into :ls_det_rowid,:ls_dt,:ld_det_qty,:ld_rate;
+				
+			loop
+			ld_clos_qnty = 0;
+			close c2;		
+		end if;
+
+		delete from fb_stores_adjustment where rowid = :ls_rowid;
+		if sqlca.sqlcode = -1 then 
+			messagebox('SQL Error','Error During Deletion Of Record : '+sqlca.sqlerrtext)
+			return -1
+		end if;	
+
+		setnull(ls_rowid);setnull(ls_SP_ID);setnull(ls_EACHEAD_ID);setnull(ls_EACSUBHEAD_ID);setnull(ls_remark);setnull(ld_ADJ_DATE);setnull(ls_ENTRY_BY);setnull(ld_ENTRY_DT);  
+		ld_PRIS_ISSUEQUANTITY = 0;
+		fetch c1 into :ls_rowid,:ls_SP_ID,:ls_EACHEAD_ID,:ls_EACSUBHEAD_ID,:ld_PRIS_ISSUEQUANTITY,:ls_remark,:ld_ADJ_DATE,:ls_ENTRY_BY,:ld_ENTRY_DT;
+	
+	loop
+	close c1;
+end if;
+commit using sqlca;
+return 1;
+
+
+end function
+

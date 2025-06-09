@@ -1,0 +1,63 @@
+﻿$PBExportHeader$dw_gtelar043.srd
+release 10.5;
+datawindow(units=0 timer_interval=0 color=1073741824 processing=0 HTMLDW=no print.printername="" print.documentname="" print.orientation = 0 print.margin.left = 20 print.margin.right = 20 print.margin.top = 96 print.margin.bottom = 96 print.paper.source = 0 print.paper.size = 0 print.canusedefaultprinter=yes print.prompt=no print.buttons=no print.preview.buttons=no print.cliptext=no print.overrideprintjob=no print.collate=yes print.preview.outline=yes hidegrayline=no )
+header(height=436 color="536870912" )
+summary(height=0 color="536870912" )
+footer(height=76 color="536870912" )
+detail(height=80 color="536870912" )
+table(column=(type=char(30) updatewhereclause=yes name=emp_name dbname="fb_employee.emp_name" dbalias=".emp_name" )
+ column=(type=char(25) updatewhereclause=yes name=labour_id dbname="fb_employee.labour_id" dbalias=".labour_id" )
+ column=(type=char(25) updatewhereclause=yes name=actualweekid dbname="fb_employee.actualweekid" dbalias=".actualweekid" )
+ column=(type=char(10) updatewhereclause=yes name=startdate dbname="startdate" )
+ column=(type=char(10) updatewhereclause=yes name=enddate dbname="enddate" )
+ column=(type=char(10) updatewhereclause=yes name=attendancedate dbname="attendancedate" )
+ column=(type=char(25) updatewhereclause=yes name=weekid dbname="fb_employee.weekid" dbalias=".weekid" )
+ retrieve="select Emp_name, LABOUR_ID,  attn_pd.LWW_ID actualweekid ,to_char(LWW_STARTDATE,'dd/mm/yyyy') Startdate,to_char(LWW_ENDDATE,'dd/mm/yyyy') enddate,to_char(LDA_DATE,'dd/mm/yyyy') attendancedate, attn.LWW_ID weekid
+ from (select LDA_DATE, LABOUR_ID, KAMSUB_ID,LWW_ID
+        from fb_labourdailyattendance
+       where LDA_DATE between to_date(:ra_frdt,'dd/mm/yyyy') and to_date(:ra_todt,'dd/mm/yyyy'))attn,
+      (select LWW_ID,LWW_STARTDATE, LWW_ENDDATE from fb_labourwagesweek
+        where lww_startdate between to_date(:ra_frdt,'dd/mm/yyyy') and to_date(:ra_todt,'dd/mm/yyyy') or
+              LWW_ENDDATE between to_date(:ra_frdt,'dd/mm/yyyy') and to_date(:ra_todt,'dd/mm/yyyy'))attn_pd, fb_employee
+where LDA_DATE between LWW_STARTDATE and LWW_ENDDATE and attn.labour_id = emp_id and attn.LWW_ID <> attn_pd.LWW_ID    
+union all
+select Emp_name, LABOUR_ID,  attn_pd.LWW_ID actualweekid ,to_char(LWW_STARTDATE,'dd/mm/yyyy') Startdate,to_char(LWW_ENDDATE,'dd/mm/yyyy') enddate,to_char(LDA_DATE,'dd/mm/yyyy') attendancedate, attn.LWW_ID weekid
+ from  (select LWW_ID,LWW_STARTDATE, LWW_ENDDATE from fb_labourwagesweek
+        where lww_startdate between to_date(:ra_frdt,'dd/mm/yyyy') and to_date(:ra_todt,'dd/mm/yyyy') or
+              LWW_ENDDATE between to_date(:ra_frdt,'dd/mm/yyyy') and to_date(:ra_todt,'dd/mm/yyyy'))attn_pd, 
+              fb_employee, fb_labourdailyattendance attn
+where LDA_DATE not between LWW_STARTDATE and LWW_ENDDATE and attn.labour_id = emp_id and attn.LWW_ID = attn_pd.LWW_ID
+" arguments=(("ra_frdt", string),("ra_todt", string)) )
+text(band=header alignment="0" text="Gtelar043" border="0" color="33554432" x="18" y="88" height="64" width="562" html.valueishtml="0"  name=t_2 visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+text(band=header alignment="0" text="Luxmi Tea Co." border="0" color="33554432" x="18" y="8" height="64" width="462" html.valueishtml="0"  name=t_co visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+compute(band=footer alignment="2" expression="'Page ' + page() + ' of ' + pageCount()"border="0" color="33554432" x="1289" y="4" height="64" width="782" format="[general]" html.valueishtml="0"  name=page_1 visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="2" background.color="1073741824" )
+column(band=detail id=2 alignment="0" tabsequence=32766 border="0" color="33554432" x="974" y="8" height="64" width="265" format="[general]" html.valueishtml="0"  name=labour_id visible="1" edit.limit=0 edit.case=any edit.focusrectangle=no edit.autoselect=no  font.face="Times New Roman" font.height="-9" font.weight="400"  font.family="2" font.pitch="2" font.charset="0" background.mode="2" background.color="1073741824" )
+column(band=detail id=1 alignment="0" tabsequence=32766 border="0" color="33554432" x="23" y="8" height="64" width="928" format="[general]" html.valueishtml="0"  name=emp_name visible="1" edit.limit=0 edit.case=any edit.focusrectangle=no edit.autoselect=no  font.face="Times New Roman" font.height="-9" font.weight="400"  font.family="2" font.pitch="2" font.charset="0" background.mode="2" background.color="1073741824" )
+text(band=header alignment="0" text="Name" border="0" color="33554432" x="23" y="360" height="64" width="265" html.valueishtml="0"  name=labourname_t visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+column(band=detail id=3 alignment="0" tabsequence=32766 border="0" color="33554432" x="1275" y="8" height="64" width="448" format="[general]" html.valueishtml="0"  name=actualweekid visible="1" edit.limit=0 edit.case=any edit.focusrectangle=no edit.autoselect=no  font.face="Times New Roman" font.height="-9" font.weight="400"  font.family="2" font.pitch="2" font.charset="0" background.mode="2" background.color="1073741824" )
+text(band=header alignment="0" text="Labour ID" border="0" color="33554432" x="974" y="360" height="64" width="265" html.valueishtml="0"  name=labourid_t visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+column(band=detail id=4 alignment="2" tabsequence=32766 border="0" color="33554432" x="1746" y="8" height="64" width="265" html.valueishtml="0"  name=startdate visible="1" edit.limit=0 edit.case=any edit.focusrectangle=no edit.autoselect=no  font.face="Times New Roman" font.height="-9" font.weight="400"  font.family="2" font.pitch="2" font.charset="0" background.mode="2" background.color="1073741824" )
+column(band=detail id=5 alignment="2" tabsequence=32766 border="0" color="33554432" x="2034" y="8" height="64" width="265" html.valueishtml="0"  name=enddate visible="1" edit.limit=0 edit.case=any edit.focusrectangle=no edit.autoselect=no  font.face="Times New Roman" font.height="-9" font.weight="400"  font.family="2" font.pitch="2" font.charset="0" background.mode="2" background.color="1073741824" )
+text(band=header alignment="0" text="Actual Week Id" border="0" color="33554432" x="1275" y="360" height="64" width="448" html.valueishtml="0"  name=present_t visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+text(band=header alignment="0" text="Start Date" border="0" color="33554432" x="1746" y="360" height="64" width="265" html.valueishtml="0"  name=t_1 visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+column(band=detail id=6 alignment="0" tabsequence=32766 border="0" color="33554432" x="2318" y="8" height="64" width="279" format="[general]" html.valueishtml="0"  name=attendancedate visible="1" edit.limit=0 edit.case=any edit.focusrectangle=no edit.autoselect=no  font.face="Times New Roman" font.height="-9" font.weight="400"  font.family="2" font.pitch="2" font.charset="0" background.mode="2" background.color="1073741824" )
+text(band=header alignment="0" text="End Date" border="0" color="33554432" x="2034" y="360" height="64" width="265" html.valueishtml="0"  name=t_3 visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+text(band=header alignment="2" text="AttendanceDate" border="0" color="33554432" x="2318" y="296" height="128" width="279" html.valueishtml="0"  name=t_4 visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+column(band=detail id=7 alignment="0" tabsequence=32766 border="0" color="33554432" x="2638" y="8" height="64" width="576" format="[general]" html.valueishtml="0"  name=weekid visible="1" edit.limit=0 edit.case=any edit.focusrectangle=no edit.autoselect=no  font.face="Times New Roman" font.height="-9" font.weight="400"  font.family="2" font.pitch="2" font.charset="0" background.mode="2" background.color="1073741824" )
+text(band=header alignment="0" text="Wrong Week Id" border="0" color="33554432" x="2638" y="360" height="64" width="448" html.valueishtml="0"  name=t_5 visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+compute(band=header alignment="1" expression="today()"border="0" color="33554432" x="2939" y="12" height="84" width="329" format="dd/mm/yyyy" html.valueishtml="0"  name=date_1 visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+line(band=header x1="14" y1="432" x2="3269" y2="432"  name=l_1 visible="1" pen.style="0" pen.width="5" pen.color="33554432"  background.mode="2" background.color="1073741824" )
+text(band=footer alignment="1" text="Exception" border="0" color="33554432" x="2574" y="4" height="64" width="695" html.valueishtml="0"  name=t_9 visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+text(band=header alignment="2" text="" border="0" color="33554432" x="663" y="128" height="64" width="1961" html.valueishtml="0"  name=t_gnm visible="1"  hidesnaked=1  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912"  height.autosize=yes)
+compute(band=header alignment="2" expression="'Attendance Exception For The Period '+ ra_frdt +' And '+ ra_todt "border="0" color="33554432" x="654" y="8" height="108" width="1979" format="[GENERAL]" html.valueishtml="0"  name=compute_1 visible="1"  font.face="Times New Roman" font.height="-11" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="2" background.color="1073741824" )
+htmltable(border="1" )
+htmlgen(clientevents="1" clientvalidation="1" clientcomputedfields="1" clientformatting="0" clientscriptable="0" generatejavascript="1" encodeselflinkargs="1" netscapelayers="0" pagingmethod=0 generatedddwframes="1" )
+xhtmlgen() cssgen(sessionspecific="0" )
+xmlgen(inline="0" )
+xsltgen()
+jsgen()
+export.xml(headgroups="1" includewhitespace="0" metadatatype=0 savemetadata=0 )
+import.xml()
+export.pdf(method=0 distill.custompostscript="0" xslfop.print="0" )
+export.xhtml()
+ 

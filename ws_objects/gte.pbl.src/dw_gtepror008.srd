@@ -1,0 +1,216 @@
+﻿$PBExportHeader$dw_gtepror008.srd
+release 10.5;
+datawindow(units=0 timer_interval=0 color=1073741824 processing=0 HTMLDW=no print.printername="" print.documentname="" print.orientation = 0 print.margin.left = 20 print.margin.right = 20 print.margin.top = 96 print.margin.bottom = 96 print.paper.source = 0 print.paper.size = 0 print.canusedefaultprinter=yes print.prompt=no print.buttons=no print.preview.buttons=no print.cliptext=no print.overrideprintjob=no print.collate=yes print.preview.outline=yes hidegrayline=no )
+header(height=420 color="536870912" height.autosize=yes )
+summary(height=0 color="536870912" )
+footer(height=80 color="536870912" )
+detail(height=76 color="536870912" )
+table(column=(type=char(4) updatewhereclause=yes name=so dbname="so" )
+ column=(type=char(22) updatewhereclause=yes name=grp dbname="grp" )
+ column=(type=number updatewhereclause=yes name=rec_so dbname="rec_so" )
+ column=(type=char(61) updatewhereclause=yes name=recdesc dbname="recdesc" )
+ column=(type=number updatewhereclause=yes name=ctoday dbname="ctoday" )
+ column=(type=number updatewhereclause=yes name=ctodate dbname="ctodate" )
+ column=(type=number updatewhereclause=yes name=ltoday dbname="ltoday" )
+ column=(type=number updatewhereclause=yes name=ltodate dbname="ltodate" )
+ retrieve="SELECT   '01' so,'Green Leaf' grp,DECODE (TRIM (sup.sup_type), 'OWN', 10,20) rec_so,  DECODE (TRIM (sup.sup_type), 'OWN', 'OWN', initcap(sup.sup_name))  recdesc,  
+			 	 sum(decode(sign(glfp.glfp_pluckingdate - to_date(:ra_frdt,'dd/mm/yyyy')),-1,0,decode(sign(glfp.glfp_pluckingdate - to_date(:ra_todt,'dd/mm/yyyy')),1,0,nvl(glfp.glfp_glforproduction,0)))) ctoday, 
+		   		 sum(decode(sign(glfp.glfp_pluckingdate - to_date(:ra_ysdt,'dd/mm/yyyy')),-1,0,decode(sign(glfp.glfp_pluckingdate - to_date(:ra_todt,'dd/mm/yyyy')),1,0,nvl(glfp.glfp_glforproduction,0)))) ctodate,
+				 sum(decode(sign(glfp.glfp_pluckingdate - to_date(:ra_ly_frdt,'dd/mm/yyyy')),-1,0,decode(sign(glfp.glfp_pluckingdate - to_date(:ra_ly_todt,'dd/mm/yyyy')),1,0,nvl(glfp.glfp_glforproduction,0)))) ltoday, 
+		   		 sum(decode(sign(glfp.glfp_pluckingdate - to_date(:ra_ly_ysdt,'dd/mm/yyyy')),-1,0,decode(sign(glfp.glfp_pluckingdate - to_date(:ra_ly_todt,'dd/mm/yyyy')),1,0,nvl(glfp.glfp_glforproduction,0)))) ltodate
+		 FROM fb_glforproduction glfp, fb_supplier sup,fb_gardenwiseteamade gwtm   
+		 WHERE glfp.sup_id = sup.sup_id AND glfp.glfp_pk = gwtm.glfp_pk AND (gwtm.gwtm_type not in ('O','E')) and 
+		 			(glfp.glfp_pluckingdate between to_date(:ra_ysdt,'dd/mm/yyyy') and to_date(:ra_todt,'dd/mm/yyyy') or 
+					 glfp.glfp_pluckingdate between to_date(:ra_ly_ysdt,'dd/mm/yyyy') and to_date(:ra_ly_todt,'dd/mm/yyyy') )
+		group by '01' ,'Green Leaf' ,DECODE (TRIM (sup.sup_type), 'OWN', 10,20),DECODE (TRIM (sup.sup_type), 'OWN', 'OWN', initcap(sup.sup_name))
+union all
+select '01' so,'Green Leaf' grp, 30 rec_so,  'Average Purchase Rate'  recdesc, (camt / cqty) ctoday, (cdate_amt / cdate_qty) ctodate, (lamt / lqty) ltoday, (ldate_amt / ldate_qty) ltodate 
+ from (select sum(decode(sign(glfp.pluckingdate - to_date(:ra_frdt,'dd/mm/yyyy')),-1,0,decode(sign(glfp.pluckingdate - to_date(:ra_todt,'dd/mm/yyyy')),1,0,(nvl(GT_QUANTITY,0) * nvl(GT_UNITPRICE,0))))) camt,
+				 sum(decode(sign(glfp.pluckingdate - to_date(:ra_frdt,'dd/mm/yyyy')),-1,0,decode(sign(glfp.pluckingdate - to_date(:ra_todt,'dd/mm/yyyy')),1,0,nvl(GT_QUANTITY,0)))) cqty,
+				 sum(decode(sign(glfp.pluckingdate - to_date(:ra_ysdt,'dd/mm/yyyy')),-1,0,decode(sign(glfp.pluckingdate - to_date(:ra_todt,'dd/mm/yyyy')),1,0,(nvl(GT_QUANTITY,0) * nvl(GT_UNITPRICE,0))))) cdate_amt,
+				 sum(decode(sign(glfp.pluckingdate - to_date(:ra_ysdt,'dd/mm/yyyy')),-1,0,decode(sign(glfp.pluckingdate - to_date(:ra_todt,'dd/mm/yyyy')),1,0,nvl(GT_QUANTITY,0)))) cdate_qty,
+				 sum(decode(sign(glfp.pluckingdate - to_date(:ra_ly_frdt,'dd/mm/yyyy')),-1,0,decode(sign(glfp.pluckingdate - to_date(:ra_ly_todt,'dd/mm/yyyy')),1,0,(nvl(GT_QUANTITY,0) * nvl(GT_UNITPRICE,0))))) lamt,
+				 sum(decode(sign(glfp.pluckingdate - to_date(:ra_ly_frdt,'dd/mm/yyyy')),-1,0,decode(sign(glfp.pluckingdate - to_date(:ra_ly_todt,'dd/mm/yyyy')),1,0,nvl(GT_QUANTITY,0)))) lqty, 
+				 sum(decode(sign(glfp.pluckingdate - to_date(:ra_ly_ysdt,'dd/mm/yyyy')),-1,0,decode(sign(glfp.pluckingdate - to_date(:ra_ly_todt,'dd/mm/yyyy')),1,0,(nvl(GT_QUANTITY,0) * nvl(GT_UNITPRICE,0))))) ldate_amt,
+				 sum(decode(sign(glfp.pluckingdate - to_date(:ra_ly_ysdt,'dd/mm/yyyy')),-1,0,decode(sign(glfp.pluckingdate - to_date(:ra_ly_todt,'dd/mm/yyyy')),1,0,nvl(GT_QUANTITY,0)))) ldate_qty 
+			from fb_gltransaction glfp where trim(GT_TYPE) = 'PURCHASE' and (glfp.pluckingdate between to_date(:ra_ysdt,'dd/mm/yyyy') and to_date(:ra_todt,'dd/mm/yyyy') or 
+			 glfp.pluckingdate between to_date(:ra_ly_ysdt,'dd/mm/yyyy') and to_date(:ra_ly_todt,'dd/mm/yyyy') ))
+union all
+SELECT  '02' so,'Made Tea' grp,DECODE (TRIM (sup.sup_type), 'OWN', 10,20) rec_so,  DECODE (TRIM (sup.sup_type), 'OWN', 'OWN',initcap(sup.sup_name))  recdesc,  
+	 	 sum(decode(sign(glfp.glfp_pluckingdate - to_date(:ra_frdt,'dd/mm/yyyy')),-1,0,decode(sign(glfp.glfp_pluckingdate - to_date(:ra_todt,'dd/mm/yyyy')),1,0,nvl(gwtm.gwtm_teamade,0)))) ctoday, 
+   		 sum(decode(sign(glfp.glfp_pluckingdate - to_date(:ra_ysdt,'dd/mm/yyyy')),-1,0,decode(sign(glfp.glfp_pluckingdate - to_date(:ra_todt,'dd/mm/yyyy')),1,0,nvl(gwtm.gwtm_teamade,0)))) ctodate,
+		 sum(decode(sign(glfp.glfp_pluckingdate - to_date(:ra_ly_frdt,'dd/mm/yyyy')),-1,0,decode(sign(glfp.glfp_pluckingdate - to_date(:ra_ly_todt,'dd/mm/yyyy')),1,0,nvl(gwtm.gwtm_teamade,0)))) ltoday, 
+   		 sum(decode(sign(glfp.glfp_pluckingdate - to_date(:ra_ly_ysdt,'dd/mm/yyyy')),-1,0,decode(sign(glfp.glfp_pluckingdate - to_date(:ra_ly_todt,'dd/mm/yyyy')),1,0,nvl(gwtm.gwtm_teamade,0)))) ltodate
+ FROM fb_glforproduction glfp, fb_supplier sup,fb_gardenwiseteamade gwtm   
+ WHERE glfp.sup_id = sup.sup_id AND glfp.glfp_pk = gwtm.glfp_pk AND (gwtm.gwtm_type in ('N')) and 
+ 			(glfp.glfp_pluckingdate between to_date(:ra_ysdt,'dd/mm/yyyy') and to_date(:ra_todt,'dd/mm/yyyy') or 
+			 glfp.glfp_pluckingdate between to_date(:ra_ly_ysdt,'dd/mm/yyyy') and to_date(:ra_ly_todt,'dd/mm/yyyy') )
+group by '02','Made Tea',DECODE (TRIM (sup.sup_type), 'OWN', 10,20),DECODE (TRIM (sup.sup_type), 'OWN', 'OWN', initcap(sup.sup_name))
+union All
+SELECT  '02' so,'Made Tea' grp,30 rec_so, ('OC-OF - '||initcap(sup.sup_name))  recdesc,  
+	 	 sum(decode(sign(glfp.glfp_pluckingdate - to_date(:ra_frdt,'dd/mm/yyyy')),-1,0,decode(sign(glfp.glfp_pluckingdate - to_date(:ra_todt,'dd/mm/yyyy')),1,0,nvl(gwtm.gwtm_teamade,0)))) ctoday, 
+   		 sum(decode(sign(glfp.glfp_pluckingdate - to_date(:ra_ysdt,'dd/mm/yyyy')),-1,0,decode(sign(glfp.glfp_pluckingdate - to_date(:ra_todt,'dd/mm/yyyy')),1,0,nvl(gwtm.gwtm_teamade,0)))) ctodate,
+		 sum(decode(sign(glfp.glfp_pluckingdate - to_date(:ra_ly_frdt,'dd/mm/yyyy')),-1,0,decode(sign(glfp.glfp_pluckingdate - to_date(:ra_ly_todt,'dd/mm/yyyy')),1,0,nvl(gwtm.gwtm_teamade,0)))) ltoday, 
+   		 sum(decode(sign(glfp.glfp_pluckingdate - to_date(:ra_ly_ysdt,'dd/mm/yyyy')),-1,0,decode(sign(glfp.glfp_pluckingdate - to_date(:ra_ly_todt,'dd/mm/yyyy')),1,0,nvl(gwtm.gwtm_teamade,0)))) ltodate
+ FROM fb_glforproduction glfp, fb_supplier sup,fb_gardenwiseteamade gwtm   
+ WHERE glfp.sup_id = sup.sup_id AND glfp.glfp_pk = gwtm.glfp_pk AND (gwtm.gwtm_type in ('O')) and 
+ 			(glfp.glfp_pluckingdate between to_date(:ra_ysdt,'dd/mm/yyyy') and to_date(:ra_todt,'dd/mm/yyyy') or 
+			 glfp.glfp_pluckingdate between to_date(:ra_ly_ysdt,'dd/mm/yyyy') and to_date(:ra_ly_todt,'dd/mm/yyyy') )
+group by '02','Made Tea',30,('OC-OF - '||initcap(sup.sup_name))
+union all
+SELECT  '02.5' so,'Excess Tea' grp,DECODE (TRIM (sup.sup_type), 'OWN', 10,20) rec_so,  DECODE (TRIM (sup.sup_type), 'OWN', 'OWN',initcap(sup.sup_name))  recdesc,  
+	 	 sum(decode(sign(glfp.glfp_pluckingdate - to_date(:ra_frdt,'dd/mm/yyyy')),-1,0,decode(sign(glfp.glfp_pluckingdate - to_date(:ra_todt,'dd/mm/yyyy')),1,0,nvl(gwtm.gwtm_teamade,0)))) ctoday, 
+   		 sum(decode(sign(glfp.glfp_pluckingdate - to_date(:ra_ysdt,'dd/mm/yyyy')),-1,0,decode(sign(glfp.glfp_pluckingdate - to_date(:ra_todt,'dd/mm/yyyy')),1,0,nvl(gwtm.gwtm_teamade,0)))) ctodate,
+		 sum(decode(sign(glfp.glfp_pluckingdate - to_date(:ra_ly_frdt,'dd/mm/yyyy')),-1,0,decode(sign(glfp.glfp_pluckingdate - to_date(:ra_ly_todt,'dd/mm/yyyy')),1,0,nvl(gwtm.gwtm_teamade,0)))) ltoday, 
+   		 sum(decode(sign(glfp.glfp_pluckingdate - to_date(:ra_ly_ysdt,'dd/mm/yyyy')),-1,0,decode(sign(glfp.glfp_pluckingdate - to_date(:ra_ly_todt,'dd/mm/yyyy')),1,0,nvl(gwtm.gwtm_teamade,0)))) ltodate
+ FROM fb_glforproduction glfp, fb_supplier sup,fb_gardenwiseteamade gwtm   
+ WHERE glfp.sup_id = sup.sup_id AND glfp.glfp_pk = gwtm.glfp_pk AND (gwtm.gwtm_type in ('E')) and 
+ 			(glfp.glfp_pluckingdate between to_date(:ra_ysdt,'dd/mm/yyyy') and to_date(:ra_todt,'dd/mm/yyyy') or 
+			 glfp.glfp_pluckingdate between to_date(:ra_ly_ysdt,'dd/mm/yyyy') and to_date(:ra_ly_todt,'dd/mm/yyyy') )
+group by '02.5','Made Tea',DECODE (TRIM (sup.sup_type), 'OWN', 10,20),DECODE (TRIM (sup.sup_type), 'OWN', 'OWN', initcap(sup.sup_name))		 
+union all
+SELECT  '03' so,'Category Wise Made Tea' grp,
+			 	TPC_RANK rec_so,
+			 	initcap(TPC_NAME) recdesc,  
+			 	sum(decode(sign(ddp_dt - to_date(:ra_frdt,'dd/mm/yyyy')),-1,0,decode(sign(ddp_dt - to_date(:ra_todt,'dd/mm/yyyy')),1,0,nvl(cus.DDU_QUANTITY,0)))) ctoday, 
+			  	sum(decode(sign(ddp_dt - to_date(:ra_ysdt,'dd/mm/yyyy')),-1,0,decode(sign(ddp_dt - to_date(:ra_todt,'dd/mm/yyyy')),1,0,nvl(cus.DDU_QUANTITY,0)))) ctodate,
+				sum(decode(sign(ddp_dt - to_date(:ra_ly_frdt,'dd/mm/yyyy')),-1,0,decode(sign(ddp_dt - to_date(:ra_ly_todt,'dd/mm/yyyy')),1,0,nvl(cus.DDU_QUANTITY,0)))) ltoday, 
+			  	sum(decode(sign(ddp_dt - to_date(:ra_ly_ysdt,'dd/mm/yyyy')),-1,0,decode(sign(ddp_dt - to_date(:ra_ly_todt,'dd/mm/yyyy')),1,0,nvl(cus.DDU_QUANTITY,0)))) ltodate
+		FROM fb_dailydryerunsorted cus, (select TPC_ID, TPC_NAME, TPC_RANK from fb_teamadeproductcategory) tpc
+		WHERE tpc.tpc_id = cus.tpc_id(+) and NVL(cus.DDU_QUANTITY, 0) <> 0 and 
+			  	(ddp_dt between to_date(:ra_ysdt,'dd/mm/yyyy') and to_date(:ra_todt,'dd/mm/yyyy') or 
+				 ddp_dt between to_date(:ra_ly_ysdt,'dd/mm/yyyy') and to_date(:ra_ly_todt,'dd/mm/yyyy') )
+		group by '03' ,'Category Wise Made Tea' ,TPC_RANK,initcap(TPC_NAME)
+union all
+SELECT  '04' so,'Packing' grp,
+			 	10 rec_so,
+			 	'Tea Packed For The Period' recdesc,  
+			sum(decode(sign(dtp.dtp_date - to_date(:ra_frdt,'dd/mm/yyyy')),-1,0,decode(sign(dtp.dtp_date - to_date(:ra_todt,'dd/mm/yyyy')),1,0,(( (nvl(dtpd.dtpd_srnoend,0) - nvl(dtpd.dtpd_srnostart,0)) + 1)  * nvl(dtpd.dtpd_indwt,0))))) ctoday,
+			sum(decode(sign(dtp.dtp_date - to_date(:ra_ysdt,'dd/mm/yyyy')),-1,0,decode(sign(dtp.dtp_date - to_date(:ra_todt,'dd/mm/yyyy')),1,0,(( (nvl(dtpd.dtpd_srnoend,0) - nvl(dtpd.dtpd_srnostart,0)) + 1)  * nvl(dtpd.dtpd_indwt,0))))) ctodate,
+			sum(decode(sign(dtp.dtp_date - to_date(:ra_ly_frdt,'dd/mm/yyyy')),-1,0,decode(sign(dtp.dtp_date - to_date(:ra_ly_todt,'dd/mm/yyyy')),1,0,(( (nvl(dtpd.dtpd_srnoend,0) - nvl(dtpd.dtpd_srnostart,0)) + 1)  * nvl(dtpd.dtpd_indwt,0))))) ltoday,
+			sum(decode(sign(dtp.dtp_date - to_date(:ra_ly_ysdt,'dd/mm/yyyy')),-1,0,decode(sign(dtp.dtp_date - to_date(:ra_ly_todt,'dd/mm/yyyy')),1,0,(( (nvl(dtpd.dtpd_srnoend,0) - nvl(dtpd.dtpd_srnostart,0)) + 1)  * nvl(dtpd.dtpd_indwt,0))))) ltodate
+FROM fb_dailyteapacked dtp, fb_dtpdetails dtpd, fb_teamadeproductcategory tpc, fb_teamadeproduct tmp 
+WHERE tpc.tpc_id = tmp.tpc_id  AND dtpd.tmp_id = tmp.tmp_id AND dtp.dtp_id = dtpd.dtp_id and 
+		(dtp.dtp_date between to_date(:ra_ysdt,'dd/mm/yyyy') and to_date(:ra_todt,'dd/mm/yyyy') or dtp.dtp_date between to_date(:ra_ly_ysdt,'dd/mm/yyyy') and to_date(:ra_ly_todt,'dd/mm/yyyy') ) 
+		group by '04','Packing',10,'Tea Packed For The Period','Tea Packed For The Period' 
+union all
+SELECT  '05' so,'Dispatch' grp,
+			 	decode(trim(si_type),'AUCTION',10,'PRILOCAL',20,'PRICONS',20,'TRANSFREE',30,'TRANSPRI',30) rec_so,
+			 	decode(trim(si_type),'AUCTION',city||' '||initcap(si_type),'PRILOCAL','Consignment','PRICONS','Consignment','TRANSFREE','To package Tea Unit','TRANSPRI','To package Tea Unit') recdesc,  
+			 	sum(decode(sign(SI_DATE - to_date(:ra_frdt,'dd/mm/yyyy')),-1,0,decode(sign(SI_DATE - to_date(:ra_todt,'dd/mm/yyyy')),1,0,nvl(invwt,0)))) ctoday, 
+			  	sum(decode(sign(SI_DATE - to_date(:ra_ysdt,'dd/mm/yyyy')),-1,0,decode(sign(SI_DATE - to_date(:ra_todt,'dd/mm/yyyy')),1,0,nvl(invwt,0)))) ctodate,
+				sum(decode(sign(SI_DATE - to_date(:ra_ly_frdt,'dd/mm/yyyy')),-1,0,decode(sign(SI_DATE - to_date(:ra_ly_todt,'dd/mm/yyyy')),1,0,nvl(invwt,0)))) ltoday, 
+			  	sum(decode(sign(SI_DATE - to_date(:ra_ly_ysdt,'dd/mm/yyyy')),-1,0,decode(sign(SI_DATE - to_date(:ra_ly_todt,'dd/mm/yyyy')),1,0,nvl(invwt,0)))) ltodate
+		FROM (select initcap(CITY_NAME) city,si_type,SI_DATE, sum(nvl(invwt,0)) invwt
+				FROM fb_saleinvoice a,fb_sidetails b,fb_warehouse d,fb_city e,
+							 (select b.dtpd_id,dtp_date,((dtpd_srnoend-dtpd_srnostart)+1) nop,
+								   	 ((dtpd_srnoend-dtpd_srnostart+1)* nvl(dtpd_indwt,0) ) invwt
+								from fb_dailyteapacked a,fb_dtpdetails b
+								where a.dtp_id= b.dtp_id) c
+				WHERE a.si_id = b.si_id and b.DTPD_ID = c.DTPD_ID and a.WARE_ID = d.WARE_ID(+) and d.city_id = e.city_id(+)
+				group by  initcap(CITY_NAME),si_type,SI_DATE) 
+		where  (SI_DATE between to_date(:ra_ysdt,'dd/mm/yyyy') and to_date(:ra_todt,'dd/mm/yyyy') or 
+				 SI_DATE between to_date(:ra_ly_ysdt,'dd/mm/yyyy') and to_date(:ra_ly_todt,'dd/mm/yyyy') )
+		group by '05','Dispatch',decode(trim(si_type),'AUCTION',10,'PRILOCAL',20,'PRICONS',20,'TRANSFREE',30,'TRANSPRI',30),
+			  	 decode(trim(si_type),'AUCTION',city||' '||initcap(si_type),'PRILOCAL','Consignment','PRICONS','Consignment','TRANSFREE','To package Tea Unit','TRANSPRI','To package Tea Unit')
+union all
+select '06' so,'Stock' grp,10 rec_so, 'Unsorted' recdesc, 0,
+		sum(decode(sign(pludate - to_date(:ra_todt,'dd/mm/yyyy')),1,0,nvl(qty,0))) unsooted_stk_ty, 0, 
+		sum(decode(sign(pludate - to_date(:ra_ly_todt,'dd/mm/yyyy')),1,0,nvl(qty,0))) unsooted_stk_ly
+FROM (SELECT   ddu.tpc_id tpc_id, ddp.ddp_pluckingdate pludate, NVL (SUM (ddu.ddu_quantity), 0) qty  
+		FROM fb_dailydryerproduct ddp, fb_dailydryerunsorted ddu
+	  WHERE ddp.ddp_pk = ddu.ddp_pk AND ddp.ddp_type <> 'O' 
+	  GROUP BY ddu.tpc_id, ddp.ddp_pluckingdate
+      union all        
+      select  TPC_ID,PT_DATE, sum(nvl(PT_QUANTITY,0)) trans_qnty  from fb_packteatransfer 
+              where pt_trantype = 'R' and pt_status = 'U' group by TPC_ID,PT_DATE 
+	  UNION ALL  
+	  SELECT   tmp.tpc_id tpc_id, dtmp_sortdate pludate,-NVL (SUM (dtmp.dtmp_sortquantodayty), 0) qty 
+		FROM fb_dailysortedteamadeproduct dtmp,fb_teamadeproduct tmp 
+		WHERE dtmp.tmp_id = tmp.tmp_id 
+	  GROUP BY (tmp.tpc_id, dtmp.dtmp_sortdate)
+	  UNION ALL
+	  select TPC_ID, SD_DATE, (-1) * sum(nvl(SD_QNTY,0)) sdd_qnty from fb_sample_dispatch 
+	  where SD_TYPE = 'D'
+	  group by TPC_ID, SD_DATE
+	  UNION ALL
+	  select TPC_ID, SD_DATE, sum(nvl(SD_QNTY,0)) sdd_qnty from fb_sample_dispatch 
+	  where SD_TYPE = 'S'
+	  group by TPC_ID, SD_DATE
+) d1, fb_teamadeproductcategory tpc 
+WHERE (tpc.tpc_id = d1.tpc_id) and 
+	(pludate <= to_date(:ra_todt,'dd/mm/yyyy')  ) 
+union all				 
+select '06' so,'Stock' grp,20 rec_so, 'Sorted But Not Packed' recdesc,0, 
+			sum(decode(sign(pludate - to_date(:ra_todt,'dd/mm/yyyy')),1,0,nvl(qty,0))) ctodate, 0, 
+			sum(decode(sign(pludate - to_date(:ra_ly_todt,'dd/mm/yyyy')),1,0,nvl(qty,0))) ltodate
+FROM (SELECT tmp.tpc_id tpc_id, dtmp_sortdate pludate, NVL (SUM (dtmp.dtmp_sortquantodayty), 0) qty 
+			  FROM fb_dailysortedteamadeproduct dtmp,fb_teamadeproduct tmp
+		 WHERE dtmp.tmp_id = tmp.tmp_id 
+		GROUP BY (tmp.tpc_id, dtmp.dtmp_sortdate)
+		union all        
+      	select  TPC_ID,PT_DATE, sum(nvl(PT_QUANTITY,0)) trans_qnty  from fb_packteatransfer 
+              where pt_trantype = 'R' and pt_status = 'S' group by TPC_ID,PT_DATE 
+		UNION ALL 
+		SELECT   tmp.tpc_id tpc_id, dtp.dtp_date pludate, -NVL (SUM (  (dtpd.dtpd_srnoend - dtpd.dtpd_srnostart + 1 ) * dtpd.dtpd_indwt),0 ) qty
+		FROM fb_dailyteapacked dtp, fb_dtpdetails dtpd, fb_teamadeproduct tmp 
+		WHERE dtp.dtp_id = dtpd.dtp_id AND tmp.tmp_id = dtpd.tmp_id 
+		GROUP BY (tmp.tpc_id, dtp.dtp_date)) d1, fb_teamadeproductcategory tpc  
+WHERE (tpc.tpc_id = d1.tpc_id)    and 
+			(pludate <= to_date(:ra_todt,'dd/mm/yyyy') ) 
+union all			 
+select '06' so,'Stock' grp,30 rec_so, 'Packed' recdesc,0, 
+			sum(decode(sign(pludate - to_date(:ra_todt,'dd/mm/yyyy')),1,0,nvl(qty,0))) ctodate, 0, 
+			sum(decode(sign(pludate - to_date(:ra_ly_todt,'dd/mm/yyyy')),1,0,nvl(qty,0))) ltodate
+FROM (SELECT   tmp.tpc_id tpc_id, dtp.dtp_date pludate, NVL (SUM (  (dtpd.dtpd_srnoend - dtpd.dtpd_srnostart + 1) * dtpd.dtpd_indwt), 0) qty
+		  FROM fb_dailyteapacked dtp, fb_dtpdetails dtpd, fb_teamadeproduct tmp 
+		  WHERE dtp.dtp_id = dtpd.dtp_id AND tmp.tmp_id = dtpd.tmp_id 
+		  GROUP BY (tmp.tpc_id, dtp.dtp_date)  UNION ALL   
+		  SELECT tmp.tpc_id tpc_id, si.si_date pludate, -NVL (SUM (  (SID.sid_srnoend - SID.sid_srnostart + 1) * dtpd.dtpd_indwt), 0) qty
+		  FROM fb_dtpdetails dtpd LEFT OUTER JOIN fb_sidetails SID ON dtpd.dtpd_id = SID.dtpd_id LEFT OUTER JOIN fb_saleinvoice si ON  SID.si_id = si.si_id , fb_teamadeproduct tmp 
+		  WHERE dtpd.tmp_id = tmp.tmp_id AND si.si_active = '1' 
+		  GROUP BY (tmp.tpc_id, si.si_date)) d1,fb_teamadeproductcategory tpc 
+WHERE (tpc.tpc_id = d1.tpc_id)  and 
+		   (pludate <= to_date(:ra_todt,'dd/mm/yyyy')  ) 		   " arguments=(("ra_frdt", string),("ra_todt", string),("ra_ysdt", string),("ra_ly_frdt", string),("ra_ly_todt", string),("ra_ly_ysdt", string))  sort="so A rec_so A " )
+group(level=1 header.height=72 trailer.height=80 by=("grp" ) header.color="536870912" trailer.color="536870912" )
+text(band=header alignment="0" text="Luxmi Tea Co." border="0" color="33554432" x="18" y="8" height="64" width="462" html.valueishtml="0"  name=t_co visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+column(band=header id=1 alignment="0" tabsequence=32766 border="0" color="33554432" x="357" y="340" height="64" width="64" format="[general]" html.valueishtml="0"  name=so visible="0" edit.limit=0 edit.case=any edit.focusrectangle=no edit.autoselect=no  font.face="Times New Roman" font.height="-8" font.weight="400"  font.family="2" font.pitch="2" font.charset="0" background.mode="2" background.color="1073741824" )
+line(band=header x1="14" y1="416" x2="3182" y2="416"  name=l_1 visible="1" pen.style="0" pen.width="5" pen.color="33554432"  background.mode="2" background.color="1073741824" )
+text(band=header alignment="0" text="Particulars" border="0" color="33554432" x="18" y="344" height="64" width="297" html.valueishtml="0"  name=recdesc_t visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+column(band=header id=3 alignment="0" tabsequence=32766 border="0" color="33554432" x="448" y="344" height="56" width="206" format="[general]" html.valueishtml="0"  name=rec_so visible="0" edit.limit=0 edit.case=any edit.focusrectangle=no edit.autoselect=no  font.face="Times New Roman" font.height="-8" font.weight="400"  font.family="2" font.pitch="2" font.charset="0" background.mode="2" background.color="1073741824" )
+text(band=header alignment="1" text="Todate" border="0" color="33554432" x="2857" y="344" height="64" width="320" html.valueishtml="0"  name=ltodate_t visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+text(band=header alignment="1" text="This Period" border="0" color="33554432" x="2491" y="344" height="64" width="320" html.valueishtml="0"  name=ltoday_t visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+text(band=header alignment="1" text="This Period" border="0" color="33554432" x="1760" y="344" height="64" width="320" html.valueishtml="0"  name=ctoday_t visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+text(band=header alignment="1" text="Todate" border="0" color="33554432" x="2126" y="344" height="64" width="320" html.valueishtml="0"  name=ctodate_t visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+text(band=header alignment="1" text="<- - - - - - This Year - - - - - ->" border="0" color="33554432" x="1504" y="268" height="64" width="942" html.valueishtml="0"  name=t_9 visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+text(band=header alignment="1" text="<- - - - - - Last Year - - - - - ->" border="0" color="33554432" x="2469" y="268" height="64" width="709" html.valueishtml="0"  name=t_4 visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+compute(band=header alignment="1" expression="today()"border="0" color="33554432" x="2848" y="12" height="84" width="329" format="dd/mm/yyyy" html.valueishtml="0"  name=date_1 visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+compute(band=header alignment="1" expression="if(mid(ra_ysdt,4,2)='01','Calender Year','Financial Year') "border="0" color="16711680" x="2578" y="196" height="56" width="599" format="[GENERAL]" html.valueishtml="0"  name=compute_48 visible="1"  font.face="Times New Roman" font.height="-9" font.weight="400"  font.family="1" font.pitch="2" font.charset="0" background.mode="2" background.color="1073741824" )
+text(band=header alignment="0" text="Gtepror008" border="0" color="33554432" x="18" y="88" height="64" width="562" html.valueishtml="0"  name=t_2 visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+text(band=header alignment="0" text="Unit is Kgs." border="0" color="16711680" x="18" y="196" height="56" width="247" html.valueishtml="0"  name=t_6 visible="1"  font.face="Times New Roman" font.height="-8" font.weight="400"  font.family="1" font.pitch="2" font.charset="0" background.mode="2" background.color="1073741824" )
+compute(band=header alignment="2" expression=" 'Periodic Crop Return For The Period : ' +  ra_frdt +' To ' +ra_todt"border="0" color="33554432" x="626" y="8" height="92" width="1961" format="[GENERAL]" html.valueishtml="0"  name=compute_1 visible="1"  font.face="Times New Roman" font.height="-11" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="2" background.color="1073741824" )
+text(band=header alignment="2" text="" border="0" color="33554432" x="626" y="100" height="64" width="1961" html.valueishtml="0"  name=t_gnm visible="1"  hidesnaked=1  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912"  height.autosize=yes)
+column(band=header.1 id=2 alignment="0" tabsequence=32766 border="0" color="33554432" x="18" y="4" height="64" width="1221" format="[general]" html.valueishtml="0"  name=grp visible="1" edit.limit=0 edit.case=any edit.focusrectangle=no edit.autoselect=no  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="2" font.pitch="2" font.charset="0" background.mode="2" background.color="1073741824" )
+column(band=detail id=4 alignment="0" tabsequence=32766 border="0" color="33554432" x="59" y="4" height="64" width="923" format="[general]" html.valueishtml="0"  name=recdesc visible="1" edit.limit=0 edit.case=any edit.focusrectangle=no edit.autoselect=no  font.face="Times New Roman" font.height="-9" font.weight="400"  font.family="2" font.pitch="2" font.charset="0" background.mode="2" background.color="1073741824" )
+column(band=detail id=5 alignment="1" tabsequence=32766 border="0" color="33554432" x="1737" y="4" height="64" width="343" format="#,###~tif ( recdesc = 'Average Purchase Rate','#,##0.00','#,###')" html.valueishtml="0"  name=ctoday visible="1" edit.limit=0 edit.case=any edit.focusrectangle=no edit.autoselect=no  font.face="Times New Roman" font.height="-9" font.weight="400"  font.family="2" font.pitch="2" font.charset="0" background.mode="2" background.color="1073741824" )
+column(band=detail id=6 alignment="1" tabsequence=32766 border="0" color="33554432" x="2103" y="4" height="64" width="343" format="#,###~tif ( recdesc = 'Average Purchase Rate','#,##0.00','#,###')" html.valueishtml="0"  name=ctodate visible="1" edit.limit=0 edit.case=any edit.focusrectangle=no edit.autoselect=no  font.face="Times New Roman" font.height="-9" font.weight="400"  font.family="2" font.pitch="2" font.charset="0" background.mode="2" background.color="1073741824" )
+column(band=detail id=7 alignment="1" tabsequence=32766 border="0" color="33554432" x="2469" y="4" height="64" width="343" format="#,###~tif ( recdesc = 'Average Purchase Rate','#,##0.00','#,###')" html.valueishtml="0"  name=ltoday visible="1" edit.limit=0 edit.case=any edit.focusrectangle=no edit.autoselect=no  font.face="Times New Roman" font.height="-9" font.weight="400"  font.family="2" font.pitch="2" font.charset="0" background.mode="2" background.color="1073741824" )
+column(band=detail id=8 alignment="1" tabsequence=32766 border="0" color="33554432" x="2834" y="4" height="64" width="343" format="#,###~tif ( recdesc = 'Average Purchase Rate','#,##0.00','#,###')" html.valueishtml="0"  name=ltodate visible="1" edit.limit=0 edit.case=any edit.focusrectangle=no edit.autoselect=no  font.face="Times New Roman" font.height="-9" font.weight="400"  font.family="2" font.pitch="2" font.charset="0" background.mode="2" background.color="1073741824" )
+compute(band=trailer.1 alignment="1" expression=" grp +' Total : '"border="0" color="33554432" x="69" y="4" height="64" width="960" format="[GENERAL]" html.valueishtml="0"  name=compute_15 visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="2" background.color="1073741824" )
+compute(band=trailer.1 alignment="1" expression="sum(if ( grp = 'Green Leaf' and rec_so = 30, 0,ctodate) for group 1)"border="0" color="33554432" x="2103" y="4" height="64" width="343" format="#,###" html.valueishtml="0"  name=compute_3 visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="2" background.color="1073741824" )
+compute(band=trailer.1 alignment="1" expression="sum(if ( grp = 'Green Leaf' and rec_so = 30, 0,ltoday) for group 1)"border="0" color="33554432" x="2469" y="4" height="64" width="343" format="#,###" html.valueishtml="0"  name=compute_4 visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="2" background.color="1073741824" )
+compute(band=trailer.1 alignment="1" expression="sum(if ( grp = 'Green Leaf' and rec_so = 30, 0,ltodate) for group 1)"border="0" color="33554432" x="2834" y="4" height="64" width="343" format="#,###" html.valueishtml="0"  name=compute_5 visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="2" background.color="1073741824" )
+compute(band=trailer.1 alignment="1" expression="sum(if ( grp = 'Green Leaf' and rec_so = 30, 0,ctoday) for group 1)"border="0" color="33554432" x="1737" y="4" height="64" width="343" format="#,###" html.valueishtml="0"  name=compute_2 visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="2" background.color="1073741824" )
+compute(band=footer alignment="2" expression="'Page ' + page() + ' of ' + pageCount()"border="0" color="33554432" x="1115" y="12" height="60" width="983" format="[general]" html.valueishtml="0"  name=page_1 visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="2" background.color="1073741824" )
+text(band=footer alignment="1" text="Productivity" border="0" color="33554432" x="2853" y="8" height="64" width="325" html.valueishtml="0"  name=t_30 visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+htmltable(border="1" )
+htmlgen(clientevents="1" clientvalidation="1" clientcomputedfields="1" clientformatting="0" clientscriptable="0" generatejavascript="1" encodeselflinkargs="1" netscapelayers="0" pagingmethod=0 generatedddwframes="1" )
+xhtmlgen() cssgen(sessionspecific="0" )
+xmlgen(inline="0" )
+xsltgen()
+jsgen()
+export.xml(headgroups="1" includewhitespace="0" metadatatype=0 savemetadata=0 )
+import.xml()
+export.pdf(method=0 distill.custompostscript="0" xslfop.print="0" )
+export.xhtml()
+ 

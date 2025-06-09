@@ -1,0 +1,22 @@
+﻿$PBExportHeader$f_amttowords_rupees.srf
+global type f_amttowords_rupees from function_object
+end type
+
+forward prototypes
+global function string f_amttowords_rupees (double fd_amt)
+end prototypes
+
+global function string f_amttowords_rupees (double fd_amt);string fs_ret
+
+select initcap(towords(:fd_amt,'R')) into :fs_ret from dual; 
+
+if sqlca.sqlcode = -1 then 
+	messagebox('Error During Converting Figure In Words ',sqlca.sqlerrtext)
+	return '-1'
+elseif sqlca.sqlcode = 100 then 
+	return 'nill'
+end if;
+
+return fs_ret;	
+end function
+

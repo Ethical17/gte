@@ -1,0 +1,72 @@
+﻿$PBExportHeader$dw_gtebgr001a.srd
+release 10.5;
+datawindow(units=0 timer_interval=0 color=16777215 processing=0 HTMLDW=no print.printername="" print.documentname="" print.orientation = 0 print.margin.left = 110 print.margin.right = 110 print.margin.top = 96 print.margin.bottom = 96 print.paper.source = 0 print.paper.size = 0 print.canusedefaultprinter=yes print.prompt=no print.buttons=no print.preview.buttons=no print.cliptext=no print.overrideprintjob=no print.collate=yes print.preview.outline=yes hidegrayline=no )
+header(height=448 color="536870912" )
+summary(height=88 color="536870912" )
+footer(height=96 color="536870912" )
+detail(height=100 color="536870912" )
+table(column=(type=decimal(0) updatewhereclause=yes name=msab_year dbname="msab_year" )
+ column=(type=char(81) updatewhereclause=yes name=fy_year dbname="fy_year" )
+ column=(type=char(25) updatewhereclause=yes name=eachead_id dbname="eachead_id" )
+ column=(type=char(50) updatewhereclause=yes name=eachead_name dbname="acsubledger_name" )
+ column=(type=char(25) updatewhereclause=yes name=a_eacsubhead_id dbname="eacsubhead_id" )
+ column=(type=char(50) updatewhereclause=yes name=eacsubhead_name dbname="eacsubhead_name" )
+ column=(type=number updatewhereclause=yes name=final_amount dbname="final_amount" )
+ column=(type=number updatewhereclause=yes name=add_sub_amount dbname="add_sub_amount" )
+ column=(type=number updatewhereclause=yes name=org_amount dbname="org_amount" )
+ retrieve="select aa.MSAB_YEAR,to_char(aa.MSAB_YEAR)||'-'||to_char(aa.MSAB_YEAR+1)fy_year,b.EACHEAD_ID,ACSUBLEDGER_NAME,a.EACSUBHEAD_ID,EACSUBHEAD_NAME,
+       final_amount,(final_amount - org_amount)add_sub_amount,org_amount
+from
+(select MSAB_YEAR,EACSUBHEAD_ID, 
+       ( MSAB_JANSALARY+ MSAB_FEBSALARY+ MSAB_MARSALARY+MSAB_APRSALARY+ MSAB_MAYSALARY+ MSAB_JUNSALARY+ MSAB_JULSALARY+ MSAB_AUGSALARY+ MSAB_SEPSALARY+ 
+	   MSAB_OCTSALARY+ MSAB_NOVSALARY+ MSAB_DECSALARY)final_amount
+  from FB_MONTHLYSALARYBUDGET 
+ where MSAB_YEAR=:ra_year)a,
+(select MSAB_YEAR,EACSUBHEAD_ID,  
+       (MSAB_JANSALARY+ MSAB_FEBSALARY+ MSAB_MARSALARY+MSAB_APRSALARY+ MSAB_MAYSALARY+ MSAB_JUNSALARY+ MSAB_JULSALARY+ MSAB_AUGSALARY+ MSAB_SEPSALARY+ 
+	   MSAB_OCTSALARY+ MSAB_NOVSALARY+ MSAB_DECSALARY)org_amount
+  from FB_MONTHLYSALARYBUDGET_LOGS 
+  where MSAB_YEAR=:ra_year and OLD_ENTRY_BY is null and MSAB_ENTRY_BY is not null)aa,
+       fb_expenseacsubhead b,fb_acsubledger c
+ where a.MSAB_YEAR=aa.MSAB_YEAR(+) and a.EACSUBHEAD_ID=aa.EACSUBHEAD_ID(+) and a.EACSUBHEAD_ID=b.EACSUBHEAD_ID(+) and b.EACHEAD_ID=c.ACSUBLEDGER_ID   
+" arguments=(("userid", string),("ra_year", number))  sort="eachead_name A eacsubhead_name A " )
+group(level=1 header.height=76 trailer.height=80 by=("eachead_id" ) header.color="536870912" trailer.color="536870912" )
+column(band=header id=2 alignment="0" tabsequence=32766 border="0" color="0" x="2688" y="24" height="64" width="55" format="[general]" html.valueishtml="0"  name=fy_year visible="0" edit.limit=0 edit.case=any edit.focusrectangle=no edit.autoselect=no  font.face="Times New Roman" font.height="-11" font.weight="700"  font.family="2" font.pitch="2" font.charset="0" background.mode="2" background.color="16777215" )
+text(band=header alignment="0" text="Expense SubHead" border="0" color="33554432" x="23" y="352" height="64" width="434" html.valueishtml="0"  name=eacsubhead_name_t visible="1"  font.face="Times New Roman" font.height="-10" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="2" background.color="16777215" )
+compute(band=header alignment="2" expression="'Salary Budget For The Year '+ fy_year "border="0" color="0" x="978" y="24" height="72" width="1312" format="[GENERAL]" html.valueishtml="0"  name=compute_29 visible="1"  font.face="Times New Roman" font.height="-11" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="2" background.color="16777215" )
+text(band=header alignment="2" text="" border="0" color="33554432" x="658" y="132" height="64" width="1957" html.valueishtml="0"  name=t_gnm visible="1"  hidesnaked=1  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912"  height.autosize=yes)
+text(band=header alignment="0" text="Luxmi Tea Co." border="0" color="0" x="37" y="20" height="64" width="585" html.valueishtml="0"  name=t_co visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="2" background.color="16777215" )
+text(band=header alignment="0" text="Gtebgr001a" border="0" color="0" x="37" y="92" height="64" width="274" html.valueishtml="0"  name=t_1 visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="2" background.color="16777215" )
+line(band=header x1="18" y1="428" x2="3255" y2="428"  name=l_1 visible="1" pen.style="0" pen.width="5" pen.color="33554432"  background.mode="2" background.color="67108864" )
+column(band=header.1 id=4 alignment="0" tabsequence=32766 border="0" color="0" x="18" y="4" height="64" width="1554" format="[general]" html.valueishtml="0"  name=eachead_name visible="1" edit.limit=0 edit.case=any edit.focusrectangle=no edit.autoselect=no  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="2" font.pitch="2" font.charset="0" background.mode="2" background.color="16777215" )
+line(band=detail x1="14" y1="88" x2="3255" y2="88"  name=l_2 visible="1" pen.style="2" pen.width="5" pen.color="134217728"  background.mode="2" background.color="1073741824" )
+column(band=detail id=6 alignment="0" tabsequence=32766 border="0" color="0" x="23" y="12" height="64" width="1106" format="[general]" html.valueishtml="0"  name=eacsubhead_name visible="1" edit.limit=0 edit.case=any edit.focusrectangle=no edit.autoselect=no  font.face="Times New Roman" font.height="-9" font.weight="400"  font.family="2" font.pitch="2" font.charset="0" background.mode="2" background.color="16777215" )
+column(band=detail id=5 alignment="0" tabsequence=32766 border="0" color="0" x="1143" y="8" height="72" width="114" format="[general]" html.valueishtml="0"  name=a_eacsubhead_id visible="0" edit.limit=0 edit.case=any edit.focusrectangle=no edit.autoselect=no  font.face="Times New Roman" font.height="-8" font.weight="400"  font.family="2" font.pitch="2" font.charset="0" background.mode="2" background.color="16777215" )
+compute(band=trailer.1 alignment="1" expression=" eachead_name + '  Total :'"border="0" color="0" x="23" y="8" height="52" width="1088" format="[GENERAL]" html.valueishtml="0"  name=compute_7 visible="1"  font.face="Times New Roman" font.height="-8" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="2" background.color="16777215" )
+text(band=summary alignment="1" text="Grand Total  :" border="0" color="0" x="782" y="8" height="52" width="329" html.valueishtml="0"  name=t_2 visible="1"  font.face="Times New Roman" font.height="-8" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="2" background.color="16777215" )
+compute(band=footer alignment="0" expression="'Page ' + page() + ' of ' + pageCount()"border="0" color="0" x="1335" y="12" height="72" width="603" format="[general]" html.valueishtml="0"  name=page_1 visible="1"  font.face="Times New Roman" font.height="-9" font.weight="400"  font.family="1" font.pitch="2" font.charset="0" background.mode="2" background.color="16777215" )
+column(band=detail id=9 alignment="1" tabsequence=32766 border="0" color="0" x="1294" y="8" height="72" width="393" format="[general]" html.valueishtml="0"  name=org_amount visible="1" edit.limit=0 edit.case=any edit.focusrectangle=no edit.autoselect=no  font.face="Times New Roman" font.height="-8" font.weight="400"  font.family="2" font.pitch="2" font.charset="0" background.mode="2" background.color="16777215" )
+compute(band=trailer.1 alignment="1" expression="sum(org_amount for group 1)"border="0" color="0" x="1294" y="4" height="72" width="393" format="[general]" html.valueishtml="0"  name=compute_2 visible="1"  font.face="Times New Roman" font.height="-8" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="2" background.color="16777215" )
+compute(band=summary alignment="1" expression="sum(org_amount for all)"border="0" color="0" x="1294" y="8" height="72" width="393" format="[general]" html.valueishtml="0"  name=compute_9 visible="1"  font.face="Times New Roman" font.height="-8" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="2" background.color="16777215" )
+column(band=detail id=8 alignment="1" tabsequence=32766 border="0" color="0" x="2053" y="8" height="72" width="389" format="[general]" html.valueishtml="0"  name=add_sub_amount visible="1~tif ((isnull(  add_sub_amount  ) or  add_sub_amount  =0),0,1)" edit.limit=0 edit.case=any edit.focusrectangle=no edit.autoselect=no  font.face="Times New Roman" font.height="-8" font.weight="400"  font.family="2" font.pitch="2" font.charset="0" background.mode="2" background.color="16777215" )
+compute(band=trailer.1 alignment="1" expression="sum(add_sub_amount for group 1)"border="0" color="0" x="2053" y="4" height="72" width="389" format="[general]" html.valueishtml="0"  name=compute_4 visible="1"  font.face="Times New Roman" font.height="-8" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="2" background.color="16777215" )
+compute(band=summary alignment="1" expression="sum(add_sub_amount for all)"border="0" color="0" x="2053" y="8" height="72" width="389" format="[general]" html.valueishtml="0"  name=compute_11 visible="1"  font.face="Times New Roman" font.height="-8" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="2" background.color="16777215" )
+column(band=detail id=1 alignment="0" tabsequence=0 border="0" color="0" x="3259" y="8" height="64" width="78" html.valueishtml="0"  name=msab_year visible="0" edit.limit=0 edit.case=any edit.focusrectangle=no edit.autoselect=no  font.face="Times New Roman" font.height="-8" font.weight="400"  font.family="2" font.pitch="2" font.charset="0" background.mode="2" background.color="16777215" )
+text(band=header alignment="1" text="Addition/SubstractionAmount" border="0" color="33554432" x="1897" y="288" height="128" width="544" html.valueishtml="0"  name=t_11 visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="2" background.color="16777215" )
+text(band=header alignment="1" text="OriginalAmount" border="0" color="33554432" x="1262" y="288" height="128" width="430" html.valueishtml="0"  name=mwb_junmandays_t visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="2" background.color="16777215" )
+compute(band=header alignment="0" expression="today()"border="0" color="0" x="3003" y="52" height="72" width="247" format="[general]" html.valueishtml="0"  name=date_1 visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="2" background.color="16777215" )
+text(band=header alignment="1" text="FinalAmount" border="0" color="33554432" x="2903" y="288" height="128" width="347" html.valueishtml="0"  name=t_14 visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="2" background.color="16777215" )
+column(band=detail id=7 alignment="1" tabsequence=32766 border="0" color="0" x="2857" y="8" height="72" width="393" format="[general]" html.valueishtml="0"  name=final_amount visible="1" edit.limit=0 edit.case=any edit.focusrectangle=no edit.autoselect=no  font.face="Times New Roman" font.height="-8" font.weight="400"  font.family="2" font.pitch="2" font.charset="0" background.mode="2" background.color="16777215" )
+compute(band=trailer.1 alignment="1" expression="sum(final_amount for group 1)"border="0" color="0" x="2857" y="4" height="72" width="393" format="[general]" html.valueishtml="0"  name=compute_6 visible="1"  font.face="Times New Roman" font.height="-8" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="2" background.color="16777215" )
+compute(band=summary alignment="1" expression="sum(final_amount for all)"border="0" color="0" x="2857" y="8" height="72" width="393" format="[general]" html.valueishtml="0"  name=compute_13 visible="1"  font.face="Times New Roman" font.height="-8" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="2" background.color="16777215" )
+htmltable(border="1" )
+htmlgen(clientevents="1" clientvalidation="1" clientcomputedfields="1" clientformatting="0" clientscriptable="0" generatejavascript="1" encodeselflinkargs="1" netscapelayers="0" pagingmethod=0 generatedddwframes="1" )
+xhtmlgen() cssgen(sessionspecific="0" )
+xmlgen(inline="0" )
+xsltgen()
+jsgen()
+export.xml(headgroups="1" includewhitespace="0" metadatatype=0 savemetadata=0 )
+import.xml()
+export.pdf(method=0 distill.custompostscript="0" xslfop.print="0" )
+export.xhtml()
+ 

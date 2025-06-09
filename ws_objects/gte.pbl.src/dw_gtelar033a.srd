@@ -1,0 +1,85 @@
+﻿$PBExportHeader$dw_gtelar033a.srd
+release 10.5;
+datawindow(units=0 timer_interval=0 color=1073741824 processing=0 HTMLDW=no print.printername="" print.documentname="" print.orientation = 0 print.margin.left = 20 print.margin.right = 20 print.margin.top = 96 print.margin.bottom = 96 print.paper.source = 0 print.paper.size = 0 print.canusedefaultprinter=yes print.prompt=no print.buttons=no print.preview.buttons=no print.cliptext=no print.overrideprintjob=no print.collate=yes print.preview.outline=yes hidegrayline=no )
+header(height=432 color="536870912" )
+summary(height=0 color="536870912" )
+footer(height=76 color="536870912" )
+detail(height=76 color="536870912" )
+table(column=(type=number updatewhereclause=yes name=pfno dbname="pfno" )
+ column=(type=number updatewhereclause=yes name=epf_wages dbname="epf_wages" )
+ column=(type=number updatewhereclause=yes name=epf_contribution_due dbname="epf_contribution_due" )
+ column=(type=number updatewhereclause=yes name=refund dbname="refund" )
+ column=(type=number updatewhereclause=yes name=ncp dbname="ncp" )
+ column=(type=datetime updatewhereclause=yes name=jobleavingdate dbname="fb_employee.emp_jobleavingdate" dbalias="a.emp_jobleavingdate" )
+ column=(type=char(0) updatewhereclause=yes name=dsr dbname="fb_employee.dsr" dbalias=".dsr" )
+ column=(type=number updatewhereclause=yes name=arrear dbname="arrear" )
+ column=(type=number updatewhereclause=yes name=oepf dbname="oepf" )
+ column=(type=number updatewhereclause=yes name=epfar dbname="epfar" )
+ column=(type=number updatewhereclause=yes name=epfsar dbname="epfsar" )
+ retrieve="SELECT to_number(a.EMP_PFNO) pfno, 
+                 round(sum(b.LABOUR_WAGES + b.LABOUR_MATERNITYEARN + b.LABOUR_SICKEARN + b.LABOUR_ELPEARN  + b.LABOUR_FOODCONC + nvl(b.LABOUR_ATTN_INC,0) + nvl(LABOUR_OTHEREARN,0)  - nvl(LABOUR_PENALTY,0) ),0) epf_wages,
+                 sum((b.LABOUR_PF + b.LABOUR_FPF )) epf_contribution_due,
+                 0 refund,0 ncp,EMP_JOBLEAVINGDATE,null DSR, 0 Arrear, 0 oepf, 0 epfar, 0 epfsar
+        FROM FB_EMPLOYEE a, FB_LABOURWEEKLYWAGES b,FB_LABOURWAGESWEEK c,fb_field d,
+            (select labour_id, count(*) absdays from fb_labourdailyattendance 
+             where lda_date between to_date(:ra_frdt,'dd/mm/yyyy') AND to_date(:ra_todt,'dd/mm/yyyy') and 
+                       kamsub_id = (select kamsub_id from fb_kamsubhead where  nvl(KAMSUB_ACTIVE_IND,'N') = 'Y' and KAMSUB_NKAMTYPE = 'ABSENT')
+             group by labour_id) e
+      WHERE (a.EMP_ID=b.LABOUR_ID) AND (b.LWW_ID=c.LWW_ID) AND 
+                (b.LABOUR_PF<>0 OR b.LABOUR_FPF<>0) AND 
+                LWW_STARTDATE between to_date(:ra_frdt,'dd/mm/yyyy') AND to_date(:ra_todt,'dd/mm/yyyy') and
+                LWW_ENDDATE between to_date(:ra_frdt,'dd/mm/yyyy') and to_date(:ra_todt,'dd/mm/yyyy') and
+                (b.LABOUR_PF <> 0 OR b.LABOUR_FPF <> 0) AND  LWW_PAIDFLAG = '1' and
+                a.emp_id = e.labour_id(+) and a.field_id = d.field_id and decode(nvl(FIELD_PFACCD,'x'),'x',:ra_gpf,FIELD_PFACCD) = :ra_pf
+    group by to_number(a.EMP_PFNO),EMP_JOBLEAVINGDATE
+union all
+SELECT to_number(trim(a.EMP_PFNO)) pfno ,
+         round(nvl(EP_BASICAMOUNT,0) + nvl(EP_DAAMOUNT,0) + nvl(EP_VDAAMOUNT,0) + nvl(EP_CVRFORPFAMOUNT,0),0) epf_wages,
+         (nvl(EP_PENSIONFUNDDEDAMOUNT,0) + nvl(EP_PFCONTDEDAMOUNT,0)) epf_contribution_due,0,0, EMP_JOBLEAVINGDATE,null DSR, 0 Arrear, 0 oepf, 0 epfar, 0 epfsar
+FROM FB_EMPLOYEE a,fb_emppayment b, fb_field d
+where a.EMP_ID = b.EMP_ID and ((nvl(EP_YEAR,0) * 100) + nvl(EP_MONTH,0)) = :ra_yrmn and 
+		 a.field_id = d.field_id and decode(nvl(FIELD_PFACCD,'x'),'x',:ra_gpf,FIELD_PFACCD) = :ra_pf and 
+		(nvl(EP_PENSIONFUNDDEDAMOUNT,0) + nvl(EP_PFCONTDEDAMOUNT,0)) > 0
+union all
+SELECT to_number(ef_PFNO) pfno ,
+         round(nvl(ef_wages,0),0) epf_wages,
+         (nvl(ef_epf,0)) epf_contribution_due,0,0, ef_jobleavingdt,null DSR, 0 Arrear, 0 oepf, 0 epfar, 0 epfsar
+FROM fb_executivepf
+where ef_YEARMONTH = :ra_yrmn and (select UNIT_PFACCD from fb_gardenmaster where UNIT_ACTIVE_IND = 'Y') = :ra_pf and 
+		nvl(ef_epf,0) > 0" arguments=(("ra_frdt", string),("ra_todt", string),("ra_gsnm", string),("ra_yrmn", number),("ra_pf", string),("ra_gpf", string))  sort="pfno A " )
+text(band=header alignment="0" text="Luxmi Tea Co." border="0" color="33554432" x="18" y="8" height="64" width="471" html.valueishtml="0"  name=t_co visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+text(band=header alignment="0" text="Gtelar033" border="0" color="33554432" x="18" y="88" height="64" width="462" html.valueishtml="0"  name=t_2 visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+text(band=header alignment="0" text="PF No." border="0" color="33554432" x="27" y="356" height="64" width="201" html.valueishtml="0"  name=pfno_t visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+text(band=header alignment="2" text="EPF Wages" border="0" color="33554432" x="251" y="356" height="64" width="306" html.valueishtml="0"  name=ctot_wage_t visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+text(band=header alignment="1" text="EPFContribution" border="0" color="33554432" x="599" y="292" height="128" width="311" html.valueishtml="0"  name=ctot_pf_t visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+text(band=header alignment="2" text="Job LeavingDate" border="0" color="33554432" x="1623" y="292" height="128" width="325" html.valueishtml="0"  name=t_1 visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+text(band=header alignment="1" text="Refund" border="0" color="33554432" x="937" y="356" height="64" width="325" html.valueishtml="0"  name=t_3 visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+text(band=header alignment="1" text="NCP" border="0" color="33554432" x="1285" y="356" height="64" width="325" html.valueishtml="0"  name=t_4 visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+compute(band=header alignment="1" expression="today()"border="0" color="33554432" x="2647" y="12" height="84" width="329" format="dd/mm/yyyy" html.valueishtml="0"  name=date_1 visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+text(band=header alignment="2" text="" border="0" color="33554432" x="517" y="144" height="64" width="1957" html.valueishtml="0"  name=t_gnm visible="1"  hidesnaked=1  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912"  height.autosize=yes)
+compute(band=header alignment="2" expression="'P.F. ECR Statement '"border="0" color="33554432" x="873" y="4" height="124" width="1243" format="[GENERAL]" html.valueishtml="0"  name=compute_1 visible="1"  font.face="Times New Roman" font.height="-11" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="2" background.color="1073741824" )
+line(band=header x1="14" y1="428" x2="2976" y2="428"  name=l_1 visible="1" pen.style="0" pen.width="5" pen.color="33554432"  background.mode="2" background.color="1073741824" )
+column(band=detail id=1 alignment="2" tabsequence=32766 border="0" color="33554432" x="32" y="4" height="64" width="201" format="[general]" html.valueishtml="0"  name=pfno visible="1" edit.limit=0 edit.case=any edit.focusrectangle=no edit.autoselect=no  font.face="Times New Roman" font.height="-9" font.weight="400"  font.family="2" font.pitch="2" font.charset="0" background.mode="2" background.color="1073741824" )
+column(band=detail id=2 alignment="1" tabsequence=32766 border="0" color="33554432" x="247" y="4" height="64" width="306" format="##0" html.valueishtml="0"  name=epf_wages visible="1" edit.limit=0 edit.case=any edit.focusrectangle=no edit.autoselect=no  font.face="Times New Roman" font.height="-9" font.weight="400"  font.family="2" font.pitch="2" font.charset="0" background.mode="2" background.color="1073741824" )
+column(band=detail id=3 alignment="1" tabsequence=32766 border="0" color="33554432" x="599" y="4" height="64" width="311" format="##0" html.valueishtml="0"  name=epf_contribution_due visible="1" edit.limit=0 edit.case=any edit.focusrectangle=no edit.autoselect=no  font.face="Times New Roman" font.height="-9" font.weight="400"  font.family="2" font.pitch="2" font.charset="0" background.mode="2" background.color="1073741824" )
+column(band=detail id=6 alignment="2" tabsequence=32766 border="0" color="33554432" x="1623" y="4" height="64" width="325" format="dd/mm/yyyy" html.valueishtml="0"  name=jobleavingdate visible="1" edit.limit=0 edit.case=any edit.focusrectangle=no edit.autoselect=no  font.face="Times New Roman" font.height="-9" font.weight="400"  font.family="2" font.pitch="2" font.charset="0" background.mode="2" background.color="1073741824" )
+column(band=detail id=4 alignment="1" tabsequence=32766 border="0" color="33554432" x="937" y="4" height="64" width="325" format="[general]" html.valueishtml="0"  name=refund visible="1" edit.limit=0 edit.case=any edit.focusrectangle=no edit.autoselect=no  font.face="Times New Roman" font.height="-9" font.weight="400"  font.family="2" font.pitch="2" font.charset="0" background.mode="2" background.color="1073741824" )
+column(band=detail id=5 alignment="1" tabsequence=32766 border="0" color="33554432" x="1285" y="4" height="64" width="325" format="[general]" html.valueishtml="0"  name=ncp visible="1" edit.limit=0 edit.case=any edit.focusrectangle=no edit.autoselect=no  font.face="Times New Roman" font.height="-9" font.weight="400"  font.family="2" font.pitch="2" font.charset="0" background.mode="2" background.color="1073741824" )
+column(band=detail id=7 alignment="1" tabsequence=32766 border="0" color="33554432" x="1961" y="4" height="64" width="187" format="[general]" html.valueishtml="0"  name=dsr visible="1" edit.limit=0 edit.case=any edit.focusrectangle=no edit.autoselect=no  font.face="Times New Roman" font.height="-9" font.weight="400"  font.family="2" font.pitch="2" font.charset="0" background.mode="2" background.color="1073741824" )
+column(band=detail id=8 alignment="1" tabsequence=32766 border="0" color="33554432" x="2171" y="4" height="64" width="187" format="[general]" html.valueishtml="0"  name=arrear visible="1" edit.limit=0 edit.case=any edit.focusrectangle=no edit.autoselect=no  font.face="Times New Roman" font.height="-9" font.weight="400"  font.family="2" font.pitch="2" font.charset="0" background.mode="2" background.color="1073741824" )
+column(band=detail id=9 alignment="1" tabsequence=32766 border="0" color="33554432" x="2382" y="4" height="64" width="187" format="[general]" html.valueishtml="0"  name=oepf visible="1" edit.limit=0 edit.case=any edit.focusrectangle=no edit.autoselect=no  font.face="Times New Roman" font.height="-9" font.weight="400"  font.family="2" font.pitch="2" font.charset="0" background.mode="2" background.color="1073741824" )
+column(band=detail id=10 alignment="1" tabsequence=32766 border="0" color="33554432" x="2592" y="4" height="64" width="187" format="[general]" html.valueishtml="0"  name=epfar visible="1" edit.limit=0 edit.case=any edit.focusrectangle=no edit.autoselect=no  font.face="Times New Roman" font.height="-9" font.weight="400"  font.family="2" font.pitch="2" font.charset="0" background.mode="2" background.color="1073741824" )
+column(band=detail id=11 alignment="1" tabsequence=32766 border="0" color="33554432" x="2802" y="4" height="64" width="187" format="[general]" html.valueishtml="0"  name=epfsar visible="1" edit.limit=0 edit.case=any edit.focusrectangle=no edit.autoselect=no  font.face="Times New Roman" font.height="-9" font.weight="400"  font.family="2" font.pitch="2" font.charset="0" background.mode="2" background.color="1073741824" )
+compute(band=footer alignment="2" expression="'Page ' + page() + ' of ' + pageCount()"border="0" color="33554432" x="1106" y="4" height="64" width="782" format="[general]" html.valueishtml="0"  name=page_1 visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="2" background.color="1073741824" )
+text(band=footer alignment="1" text="PF ECR" border="0" color="33554432" x="2281" y="4" height="64" width="695" html.valueishtml="0"  name=t_9 visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+htmltable(border="1" )
+htmlgen(clientevents="1" clientvalidation="1" clientcomputedfields="1" clientformatting="0" clientscriptable="0" generatejavascript="1" encodeselflinkargs="1" netscapelayers="0" pagingmethod=0 generatedddwframes="1" )
+xhtmlgen() cssgen(sessionspecific="0" )
+xmlgen(inline="0" )
+xsltgen()
+jsgen()
+export.xml(headgroups="1" includewhitespace="0" metadatatype=0 savemetadata=0 )
+import.xml()
+export.pdf(method=0 distill.custompostscript="0" xslfop.print="0" )
+export.xhtml()
+ 

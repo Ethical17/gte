@@ -1,0 +1,20 @@
+﻿$PBExportHeader$f_openwindow.srf
+global type f_openwindow from function_object
+end type
+
+forward prototypes
+global function integer f_openwindow (datawindow l_adw)
+end prototypes
+
+global function integer f_openwindow (datawindow l_adw);l_adw.modify("t_co.text = '"+gs_CO_name+"'")
+//messagebox('Date',string(today()))
+//messagebox('gd_dt',string(date(gd_dt)))
+If date(gd_dt) <> today() Then 
+	messagebox('Warning !!!','Your System Date Is Not Correct, PLease Check !!!')
+	Return -1
+end if
+
+Return 1
+
+end function
+

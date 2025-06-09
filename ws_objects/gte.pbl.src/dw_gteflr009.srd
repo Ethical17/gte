@@ -1,0 +1,120 @@
+﻿$PBExportHeader$dw_gteflr009.srd
+release 10.5;
+datawindow(units=0 timer_interval=0 color=1073741824 processing=0 HTMLDW=no print.printername="" print.documentname="" print.orientation = 0 print.margin.left = 20 print.margin.right = 20 print.margin.top = 96 print.margin.bottom = 96 print.paper.source = 0 print.paper.size = 0 print.canusedefaultprinter=yes print.prompt=no print.buttons=no print.preview.buttons=no print.cliptext=no print.overrideprintjob=no print.collate=yes print.preview.outline=yes hidegrayline=no )
+header(height=476 color="536870912" )
+summary(height=96 color="536870912" )
+footer(height=76 color="536870912" )
+detail(height=76 color="536870912" )
+table(column=(type=char(30) updatewhereclause=yes name=sectionname dbname="sectionname" )
+ column=(type=number updatewhereclause=yes name=secarea dbname="secarea" )
+ column=(type=char(4) updatewhereclause=yes name=prun_style dbname="prun_style" )
+ column=(type=number updatewhereclause=yes name=yieldphec dbname="yieldphec" )
+ column=(type=number updatewhereclause=yes name=wages dbname="wages" )
+ column=(type=number updatewhereclause=yes name=stores dbname="stores" )
+ column=(type=number updatewhereclause=yes name=unallocated dbname="unallocated" )
+ column=(type=number updatewhereclause=yes name=indirect dbname="indirect" )
+ retrieve="SELECT a.SECTION_name sectionname, a.SECTION_AREA secarea, PRUN_STYLE, 
+		   decode(nvl(a.SECTION_AREA,0),0,0,round((nvl(totgl,0) * nvl(:ra_recper,0) / 100),2)) yieldphec,
+		   nvl(wages,0) wages, nvl(stores,0) stores, (nvl(:ra_una_costph,0) * a.SECTION_AREA) unallocated, (nvl(:ra_ind_costph,0) * a.SECTION_AREA) Indirect
+FROM   FB_SECTION a, (select SECTION_ID, PRUN_STYLE from fb_pruningsession where PRUN_YEAR = to_number(to_char(to_date(:ra_frdt,'dd/mm/yyyy'),'yyyy'))) b,
+		    (select c.section_id,
+                    sum(nvl(f.TASK_PMACOUNTTODAYTY,0) + nvl(f.TASK_PFACOUNTTODAYTY,0) + nvl(f.TASK_TMACOUNTTODAYTY,0) + nvl(f.TASK_TFACOUNTTODAYTY,0) + 
+                  nvl(f.TASK_OMACOUNTTODAYTY,0) + nvl(f.TASK_OFACOUNTTODAYTY,0) + nvl(f.TASK_PMADCOUNTTODAYTY,0) + nvl(f.TASK_PFADCOUNTTODAYTY,0) + 
+                     nvl(f.TASK_TMADCOUNTTODAYTY,0) + nvl(f.TASK_TFADCOUNTTODAYTY,0) + nvl(f.TASK_OMADCOUNTTODAYTY,0) + nvl(f.TASK_OFADCOUNTTODAYTY,0) + 
+                 nvl(f.TASK_PMCCOUNTTODAYTY,0) + nvl(f.TASK_PFCCOUNTTODAYTY,0) + nvl(f.TASK_TMCCOUNTTODAYTY,0) + nvl(f.TASK_TFCCOUNTTODAYTY,0) + 
+                 nvl(f.TASK_OMCCOUNTTODAYTY,0) + nvl(f.TASK_OFCCOUNTTODAYTY,0))  totgl
+            from FB_TASKACTIVEDAILY c, FB_KAMSUBHEAD e,  FB_TASKACTIVEMEASUREMENT f 
+            where c.TASKDATE_ID = f.TASKSECTION_ID AND c.TASK_ID = e.KAMSUB_ID AND nvl(KAMSUB_ACTIVE_IND,'N') = 'Y' and e.KAMSUB_TYPE = 'PLUCK' AND
+					trunc(TASK_DATE) between to_date(:ra_frdt,'dd/mm/yyyy') and to_date(:ra_todt,'dd/mm/yyyy')
+			group by  c.section_id union all
+			select SECTION_ID, sum(nvl(SPR_GL,0)) cash_gl
+		 from FB_SECTIONPLUCKINGROUND where SPR_PLUCCKTYPE = 'C' and trunc(SPR_DATE) between to_date(:ra_frdt,'dd/mm/yyyy') and to_date(:ra_todt,'dd/mm/yyyy') 
+		group by SECTION_ID) f,
+	   (select VD_SECTION_ID,
+			   sum(decode(ACSUBLEDGER_COSTNATURE,'D',decode(vd_preferred_mes,'W',decode(nvl(VD_SECTION_ID,'X'),'X',0,nvl(value,0)),0),0)) wages,
+			   sum(decode(ACSUBLEDGER_COSTNATURE,'D',decode(vd_preferred_mes,'T',decode(nvl(VD_SECTION_ID,'X'),'X',0,nvl(value,0)),0),0)) stores
+		from 
+		(	select vd_preferred_mes,vd_expsubhead,VD_SECTION_ID, sum(nvl(value,0)) value
+			from
+			(	select vd_preferred_mes,vd_expsubhead,VD_SECTION_ID, sum(nvl(vd_amount,0)) value from fb_vou_det,fb_vou_head 
+				where VH_DOC_SRL = VD_DOC_SRL and VD_SECTION_ID not like 'CC%' and trunc(vh_vou_date) between to_date(:ra_frdt,'dd/mm/yyyy') and to_date(:ra_todt,'dd/mm/yyyy') and vd_expsubhead is not null 
+				group by vd_preferred_mes,vd_expsubhead,VD_SECTION_ID 
+				union 
+				select 'T',EACSUBHEAD_ID, SECTION_ID, sum(nvl(PRIS_VALUE,0)) from fb_productissuedetails a,fb_productissue b 
+				where a.PRIS_ID = b.PRIS_ID and nvl(PRIS_STOCKIND,'N') = 'Y' and trunc(pris_date) between to_date(:ra_frdt,'dd/mm/yyyy') and to_date(:ra_todt,'dd/mm/yyyy') and EACSUBHEAD_ID is not null 
+				group by EACSUBHEAD_ID, SECTION_ID 
+				union 
+				select 'T',EACSUBHEAD_ID, null, sum(nvl(SA_VALUE,0)) from fb_stores_adjustment 
+				where nvl(SA_STOCKIND,'N') = 'Y' and trunc(SA_ADJ_DATE) between to_date(:ra_frdt,'dd/mm/yyyy') and to_date(:ra_todt,'dd/mm/yyyy') and EACSUBHEAD_ID is not null 
+				group by EACSUBHEAD_ID 
+				union 
+				select 'T',EACSUBHEAD_ID, null, sum(nvl(PRET_VALUE,0)) from fb_productreturndetails a,fb_productreturn b 
+				where a.PRET_ID = b.PRET_ID and nvl(PRET_STOCKIND,'N') = 'Y' and trunc(pret_date) between to_date(:ra_frdt,'dd/mm/yyyy') and to_date(:ra_todt,'dd/mm/yyyy') and EACSUBHEAD_ID is not null 
+				group by EACSUBHEAD_ID
+				union 
+				select 'T',EACSUBHEAD_ID, null, sum(nvl(SPR_UNITPRICE,0) * nvl(SPR_QUANTITY,0)) from fb_supproductreturndetails a,fb_supproductreturn b, 
+					   (select distinct EACSUBHEAD_ID,SP_ID from fb_storeproduct, fb_expenseacsubhead where SPC_ID = EACHEAD_ID) c 
+				where a.SPR_ID = b.SPR_ID and a.SP_ID = c.SP_ID and nvl(SPR_STOCKIND,'N') = 'Y' and trunc(SPR_DATE) between to_date(:ra_frdt,'dd/mm/yyyy') and to_date(:ra_todt,'dd/mm/yyyy') and EACSUBHEAD_ID is not null 
+				group by EACSUBHEAD_ID
+				union 
+				select 'W',KAMSUB_ID, LDA_SECTIONID1, sum(nvl(LDA_WAGES,0)) from fb_labourdailyattendance
+				where trunc(LDA_DATE) between to_date(:ra_frdt,'dd/mm/yyyy') and to_date(:ra_todt,'dd/mm/yyyy') and KAMSUB_ID is not null 
+				group by KAMSUB_ID, LDA_SECTIONID1 
+				union 
+				select 'W',OT_KAMSUB_ID, null, sum(nvl(OT_AMOUNT,0)) from fb_overtime
+				where trunc(OT_DT) between to_date(:ra_frdt,'dd/mm/yyyy') and to_date(:ra_todt,'dd/mm/yyyy') and OT_KAMSUB_ID is not null 
+				group by OT_KAMSUB_ID)
+			group by vd_preferred_mes,vd_expsubhead,VD_SECTION_ID) a,fb_acsubledger b, FB_EXPENSEACSUBHEAD c 
+		where a.vd_expsubhead = c.EACSUBHEAD_ID and b.ACSUBLEDGER_ID = c.EACHEAD_ID and VD_SECTION_ID is not null
+		group by VD_SECTION_ID)
+WHERE a.SECTION_ID = f.SECTION_ID(+) and a.SECTION_ID = b.SECTION_ID(+) and a.SECTION_ID = VD_SECTION_ID(+) and a.SECTION_TYPE ='S'" arguments=(("ra_frdt", string),("ra_todt", string),("ra_recper", number),("ra_una_costph", number),("ra_ind_costph", number),("ra_teamade", number))  sort="sectionname A secarea A " )
+text(band=header alignment="0" text="Luxmi Tea Co." border="0" color="33554432" x="18" y="8" height="64" width="544" html.valueishtml="0"  name=t_co visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+text(band=header alignment="0" text="Gteflr009" border="0" color="33554432" x="18" y="88" height="64" width="562" html.valueishtml="0"  name=t_2 visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+text(band=header alignment="0" text="Section" border="0" color="33554432" x="18" y="400" height="64" width="265" html.valueishtml="0"  name=sectionname_t visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+text(band=header alignment="2" text="Area" border="0" color="33554432" x="462" y="400" height="64" width="178" html.valueishtml="0"  name=secarea_t visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+text(band=header alignment="2" text="Prune" border="0" color="33554432" x="672" y="400" height="64" width="206" html.valueishtml="0"  name=prun_style_t visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+text(band=header alignment="1" text="Wages" border="0" color="33554432" x="1285" y="400" height="64" width="347" html.valueishtml="0"  name=wages_t visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+text(band=header alignment="1" text="<- - - - - - - - - - - - - - - - Direct Costs - - - - - - - - - - - - - - - ->" border="0" color="33554432" x="1285" y="332" height="64" width="1435" html.valueishtml="0"  name=t_6 visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+text(band=header alignment="1" text="Stores" border="0" color="33554432" x="1650" y="400" height="64" width="347" html.valueishtml="0"  name=stores_t visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+text(band=header alignment="1" text="Unallocated" border="0" color="33554432" x="2011" y="400" height="64" width="347" html.valueishtml="0"  name=unallocated_t visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+text(band=header alignment="1" text="Total" border="0" color="33554432" x="2373" y="400" height="64" width="347" html.valueishtml="0"  name=total_unallocated_t visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+text(band=header alignment="1" text="IndirectCost   " border="0" color="33554432" x="2738" y="332" height="128" width="347" html.valueishtml="0"  name=indirect_t visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+text(band=header alignment="1" text="TotalCost " border="0" color="33554432" x="3104" y="332" height="128" width="347" html.valueishtml="0"  name=tot_cost_t visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+compute(band=header alignment="0" expression=" 'Section Wise Cost & Yield For The Period - '+ ra_frdt +' To '+ ra_todt"border="0" color="33554432" x="622" y="20" height="72" width="2245" format="[GENERAL]" html.valueishtml="0"  name=compute_2 visible="1"  font.face="Times New Roman" font.height="-11" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="2" background.color="1073741824" )
+text(band=header alignment="2" text="" border="0" color="33554432" x="759" y="104" height="156" width="1961" html.valueishtml="0"  name=t_gnm visible="1"  hidesnaked=1  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912"  height.autosize=yes)
+line(band=header x1="14" y1="472" x2="3470" y2="472"  name=l_1 visible="1" pen.style="0" pen.width="5" pen.color="33554432"  background.mode="2" background.color="1073741824" )
+compute(band=header alignment="1" expression="today()"border="0" color="33554432" x="3141" y="12" height="84" width="329" format="dd/mm/yyyy" html.valueishtml="0"  name=date_1 visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+column(band=header id=4 alignment="1" tabsequence=32766 border="0" color="33554432" x="361" y="256" height="64" width="347" format="#,##0.00" html.valueishtml="0"  name=yieldphec visible="0" edit.limit=0 edit.case=any edit.focusrectangle=no edit.autoselect=no  font.face="Times New Roman" font.height="-9" font.weight="400"  font.family="2" font.pitch="2" font.charset="0" background.mode="2" background.color="1073741824" )
+text(band=header alignment="2" text="Yield/Hectare" border="0" color="33554432" x="1024" y="332" height="132" width="238" html.valueishtml="0"  name=yield_phec_t visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+column(band=detail id=1 alignment="0" tabsequence=32766 border="0" color="33554432" x="23" y="4" height="64" width="407" format="[general]" html.valueishtml="0"  name=sectionname visible="1" edit.limit=0 edit.case=any edit.focusrectangle=no edit.autoselect=no  font.face="Times New Roman" font.height="-9" font.weight="400"  font.family="2" font.pitch="2" font.charset="0" background.mode="2" background.color="1073741824" )
+column(band=detail id=2 alignment="1" tabsequence=32766 border="0" color="33554432" x="448" y="4" height="64" width="197" format="#,##0.00" html.valueishtml="0"  name=secarea visible="1" edit.limit=0 edit.case=any edit.focusrectangle=no edit.autoselect=no  font.face="Times New Roman" font.height="-9" font.weight="400"  font.family="2" font.pitch="2" font.charset="0" background.mode="2" background.color="1073741824" )
+compute(band=detail alignment="1" expression="if(isnull(total_unallocated),0,total_unallocated) + if(isnull(indirect),0,indirect) "border="0" color="33554432" x="3104" y="4" height="64" width="347" format="#,##0.00" html.valueishtml="0"  name=tot_cost visible="1"  font.face="Times New Roman" font.height="-9" font.weight="400"  font.family="1" font.pitch="2" font.charset="0" background.mode="2" background.color="1073741824" )
+column(band=detail id=8 alignment="1" tabsequence=32766 border="0" color="33554432" x="2738" y="4" height="64" width="347" format="#,###" html.valueishtml="0"  name=indirect visible="1" edit.limit=0 edit.case=any edit.focusrectangle=no edit.autoselect=no  font.face="Times New Roman" font.height="-9" font.weight="400"  font.family="2" font.pitch="2" font.charset="0" background.mode="2" background.color="1073741824" )
+compute(band=detail alignment="1" expression=" if(isnull(wages),0,wages) +   if(isnull(stores),0,stores) + if(isnull(unallocated),0,unallocated)"border="0" color="33554432" x="2373" y="4" height="64" width="347" format="#,##0.00" html.valueishtml="0"  name=total_unallocated visible="1"  font.face="Times New Roman" font.height="-9" font.weight="400"  font.family="1" font.pitch="2" font.charset="0" background.mode="2" background.color="1073741824" )
+column(band=detail id=5 alignment="1" tabsequence=32766 border="0" color="33554432" x="1285" y="4" height="64" width="347" format="#,###" html.valueishtml="0"  name=wages visible="1" edit.limit=0 edit.case=any edit.focusrectangle=no edit.autoselect=no  font.face="Times New Roman" font.height="-9" font.weight="400"  font.family="2" font.pitch="2" font.charset="0" background.mode="2" background.color="1073741824" )
+column(band=detail id=6 alignment="1" tabsequence=32766 border="0" color="33554432" x="1650" y="4" height="64" width="347" format="#,###" html.valueishtml="0"  name=stores visible="1" edit.limit=0 edit.case=any edit.focusrectangle=no edit.autoselect=no  font.face="Times New Roman" font.height="-9" font.weight="400"  font.family="2" font.pitch="2" font.charset="0" background.mode="2" background.color="1073741824" )
+column(band=detail id=7 alignment="1" tabsequence=32766 border="0" color="33554432" x="2011" y="4" height="64" width="347" format="#,###" html.valueishtml="0"  name=unallocated visible="1" edit.limit=0 edit.case=any edit.focusrectangle=no edit.autoselect=no  font.face="Times New Roman" font.height="-9" font.weight="400"  font.family="2" font.pitch="2" font.charset="0" background.mode="2" background.color="1073741824" )
+column(band=detail id=3 alignment="0" tabsequence=32766 border="0" color="33554432" x="672" y="4" height="64" width="146" format="[general]" html.valueishtml="0"  name=prun_style visible="1" edit.limit=0 edit.case=any edit.focusrectangle=no edit.autoselect=no  font.face="Times New Roman" font.height="-9" font.weight="400"  font.family="2" font.pitch="2" font.charset="0" background.mode="2" background.color="1073741824" )
+compute(band=detail alignment="1" expression=" yieldphec / secarea "border="0" color="33554432" x="914" y="4" height="64" width="347" format="#,##0.00" html.valueishtml="0"  name=yield_phec visible="1"  font.face="Times New Roman" font.height="-9" font.weight="400"  font.family="1" font.pitch="2" font.charset="0" background.mode="2" background.color="1073741824" )
+compute(band=summary alignment="1" expression="sum(if(isnull(total_unallocated),0,total_unallocated) + if(isnull(indirect),0,indirect)  for all)"border="0" color="33554432" x="3104" y="16" height="64" width="347" format="#,###" html.valueishtml="0"  name=compute_3 visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="2" background.color="1073741824" )
+compute(band=summary alignment="1" expression="sum(indirect for all)"border="0" color="33554432" x="2738" y="16" height="64" width="347" format="#,###" html.valueishtml="0"  name=compute_4 visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="2" background.color="1073741824" )
+line(band=summary x1="14" y1="0" x2="3470" y2="0"  name=l_2 visible="1" pen.style="0" pen.width="5" pen.color="33554432"  background.mode="2" background.color="1073741824" )
+text(band=summary alignment="1" text="Total :" border="0" color="33554432" x="1038" y="16" height="64" width="215" html.valueishtml="0"  name=t_12 visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="2" background.color="1073741824" )
+line(band=summary x1="14" y1="92" x2="3470" y2="92"  name=l_3 visible="1" pen.style="0" pen.width="5" pen.color="33554432"  background.mode="2" background.color="1073741824" )
+compute(band=summary alignment="1" expression="sum( if(isnull(wages),0,wages) +   if(isnull(stores),0,stores) + if(isnull(unallocated),0,unallocated) for all)"border="0" color="33554432" x="2373" y="16" height="64" width="347" format="#,###" html.valueishtml="0"  name=compute_5 visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="2" background.color="1073741824" )
+compute(band=summary alignment="1" expression="sum(unallocated for all)"border="0" color="33554432" x="2011" y="16" height="64" width="347" format="#,###" html.valueishtml="0"  name=compute_8 visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="2" background.color="1073741824" )
+compute(band=summary alignment="1" expression="sum(stores for all)"border="0" color="33554432" x="1650" y="16" height="64" width="347" format="#,###" html.valueishtml="0"  name=compute_7 visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="2" background.color="1073741824" )
+compute(band=summary alignment="1" expression="sum(wages for all)"border="0" color="33554432" x="1285" y="16" height="64" width="347" format="#,###" html.valueishtml="0"  name=compute_6 visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="2" background.color="1073741824" )
+compute(band=footer alignment="2" expression="'Page ' + page() + ' of ' + pageCount()"border="0" color="33554432" x="1353" y="4" height="64" width="782" format="[general]" html.valueishtml="0"  name=page_1 visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="2" background.color="1073741824" )
+text(band=footer alignment="1" text="Cost && Yield" border="0" color="33554432" x="2775" y="4" height="64" width="695" html.valueishtml="0"  name=t_9 visible="1"  font.face="Times New Roman" font.height="-9" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="1" background.color="536870912" )
+htmltable(border="1" )
+htmlgen(clientevents="1" clientvalidation="1" clientcomputedfields="1" clientformatting="0" clientscriptable="0" generatejavascript="1" encodeselflinkargs="1" netscapelayers="0" pagingmethod=0 generatedddwframes="1" )
+xhtmlgen() cssgen(sessionspecific="0" )
+xmlgen(inline="0" )
+xsltgen()
+jsgen()
+export.xml(headgroups="1" includewhitespace="0" metadatatype=0 savemetadata=0 )
+import.xml()
+export.pdf(method=0 distill.custompostscript="0" xslfop.print="0" )
+export.xhtml()
+ 

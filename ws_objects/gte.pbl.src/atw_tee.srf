@@ -1,0 +1,32 @@
+﻿$PBExportHeader$atw_tee.srf
+global type atw_tee from function_object
+end type
+
+forward prototypes
+global function string atw_tee (long anyvalue)
+end prototypes
+
+global function string atw_tee (long anyvalue);CHOOSE CASE anyvalue
+	CASE 1
+		return ""
+	CASE 2
+		return "Twenty"
+	CASE 3
+		return "Thirty"
+	CASE 4
+		return "Fourty"
+	CASE 5
+		return "Fifty"
+	CASE 6
+		return "Sixty"
+	CASE 7
+		return "Seventy"
+	CASE 8
+		return "Eighty"
+	CASE 9
+		return "Ninety"
+END CHOOSE
+
+
+end function
+

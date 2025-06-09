@@ -1,0 +1,25 @@
+﻿$PBExportHeader$f_acess_log.srf
+global type f_acess_log from function_object
+end type
+
+forward prototypes
+global function integer f_acess_log (string fl_emp_cd, string fs_apps, string fs_logon_logoff)
+end prototypes
+
+global function integer f_acess_log (string fl_emp_cd, string fs_apps, string fs_logon_logoff);
+string gs_client_ip
+
+insert into fb_user_access_log (AL_user_id,AL_DATE,AL_IP_ADDRESS,AL_APPLICATION,AL_HOST,AL_LOGON_LOGOFF)
+select :fl_emp_cd,sysdate,sys_context('USERENV', 'IP_ADDRESS'),:fs_apps,sys_context('USERENV', 'OS_USER'),:fs_LOGON_LOGOFF from dual;
+
+if sqlca.sqlcode  = -1 then
+	messagebox('SQL ERROR: During Access Log Insert',sqlca.sqlerrtext)
+	return -1
+end if;
+
+commit using sqlca;
+
+return 1
+
+end function
+
