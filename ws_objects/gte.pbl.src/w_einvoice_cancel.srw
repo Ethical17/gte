@@ -84,7 +84,7 @@ end if
 
 
 update fb_dailyteapacked set DTP_DISPIND =  null where dtp_id in (select dtp_id from fb_dtpdetails where dtpd_id in 
-(select dtpd_id from fb_sidetails where si_id in (select si_id from fb_saleinvoice where SI_TAXINVNO =:fs_invoiceno))); 
+(select dtpd_id from fb_sidetails where si_id in (select si_id from fb_saleinvoice where nvl(SI_TAXINVNO,SI_DELVCHNO) =:fs_invoiceno))); 
 if sqlca.sqlcode = -1 then
 	messagebox('Error : While Updateing Daily Tea Packed status',sqlca.sqlerrtext)	
 	return false
