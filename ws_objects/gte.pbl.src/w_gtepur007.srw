@@ -33,7 +33,7 @@ end type
 end forward
 
 global type w_gtepur007 from window
-integer width = 3749
+integer width = 4128
 integer height = 2216
 boolean titlebar = true
 string title = "(W_gtepur007) Supplier wise O/S Material"
@@ -183,10 +183,10 @@ setpointer(hourglass!)
 dw_1.GetChild ("eacsubhead_id", idw_subexp)
 idw_subexp.settransobject(sqlca)	
 dp_1.visible=false;
-dp_2.visible=false;
+dp_2.visible=true;
 
 st_1.visible=false;
-st_2.visible=false;
+st_2.visible=true;
 
 
 end event
@@ -238,33 +238,16 @@ boolean checked = true
 end type
 
 event clicked;dp_1.visible=false;
-dp_2.visible=false;
+dp_2.visible=true;
 
 st_1.visible=false;
-st_2.visible=false;
+st_2.visible=true;
 end event
 
 type rb_1 from radiobutton within w_gtepur007
 integer x = 55
 integer y = 44
-integer width = 425
-integer height = 76
-integer textsize = -9
-integer weight = 700
-fontcharset fontcharset = ansi!
-fontpitch fontpitch = variable!
-fontfamily fontfamily = roman!
-string facename = "Times New Roman"
-long textcolor = 33554432
-long backcolor = 67108864
-string text = "Supplier Wise"
-boolean checked = true
-end type
-
-type rb_2 from radiobutton within w_gtepur007
-integer x = 521
-integer y = 44
-integer width = 361
+integer width = 343
 integer height = 76
 integer textsize = -9
 integer weight = 700
@@ -275,6 +258,23 @@ string facename = "Times New Roman"
 long textcolor = 33554432
 long backcolor = 67108864
 string text = "Item Wise"
+boolean checked = true
+end type
+
+type rb_2 from radiobutton within w_gtepur007
+integer x = 462
+integer y = 44
+integer width = 439
+integer height = 76
+integer textsize = -9
+integer weight = 700
+fontcharset fontcharset = ansi!
+fontpitch fontpitch = variable!
+fontfamily fontfamily = roman!
+string facename = "Times New Roman"
+long textcolor = 33554432
+long backcolor = 67108864
+string text = "Supplier Wise"
 end type
 
 type dp_2 from datepicker within w_gtepur007
@@ -287,7 +287,7 @@ boolean border = true
 string customformat = "dd/mm/yyyy"
 date maxdate = Date("2998-12-31")
 date mindate = Date("1800-01-01")
-datetime value = DateTime(Date("2024-08-26"), Time("08:13:10.000000"))
+datetime value = DateTime(Date("2025-06-18"), Time("10:51:23.000000"))
 integer textsize = -9
 fontcharset fontcharset = ansi!
 fontpitch fontpitch = variable!
@@ -308,7 +308,7 @@ boolean border = true
 string customformat = "dd/mm/yyyy"
 date maxdate = Date("2998-12-31")
 date mindate = Date("1800-01-01")
-datetime value = DateTime(Date("2024-08-26"), Time("08:13:10.000000"))
+datetime value = DateTime(Date("2025-06-18"), Time("10:51:23.000000"))
 integer textsize = -9
 fontcharset fontcharset = ansi!
 fontpitch fontpitch = variable!
@@ -387,9 +387,11 @@ if Date(dp_2.text) > date(string(today(),'dd/mm/yyyy'))  then
 	return 1
 end if
 
-if Date(dp_1.text) > Date(dp_2.text) then
-	messagebox('Alert!','From Date Should Be <= Than To Date !!!')
-	return 1
+if rb_4.checked then
+	if Date(dp_1.text) > Date(dp_2.text) then
+		messagebox('Alert!','From Date Should Be <= Than To Date !!!')
+		return 1
+	end if
 end if
 
 ls_frym =dp_1.text
@@ -476,11 +478,13 @@ event ue_keydwn pbm_keydown
 event ue_leftbuttonup pbm_dwnlbuttonup
 integer x = 27
 integer y = 168
-integer width = 3671
+integer width = 4050
 integer height = 1936
 integer taborder = 60
 string dataobject = "dw_gtepur007"
+boolean hscrollbar = true
 boolean vscrollbar = true
+boolean resizable = true
 end type
 
 event ue_leftbuttonup;if isvalid(iu_powerfilter) then
