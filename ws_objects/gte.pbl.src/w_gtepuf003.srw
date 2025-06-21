@@ -443,7 +443,7 @@ IF MessageBox("Save  Alert", 'Do You Want To Save ....?' ,Exclamation!, YesNo!, 
 				
 				ls_type=dw_1.getitemstring(ll_ctr,'sup_type')
 				
-				if ls_type <>'GLS' then
+				if ls_type <>'GLS' and gs_garden_snm<>'KG' then
 					messagebox('Error ..!',' Other than Green Leaf Cannot be Entered By garden')
 					return;
 				end if
