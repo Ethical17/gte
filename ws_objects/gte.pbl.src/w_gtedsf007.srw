@@ -645,19 +645,7 @@ IF MessageBox("Save  Alert", 'Do You Want To Save ....?' ,Exclamation!, YesNo!, 
 	ls_adv = dw_1.getitemstring(dw_1.getrow(),'advice_id')
 	ls_waybill = dw_1.getitemstring(dw_1.getrow(),'si_waybillno')
 	ld_invdt = dw_1.getitemdatetime(dw_1.getrow(),'si_date')
-	ls_cnno = dw_1.getitemstring(dw_1.getrow(),'si_cn')
 	
-	
-	 select distinct SI_ID into :ls_temp from fb_saleinvoice where si_date between to_date('01/01/'||to_char(:ld_invdt,'YYYY'),'dd/mm/yyyy') and to_date('31/12/'||to_char(:ld_invdt,'YYYY'),'dd/mm/yyyy') and si_cn = :ls_cnno;
-         if sqlca.sqlcode = -1 then
-                  messagebox('Error : While Checking Duplicate CN NO.',sqlca.sqlerrtext)
-                  rollback using sqlca;
-                  return 1
-         elseif sqlca.sqlcode = 0 then
-                  messagebox('Warning !!!','Duplicate CN No Exists In Sale ID '+ls_temp)
-                  rollback using sqlca;
-                  return 1
-         end if     
 	
 //	if not isnull(ll_waybill) or ll_waybill > 0 then
 //		update fb_waybilldetail set WBD_CNNO = :ls_cnno, WBD_DATE = trunc(:ld_invdt)	where WBD_WAYBILLNO = :ll_waybill;
@@ -764,6 +752,21 @@ IF MessageBox("Save  Alert", 'Do You Want To Save ....?' ,Exclamation!, YesNo!, 
 		
 		if isnull(ls_iss_gstn) then ls_iss_gstn = 'X';
 		if isnull(ls_rec_gstn) then ls_rec_gstn = 'X';
+		
+		
+		ls_cnno = dw_1.getitemstring(dw_1.getrow(),'si_cn')
+	
+	
+	 select distinct SI_ID into :ls_temp from fb_saleinvoice where si_date between to_date('01/01/'||to_char(:ld_invdt,'YYYY'),'dd/mm/yyyy') and to_date('31/12/'||to_char(:ld_invdt,'YYYY'),'dd/mm/yyyy') and si_cn = :ls_cnno;
+         if sqlca.sqlcode = -1 then
+                  messagebox('Error : While Checking Duplicate CN NO.',sqlca.sqlerrtext)
+                  rollback using sqlca;
+                  return 1
+         elseif sqlca.sqlcode = 0 then
+                  messagebox('Warning !!!','Duplicate CN No Exists In Sale ID '+ls_temp)
+                  rollback using sqlca;
+                  return 1
+         end if     
 		
 //======
 		if ls_iss_gstn <> ls_rec_gstn then		
