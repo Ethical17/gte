@@ -1422,6 +1422,7 @@ if dw_1.rowcount() = 0 then
 	
 	dw_1.setitem(dw_1.getrow(),'vh_entry_by',gs_user)
 	dw_1.setitem(dw_1.getrow(),'vh_entry_dt',datetime(today()))
+	dw_1.setitem(dw_1.getrow(),'vh_vou_date',datetime(today()))
 	//dw_1.setitem(dw_1.getrow(),'vh_ac_year',long(string(datetime(today()),'yyyymm')))
 	dw_1.setitem(dw_1.getrow(),'VH_CO_ID',gs_CO_ID)
 	
@@ -1659,7 +1660,7 @@ if dwo.name = 'vh_vou_type'  then
 			messagebox('Warning!','Voucher Type Should Be Cash Payment/ Cash Receipt, Please Check !!!')
 			return 1
 		end if
-		
+
 		if dw_2.rowcount( )>0 then
 			for  ll_ctr = dw_2.rowcount() to 1 step -1
 				dw_2.setitem(ll_ctr ,'vd_amount',0)
@@ -1802,6 +1803,9 @@ if dwo.name = 'appr_flag'  then
 				setnull(ls_temp)
 				dw_1.setitem(row,'vh_approved_by',ls_temp)
 				dw_1.setitem(row,'vh_approved_dt',datetime(ls_temp)) 
+				if gs_opt = 'CV'  then
+					dw_1.setitem(row,'vh_vou_date',datetime(ls_temp)) 
+				end if
 				
 				dw_2.settaborder('vd_functions',0)	
 				dw_2.settaborder('vd_business_segment',0)	
@@ -1844,12 +1848,19 @@ if dwo.name = 'appr_flag'  then
 			  
 		   dw_1.setitem(row,'vh_approved_by',gs_user)
 		   dw_1.setitem(row,'vh_approved_dt',datetime(today())) 
+			if gs_opt = 'CV'  then
+				dw_1.setitem(row,'vh_vou_date',datetime(today())) 
+			end if
+			
 		end if
 
 	elseif ls_tmp_id = 'N' then		
 		setnull(ls_temp)		
 		dw_1.setitem(row,'vh_approved_by',ls_temp)
 		dw_1.setitem(row,'vh_approved_dt',datetime(ls_temp)) 
+		if gs_opt = 'CV'  then
+			dw_1.setitem(row,'vh_vou_date',datetime(ls_temp)) 
+		end if
 		
 		dw_2.settaborder('vd_functions',0)	
 		dw_2.settaborder('vd_business_segment',0)	
