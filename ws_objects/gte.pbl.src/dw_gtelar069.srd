@@ -1,6 +1,6 @@
 ﻿$PBExportHeader$dw_gtelar069.srd
-release 19;
-datawindow(units=0 timer_interval=0 color=1073741824 brushmode=0 transparency=0 gradient.angle=0 gradient.color=8421504 gradient.focus=0 gradient.repetition.count=0 gradient.repetition.length=100 gradient.repetition.mode=0 gradient.scale=100 gradient.spread=100 gradient.transparency=0 picture.blur=0 picture.clip.bottom=0 picture.clip.left=0 picture.clip.right=0 picture.clip.top=0 picture.mode=0 picture.scale.x=100 picture.scale.y=100 picture.transparency=0 processing=0 HTMLDW=no print.printername="" print.documentname="" print.orientation = 0 print.margin.left = 50 print.margin.right = 50 print.margin.top = 96 print.margin.bottom = 96 print.paper.source = 0 print.paper.size = 0 print.canusedefaultprinter=yes print.prompt=no print.buttons=no print.preview.buttons=no print.cliptext=no print.overrideprintjob=no print.collate=yes print.background=no print.preview.background=no print.preview.outline=yes hidegrayline=no showbackcoloronxp=no picture.file="" )
+release 22;
+datawindow(units=0 data.export.format=1 timer_interval=0 color=1073741824 brushmode=0 transparency=0 gradient.angle=0 gradient.color=8421504 gradient.focus=0 gradient.repetition.count=0 gradient.repetition.length=100 gradient.repetition.mode=0 gradient.scale=100 gradient.spread=100 gradient.transparency=0 picture.blur=0 picture.clip.bottom=0 picture.clip.left=0 picture.clip.right=0 picture.clip.top=0 picture.mode=0 picture.scale.x=100 picture.scale.y=100 picture.transparency=0 processing=0 HTMLDW=no print.printername="" print.documentname="" print.orientation = 0 print.margin.left = 50 print.margin.right = 50 print.margin.top = 96 print.margin.bottom = 96 print.paper.source = 0 print.paper.size = 0 print.canusedefaultprinter=yes print.prompt=no print.buttons=no print.preview.buttons=no print.cliptext=no print.overrideprintjob=no print.collate=yes print.background=no print.preview.background=no print.preview.outline=yes hidegrayline=no showbackcoloronxp=no picture.file="" )
 header(height=320 color="536870912" transparency="0" gradient.color="8421504" gradient.transparency="0" gradient.angle="0" brushmode="0" gradient.repetition.mode="0" gradient.repetition.count="0" gradient.repetition.length="100" gradient.focus="0" gradient.scale="100" gradient.spread="100" )
 summary(height=72 color="536870912" transparency="0" gradient.color="8421504" gradient.transparency="0" gradient.angle="0" brushmode="0" gradient.repetition.mode="0" gradient.repetition.count="0" gradient.repetition.length="100" gradient.focus="0" gradient.scale="100" gradient.spread="100" )
 footer(height=76 color="536870912" transparency="0" gradient.color="8421504" gradient.transparency="0" gradient.angle="0" brushmode="0" gradient.repetition.mode="0" gradient.repetition.count="0" gradient.repetition.length="100" gradient.focus="0" gradient.scale="100" gradient.spread="100" )
@@ -8,7 +8,7 @@ detail(height=56 color="536870912" transparency="0" gradient.color="8421504" gra
 table(column=(type=char(25) updatewhereclause=yes name=fb_field_field_id dbname="field_id" )
  column=(type=char(30) updatewhereclause=yes name=divisionname dbname="divisionname" )
  column=(type=char(25) updatewhereclause=yes name=labourid dbname="labourid" )
- column=(type=char(30) updatewhereclause=yes name=employeename dbname="employeename" )
+ column=(type=char(50) updatewhereclause=yes name=employeename dbname="employeename" )
  column=(type=char(10) updatewhereclause=yes name=pfno dbname="pfno" )
  column=(type=char(30) updatewhereclause=yes name=fb_kamsubhead_kamjari dbname="kamjari" )
  column=(type=number updatewhereclause=yes name=totalquantity dbname="totalquantity" )
@@ -29,7 +29,7 @@ table(column=(type=char(25) updatewhereclause=yes name=fb_field_field_id dbname=
         pfno,  kamjari, sum(totalquantity) totalquantity,
        sum(wages) wages,sum(elp) elp ,sum(nvl(Tot_wage,0)) Tot_wage ,
        KAMSUB_TYPE,  kamjariid, EACSUBHEAD_NAME,
-        sum(elpqty) elpqty,sum(LMA_NTWT1)wt1,sum(LMA_NTWT2)WT2,sum(LMA_NTWT3)WT3,count(lma_date ) NO_OF_DAYS_PLUCKED,
+        sum(elpqty) elpqty,sum(LMA_NTWT1)wt1,sum(LMA_NTWT2)WT2,sum(LMA_NTWT3)WT3,to_date(:ra_todt,'dd/mm/yyyy')-to_date(:ra_frdt,'dd/mm/yyyy') + 1 NO_OF_DAYS_PLUCKED,
        to_char(to_date(:ra_frdt,'dd/mm/yyyy'),'dd-MON-yyyy') FROM_dt, to_char(to_date(:ra_todt,'dd/mm/yyyy'),'dd-MON-yyyy') TO_dt
 from (
 select a.lda_Date,d.FIELD_ID,d.FIELD_NAME divisionname, c.EMP_ID labourid, c.EMP_NAME employeename, 
@@ -130,6 +130,6 @@ xsltgen()
 jsgen()
 export.xml(headgroups="1" includewhitespace="0" metadatatype=0 savemetadata=0 )
 import.xml()
-export.pdf(method=0 distill.custompostscript="0" xslfop.print="0" nativepdf.customsize=0 nativepdf.customorientation=0 nativepdf.pdfstandard=0 nativepdf.useprintspec=no )
+export.pdf(method=0 distill.custompostscript="0" nativepdf.customsize=0 nativepdf.customorientation=0 nativepdf.pdfstandard=0 nativepdf.useprintspec=no )
 export.xhtml()
  
