@@ -8,13 +8,13 @@ detail(height=72 color="536870912" transparency="0" gradient.color="8421504" gra
 table(column=(type=char(19) updatewhereclause=yes name=si_type dbname="si_type" )
  column=(type=char(50) updatewhereclause=yes name=city_name dbname="city_name" )
  column=(type=char(25) updatewhereclause=yes name=cityid dbname="fb_teamadeproduct.cityid" dbalias=".cityid" )
- column=(type=char(50) updatewhereclause=yes name=cust_name dbname="cust_name" )
+ column=(type=char(250) updatewhereclause=yes name=cust_name dbname="cust_name" )
  column=(type=number updatewhereclause=yes name=invoiceweight dbname="invoiceweight" )
  retrieve="SELECT decode(b.SI_TYPE,'AUCTION','Auction','PRICONS','Private Consignment','PRILOCAL','Private Local',
 				 				  'TRANSFREE','Transfer Free','TRANSPRI','Transfer Private','TRANSBROK','Transfer Broker') SI_TYPE,
 				initcap(d.CITY_NAME) CITY_NAME, b.CITYID,initcap(decode(b.SI_TYPE,'AUCTION',BROK_NAME,b.CUS_NAME)) cust_name,
-				sum(nvl(b.SID_NOBAGS,0) * nvl(b.SID_INDWT,0)) invoiceweight 	 
- FROM   (SELECT SI.SI_ID SI_ID,SI_TYPE,SI.SI_DATE SI_DATE,SI.SI_CONFIRMFLAG SI_CONFIRMFLAG,
+				sum(decode(invtype,'Invoice',(nvl(b.SID_NOBAGS,0) * nvl(b.SID_INDWT,0)),-(nvl(b.SID_NOBAGS,0) * nvl(b.SID_INDWT,0)))) invoiceweight                 	 
+ FROM   (SELECT 'Invoice'invtype,SI.SI_ID SI_ID,SI_TYPE,SI.SI_DATE SI_DATE,SI.SI_CONFIRMFLAG SI_CONFIRMFLAG,
 					TMP.TMP_ID TMP_ID,DTP.DTP_LOTNO SID_LOTNO,
 					(SID.SID_SRNOEND-SID.SID_SRNOSTART+1) SID_NOBAGS,SID.SID_SRNOSTART,SID.SID_SRNOEND,
 					DTPD.DTPD_INDWT SID_INDWT,DTPD.DTPD_CHESTWT SID_CHESTWT,NULL COMM_ID,
@@ -27,7 +27,7 @@ table(column=(type=char(19) updatewhereclause=yes name=si_type dbname="si_type" 
 				    			si.SI_CONFIRMFLAG = '1' AND trunc(si.SI_DATE) between to_date(:ra_frdt,'dd/mm/yyyy') and to_date(:ra_todt,'dd/mm/yyyy')
                                 and not exists (select * from FB_DAILYTEAPACKED_new DTPNEW,FB_DTPDETAILS_new DTPDNEW where DTPNEW.DTP_ID=DTPDNEW.DTP_ID and DTPDNEW.DTPD_ID=DTPD.DTPD_ID)
 union all
-SELECT SI.SI_ID SI_ID,SI_TYPE,SI.SI_DATE SI_DATE,SI.SI_CONFIRMFLAG SI_CONFIRMFLAG,
+SELECT 'Invoice'invtype,SI.SI_ID SI_ID,SI_TYPE,SI.SI_DATE SI_DATE,SI.SI_CONFIRMFLAG SI_CONFIRMFLAG,
 					TMP.TMP_ID TMP_ID,DTP.DTP_LOTNO SID_LOTNO,
 					(SID.SID_SRNOEND-SID.SID_SRNOSTART+1) SID_NOBAGS,SID.SID_SRNOSTART,SID.SID_SRNOEND,
 					DTPD.DTPD_INDWT SID_INDWT,DTPD.DTPD_CHESTWT SID_CHESTWT,NULL COMM_ID,
@@ -37,7 +37,22 @@ SELECT SI.SI_ID SI_ID,SI_TYPE,SI.SI_DATE SI_DATE,SI.SI_CONFIRMFLAG SI_CONFIRMFLA
 						 FB_CUSTOMER CUS,(select brok_id,BROK_NAME,BROK_TELEPHONE,BROK_ADD from fb_broker union all select sup_id ,SUP_name ,SUP_TELEPHONE,SUP_ADD from fb_supplier where SUP_VENDOR_TYPE='BRO') BR,(select WARE_ID,WARE_NAME,WARE_ADD,city_id from fb_warehouse union all select sup_id,sup_name,sup_add,SUP_CITY from fb_supplier where SUP_VENDOR_TYPE='WAR') wr
 				WHERE SI.SI_ID=SID.SI_ID AND DTPD.DTPD_ID=SID.DTPD_ID AND DTP.DTP_ID=DTPD.DTP_ID AND  DTPD.TMP_ID=TMP.TMP_ID and 
 						   si.CUS_ID=CUS.CUS_ID(+) AND  si.brok_id=br.brok_id(+) and si.ware_id=wr.ware_id(+) and
-				    			si.SI_CONFIRMFLAG = '1' AND trunc(si.SI_DATE) between to_date(:ra_frdt,'dd/mm/yyyy') and to_date(:ra_todt,'dd/mm/yyyy')) b, 
+				    			si.SI_CONFIRMFLAG = '1' AND trunc(si.SI_DATE) between to_date(:ra_frdt,'dd/mm/yyyy') and to_date(:ra_todt,'dd/mm/yyyy')
+union all
+SELECT 'Credit'invtype,cnh_ID SI_ID,cnh_TYPE,crh.cnh_DATE SI_DATE,crh.cnh_CONFIRMFLAG SI_CONFIRMFLAG,
+					TMP.TMP_ID TMP_ID,DTP.DTP_LOTNO SID_LOTNO,
+					-(crd.cnd_SRNOEND-crd.cnd_SRNOSTART+1) SID_NOBAGS,-crd.cnd_SRNOSTART,-crd.cnd_SRNOEND,
+					-DTPD.DTPD_INDWT SID_INDWT,-DTPD.DTPD_CHESTWT SID_CHESTWT,NULL COMM_ID,
+					CUS.CUS_ID,CUS.CUS_NAME,decode(cnh_TYPE,'AUCTION',wr.city_id,CUS.CITY_ID) CITYID,Br.BROK_ID,Br.BROK_NAME,
+					Br.BROK_ADD,WR.WARE_ID,WR.WARE_NAME,WR.WARE_ADD,CUS.CUS_ADD CUSCOMM_ADD
+                 FROM fb_creditnote_hdr crh,fb_creditnote_det crd,FB_DAILYTEAPACKED DTP,FB_DTPDETAILS DTPD,
+                    FB_TEAMADEPRODUCT TMP,FB_CUSTOMER CUS,
+                      (SELECT BROK_ID,BROK_NAME,BROK_ADD FROM FB_BROKER where nvl(BROK_ACTIVE,'0') = '1' union all select sup_id ,SUP_name ,SUP_ADD from fb_supplier where SUP_VENDOR_TYPE='BRO') BR,
+                    (select WARE_ID,WARE_NAME,WARE_ADD,city_id from fb_warehouse union all select sup_id,sup_name,sup_add,SUP_CITY from fb_supplier where SUP_VENDOR_TYPE='WAR') wr
+                WHERE crh.CNH_ID=crd.CND_ID AND DTPD.DTPD_ID=crd.DTPD_ID AND DTP.DTP_ID=DTPD.DTP_ID AND 
+                    DTPD.TMP_ID=TMP.TMP_ID and crh.CUS_ID=CUS.CUS_ID(+) AND crh.brok_id=br.brok_id(+) and crh.ware_id=wr.ware_id(+) and
+                    crh.cnh_CONFIRMFLAG = '1' AND trunc(crh.CNH_DATE) between to_date(:ra_frdt,'dd/mm/yyyy') and to_date(:ra_todt,'dd/mm/yyyy')
+                                ) b, 
 			FB_TEAMADEPRODUCT c,FB_CITY d
 WHERE  b.TMP_ID = c.TMP_ID(+) and b.cityid = d.CITY_ID(+)
 group by decode(b.SI_TYPE,'AUCTION','Auction','PRICONS','Private Consignment','PRILOCAL','Private Local',

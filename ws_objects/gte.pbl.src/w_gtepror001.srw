@@ -209,18 +209,28 @@ ls_text = "CREATE OR REPLACE VIEW FBVW_DMR (PARTICULARS, GTTYPE, NAME, PLUCKINGD
 +"  GROUP BY (tpc.tpc_manid, dtp.dtp_date) "&
 +"  HAVING NVL (SUM (  (dtpd.dtpd_srnoend - dtpd.dtpd_srnostart + 1) * dtpd.dtpd_indwt),0) <> 0  "&
 +"  UNION ALL "&
-+"  SELECT   'DESPATCH TEA MADE', 'ALL', tpc.tpc_manid, si.si_date, NVL (SUM (  (SID.sid_srnoend - SID.sid_srnostart + 1) * dtpd.dtpd_indwt ),0 ) "&
-+"  FROM fb_saleinvoice si, fb_sidetails SID, fb_dtpdetails dtpd,fb_teamadeproductcategory tpc, fb_teamadeproduct tmp  "&
-+"  WHERE tpc.tpc_id = tmp.tpc_id AND dtpd.tmp_id = tmp.tmp_id AND SID.dtpd_id = dtpd.dtpd_id AND si.si_id = SID.si_id AND si.si_active = '1' and not exists  (select * from"&
-+"           fb_dtpdetails_new d where  d.DTPD_ID=dtpd.DTPD_ID)   "&
-+"  GROUP BY (tpc.tpc_manid, si.si_date)  "&
-+"  HAVING NVL (SUM ((SID.sid_srnoend - SID.sid_srnostart + 1) * dtpd.dtpd_indwt ), 0) <> 0 "&
-+"  union all"&
-+"  SELECT   'DESPATCH TEA MADE', 'ALL', tpc.tpc_manid, si.si_date, NVL (SUM (  (SID.sid_srnoend - SID.sid_srnostart + 1) * dtpd.dtpd_indwt ),0 ) "&
-+"  FROM fb_saleinvoice si, fb_sidetails SID, fb_dtpdetails_new dtpd,fb_teamadeproductcategory tpc, fb_teamadeproduct tmp  "&
-+"  WHERE tpc.tpc_id = tmp.tpc_id AND dtpd.tmp_id = tmp.tmp_id AND SID.dtpd_id = dtpd.dtpd_id AND si.si_id = SID.si_id AND si.si_active = '1'  "&
-+"  GROUP BY (tpc.tpc_manid, si.si_date)  "&
-+"  HAVING NVL (SUM ((SID.sid_srnoend - SID.sid_srnostart + 1) * dtpd.dtpd_indwt ), 0) <> 0 "&
++ " SELECT   'DESPATCH TEA MADE', 'ALL', tpc.tpc_manid, si.si_date, NVL (SUM (  (SID.sid_srnoend - SID.sid_srnostart + 1) * dtpd.dtpd_indwt ),0 )-(nvl(qty,0)) " & 
++ "  FROM fb_saleinvoice si, fb_sidetails SID, fb_dtpdetails dtpd,fb_teamadeproductcategory tpc, fb_teamadeproduct tmp," & 
++ "         (   select  tpc.tpc_manid ,CNH_DATE,NVL (SUM (  (cnd.cnd_srnoend - cnd.cnd_srnostart + 1) * dtpd.dtpd_indwt ),0 ) qty,SI_TAXINVNO" & 
++ "             from fb_creditnote_det cnd, fb_creditnote_hdr cnh ,fb_dtpdetails dtpd," & 
++ "                  fb_teamadeproductcategory tpc, fb_teamadeproduct tmp" & 
++ "             where cnd.CND_ID=cnh.CNH_ID and cnd.DTPD_ID=dtpd.DTPD_ID and tpc.tpc_id = tmp.tpc_id AND dtpd.tmp_id = tmp.tmp_id" & 
++ "             group by tpc.tpc_manid ,CNH_DATE,SI_TAXINVNO)  crn" & 
++ "  WHERE tpc.tpc_id = tmp.tpc_id AND dtpd.tmp_id = tmp.tmp_id AND SID.dtpd_id = dtpd.dtpd_id AND si.si_id = SID.si_id AND si.si_active = '1' and not exists  (select * from" & 
++ "           fb_dtpdetails_new d where  d.DTPD_ID=dtpd.DTPD_ID)  and (si.SI_TAXINVNO=crn.SI_TAXINVNO(+)) " & 
++ "  GROUP BY (tpc.tpc_manid, si.si_date),  nvl(qty,0)" & 
++ "  HAVING NVL (SUM ((SID.sid_srnoend - SID.sid_srnostart + 1) * dtpd.dtpd_indwt ), 0) -(nvl(qty,0)) <> 0 " & 
++ "  union all" & 
++ "  SELECT   'DESPATCH TEA MADE', 'ALL', tpc.tpc_manid, si.si_date, NVL (SUM (  (SID.sid_srnoend - SID.sid_srnostart + 1) * dtpd.dtpd_indwt ),0 ) -(nvl(qty,0)) " & 
++ "  FROM fb_saleinvoice si, fb_sidetails SID, fb_dtpdetails_new dtpd,fb_teamadeproductcategory tpc, fb_teamadeproduct tmp ," & 
++ "        (   select  tpc.tpc_manid ,CNH_DATE,NVL (SUM (  (cnd.cnd_srnoend - cnd.cnd_srnostart + 1) * dtpd.dtpd_indwt ),0 ) qty,SI_TAXINVNO" & 
++ "           from fb_creditnote_det cnd, fb_creditnote_hdr cnh ,fb_dtpdetails dtpd," & 
++ "                  fb_teamadeproductcategory tpc, fb_teamadeproduct tmp" & 
++ "           where cnd.CND_ID=cnh.CNH_ID and cnd.DTPD_ID=dtpd.DTPD_ID and tpc.tpc_id = tmp.tpc_id AND dtpd.tmp_id = tmp.tmp_id" & 
++ "            group by tpc.tpc_manid ,CNH_DATE,SI_TAXINVNO)  crn" & 
++ "  WHERE tpc.tpc_id = tmp.tpc_id AND dtpd.tmp_id = tmp.tmp_id AND SID.dtpd_id = dtpd.dtpd_id AND si.si_id = SID.si_id AND si.si_active = '1'   and (si.SI_TAXINVNO=crn.SI_TAXINVNO(+))" &  
++ "  GROUP BY (tpc.tpc_manid, si.si_date),  nvl(qty,0)  " & 
++ "  HAVING NVL (SUM ((SID.sid_srnoend - SID.sid_srnostart + 1) * dtpd.dtpd_indwt ), 0)  -(nvl(qty,0)) <> 0" & 
 +"  UNION ALL "&
 +"  SELECT   'UNSORTED', 'ALL', tpc.tpc_manid, pludate, SUM (qty)  "&
 +"  FROM (SELECT ddu.tpc_id tpc_id, ddp.ddp_pluckingdate pludate, NVL (SUM (ddu.ddu_quantity), 0) qty  "&
@@ -255,66 +265,89 @@ ls_text = "CREATE OR REPLACE VIEW FBVW_DMR (PARTICULARS, GTTYPE, NAME, PLUCKINGD
 +"   WHERE (tpc.tpc_id = d1.tpc_id)  "&
 +"  GROUP BY (tpc.tpc_manid, pludate) HAVING SUM (qty) <> 0  "&
 +"  UNION ALL"&
-+"  SELECT 'PACKED BUT AWAITING DESPATCH', 'ALL', tpc.tpc_manid, pludate, SUM (qty)  "&
-+"    FROM (SELECT tmp.tpc_id tpc_id, dtp.dtp_date pludate, NVL(SUM((dtpd.dtpd_srnoend - dtpd.dtpd_srnostart + 1 ) * dtpd.dtpd_indwt ), 0 ) qty  "&
-+"            FROM fb_dailyteapacked dtp, fb_dtpdetails dtpd,fb_teamadeproduct tmp  "&
-+"           WHERE dtp.dtp_id = dtpd.dtp_id AND tmp.tmp_id = dtpd.tmp_id  and  not exists  (select * "&
-+"                             from fb_dailyteapacked_new c,fb_dtpdetails_new d where c.DTP_ID = d.DTP_ID and c.dtp_id=dtp.dtp_id) "&
-+"          GROUP BY (tmp.tpc_id, dtp.dtp_date)  "&
-+"          UNION ALL  "&
-+"  SELECT tmp.tpc_id tpc_id, dtp.dtp_date pludate, NVL(SUM((dtpd.dtpd_srnoend - dtpd.dtpd_srnostart + 1 ) * dtpd.dtpd_indwt ), 0 ) qty  "&
-+"    FROM fb_dailyteapacked_new dtp, fb_dtpdetails_new dtpd,fb_teamadeproduct tmp  "&
-+"   WHERE dtp.dtp_id = dtpd.dtp_id AND tmp.tmp_id = dtpd.tmp_id "&
-+"  GROUP BY (tmp.tpc_id, dtp.dtp_date)  "&
-+"          UNION ALL  "&
-+"          SELECT tmp.tpc_id tpc_id, si.si_date pludate, -NVL (SUM((SID.sid_srnoend - SID.sid_srnostart + 1) * dtpd.dtpd_indwt ),0) qty  "&
-+"          FROM fb_dtpdetails dtpd "&
-+"          LEFT OUTER JOIN fb_sidetails SID ON dtpd.dtpd_id = SID.dtpd_id "&
-+"          LEFT OUTER JOIN fb_saleinvoice si ON SID.si_id = si.si_id,fb_teamadeproduct tmp  "&
-+"          WHERE dtpd.tmp_id = tmp.tmp_id AND si.si_active = '1'  and not exists  (select * from"&
-+"           fb_dtpdetails_new d where  d.DTPD_ID=dtpd.DTPD_ID) "&
-+"          GROUP BY (tmp.tpc_id, si.si_date)"&
-+"          union all"&
-+"          SELECT tmp.tpc_id tpc_id, si.si_date pludate, -NVL (SUM((SID.sid_srnoend - SID.sid_srnostart + 1) * dtpd.dtpd_indwt ),0) qty  "&
-+"          FROM fb_dtpdetails_new dtpd "&
-+"          LEFT OUTER JOIN fb_sidetails SID ON dtpd.dtpd_id = SID.dtpd_id "&
-+"          LEFT OUTER JOIN fb_saleinvoice si ON SID.si_id = si.si_id,fb_teamadeproduct tmp  "&
-+"          WHERE dtpd.tmp_id = tmp.tmp_id AND si.si_active = '1'  "&
-+"          GROUP BY (tmp.tpc_id, si.si_date)"&
-+"          ) d1, fb_teamadeproductcategory tpc  "&
-+"   WHERE (tpc.tpc_id = d1.tpc_id) "&
-+"  GROUP BY (tpc.tpc_manid, pludate)  "&
-+"  HAVING SUM (qty) <> 0 "&
-+"  UNION ALL"&
-+"  SELECT 'FACTORY TOTAL STOCK', 'ALL', tpc.tpc_manid, pludate, SUM (qty)  "&
-+"    FROM (SELECT ddu.tpc_id tpc_id, ddp.ddp_pluckingdate pludate, NVL(SUM(ddu.ddu_quantity), 0) qty  "&
-+"            FROM fb_dailydryerproduct ddp, fb_dailydryerunsorted ddu  "&
-+"           WHERE ddp.ddp_pk = ddu.ddp_pk AND ddp.ddp_type <> 'O'  "&
-+"          GROUP BY (ddu.tpc_id, ddp.ddp_pluckingdate) union all "&
-+"          select   TPC_ID,  PT_DATE, sum(nvl(PT_QUANTITY,0)) "&
-+"          from fb_packteatransfer  "&
-+"          where pt_trantype = 'R' "&
-+"          group by TPC_ID,  PT_DATE           "&
-+"          UNION ALL  "&
-+"          SELECT tmp.tpc_id tpc_id, si.si_date pludate, -NVL (SUM((SID.sid_srnoend - SID.sid_srnostart + 1) * dtpd.dtpd_indwt ),0) qty  "&
-+"          FROM fb_dtpdetails dtpd "&
-+"          LEFT OUTER JOIN fb_sidetails SID ON dtpd.dtpd_id = SID.dtpd_id "&
-+"          LEFT OUTER JOIN fb_saleinvoice si ON SID.si_id = si.si_id ,"&
-+"          fb_teamadeproduct tmp  "&
-+"          WHERE dtpd.tmp_id = tmp.tmp_id AND si.si_active = '1' and not exists  (select * from"&
++" SELECT 'PACKED BUT AWAITING DESPATCH', 'ALL', tpc.tpc_manid, pludate, SUM (qty)   "&
++"   FROM ( "&
++"         SELECT tmp.tpc_id tpc_id, dtp.dtp_date pludate, NVL(SUM((dtpd.dtpd_srnoend - dtpd.dtpd_srnostart + 1 ) * dtpd.dtpd_indwt ), 0 ) qty   "&
++"         FROM fb_dailyteapacked dtp, fb_dtpdetails dtpd,fb_teamadeproduct tmp   "&
++"         WHERE dtp.dtp_id = dtpd.dtp_id AND tmp.tmp_id = dtpd.tmp_id  and  not exists  (select *  "&
++"                            from fb_dailyteapacked_new c,fb_dtpdetails_new d where c.DTP_ID = d.DTP_ID and c.dtp_id=dtp.dtp_id)  "&
++"         GROUP BY (tmp.tpc_id, dtp.dtp_date)   "&
++"         UNION ALL   "&
++"         SELECT tmp.tpc_id tpc_id, dtp.dtp_date pludate, NVL(SUM((dtpd.dtpd_srnoend - dtpd.dtpd_srnostart + 1 ) * dtpd.dtpd_indwt ), 0 ) qty   "&
++"         FROM fb_dailyteapacked_new dtp, fb_dtpdetails_new dtpd,fb_teamadeproduct tmp   "&
++"         WHERE dtp.dtp_id = dtpd.dtp_id AND tmp.tmp_id = dtpd.tmp_id  "&
++"         GROUP BY (tmp.tpc_id, dtp.dtp_date)   "&
++"         UNION ALL   "&
++"         SELECT tmp.tpc_id tpc_id, si.si_date pludate, -(NVL (SUM((SID.sid_srnoend - SID.sid_srnostart + 1) * dtpd.dtpd_indwt ),0) -nvl(qty,0)) qty   "&
++"         FROM fb_dtpdetails dtpd  "&
++"         LEFT OUTER JOIN fb_sidetails SID ON dtpd.dtpd_id = SID.dtpd_id  "&
++"         LEFT OUTER JOIN fb_saleinvoice si ON SID.si_id = si.si_id "&
++"         left outer join fb_teamadeproduct tmp  on dtpd.tmp_id = tmp.tmp_id "&
++"         LEFT OUTER JOIN (select  tpc.tpc_manid ,CNH_DATE,NVL (SUM (  (cnd.cnd_srnoend - cnd.cnd_srnostart + 1) * dtpd.dtpd_indwt ),0 ) qty,SI_TAXINVNO "&
++"             from fb_creditnote_det cnd, fb_creditnote_hdr cnh ,fb_dtpdetails dtpd, "&
++"                  fb_teamadeproductcategory tpc, fb_teamadeproduct tmp "&
++"             where cnd.CND_ID=cnh.CNH_ID and cnd.DTPD_ID=dtpd.DTPD_ID and tpc.tpc_id = tmp.tpc_id AND dtpd.tmp_id = tmp.tmp_id "&
++"             group by tpc.tpc_manid ,CNH_DATE,SI_TAXINVNO) crn on si.SI_TAXINVNO=crn.SI_TAXINVNO "&
++"         WHERE si.si_active = '1'  and not exists  (select * from "&
 +"          fb_dtpdetails_new d where  d.DTPD_ID=dtpd.DTPD_ID) "&
-+"          GROUP BY (tmp.tpc_id, si.si_date)        "&
-+"          UNION ALL  "&
-+"          SELECT tmp.tpc_id tpc_id, si.si_date pludate, -NVL (SUM((SID.sid_srnoend - SID.sid_srnostart + 1) * dtpd.dtpd_indwt ),0) qty  "&
-+"          FROM fb_dtpdetails_new dtpd "&
-+"          LEFT OUTER JOIN fb_sidetails SID ON dtpd.dtpd_id = SID.dtpd_id "&
-+"          LEFT OUTER JOIN fb_saleinvoice si ON SID.si_id = si.si_id ,"&
-+"          fb_teamadeproduct tmp  "&
-+"          WHERE dtpd.tmp_id = tmp.tmp_id AND si.si_active = '1' "&
-+"          GROUP BY (tmp.tpc_id, si.si_date)        "&
-+"          ) d1,fb_teamadeproductcategory tpc  "&
-+"   WHERE (tpc.tpc_id = d1.tpc_id)  "&
-+"  GROUP BY (tpc.tpc_manid, pludate) HAVING SUM (qty) <> 0  "&
++"         GROUP BY (tmp.tpc_id, si.si_date,nvl(qty,0)) "&
++"         union all "&
++"         SELECT tmp.tpc_id tpc_id, si.si_date pludate, -(NVL (SUM((SID.sid_srnoend - SID.sid_srnostart + 1) * dtpd.dtpd_indwt ),0)-nvl(qty,0))  qty  "&
++"         FROM fb_dtpdetails_new dtpd  "&
++"         LEFT OUTER JOIN fb_sidetails SID ON dtpd.dtpd_id = SID.dtpd_id  "&
++"         LEFT OUTER JOIN fb_saleinvoice si ON SID.si_id = si.si_id "&
++"         left outer join fb_teamadeproduct tmp  on dtpd.tmp_id = tmp.tmp_id "&
++"         LEFT OUTER JOIN (select  tpc.tpc_manid ,CNH_DATE,NVL (SUM (  (cnd.cnd_srnoend - cnd.cnd_srnostart + 1) * dtpd.dtpd_indwt ),0 ) qty,SI_TAXINVNO "&
++"             from fb_creditnote_det cnd, fb_creditnote_hdr cnh ,fb_dtpdetails dtpd, "&
++"                  fb_teamadeproductcategory tpc, fb_teamadeproduct tmp "&
++"             where cnd.CND_ID=cnh.CNH_ID and cnd.DTPD_ID=dtpd.DTPD_ID and tpc.tpc_id = tmp.tpc_id AND dtpd.tmp_id = tmp.tmp_id "&
++"             group by tpc.tpc_manid ,CNH_DATE,SI_TAXINVNO) crn on si.SI_TAXINVNO=crn.SI_TAXINVNO "&
++"         WHERE si.si_active = '1' "&
++"         GROUP BY (tmp.tpc_id, si.si_date,nvl(qty,0)) "&
++"         ) d1, fb_teamadeproductcategory tpc   "&
++"  WHERE (tpc.tpc_id = d1.tpc_id)  "&
++" GROUP BY (tpc.tpc_manid, pludate)   "&
++" HAVING SUM (qty) <> 0 "&
++"  UNION ALL"&
++" SELECT 'FACTORY TOTAL STOCK', 'ALL', tpc.tpc_manid, pludate, SUM (qty)   "&
++"   FROM (SELECT ddu.tpc_id tpc_id, ddp.ddp_pluckingdate pludate, NVL(SUM(ddu.ddu_quantity), 0) qty   "&
++"           FROM fb_dailydryerproduct ddp, fb_dailydryerunsorted ddu   "&
++"          WHERE ddp.ddp_pk = ddu.ddp_pk AND ddp.ddp_type <> 'O'   "&
++"         GROUP BY (ddu.tpc_id, ddp.ddp_pluckingdate) union all  "&
++"         select   TPC_ID,  PT_DATE, sum(nvl(PT_QUANTITY,0))  "&
++"         from fb_packteatransfer   "&
++"         where pt_trantype = 'R'  "&
++"         group by TPC_ID,  PT_DATE            "&
++"         UNION ALL   "&
++"         SELECT tmp.tpc_id tpc_id, si.si_date pludate, -(NVL (SUM((SID.sid_srnoend - SID.sid_srnostart + 1) * dtpd.dtpd_indwt ),0) - nvl(qty,0)) qty   "&
++"         FROM fb_dtpdetails dtpd  "&
++"         LEFT OUTER JOIN fb_sidetails SID ON dtpd.dtpd_id = SID.dtpd_id  "&
++"         LEFT OUTER JOIN fb_saleinvoice si ON SID.si_id = si.si_id  "&
++"         left outer join fb_teamadeproduct tmp  on dtpd.tmp_id = tmp.tmp_id "&
++"         LEFT OUTER JOIN (select  tpc.tpc_manid ,CNH_DATE,NVL (SUM (  (cnd.cnd_srnoend - cnd.cnd_srnostart + 1) * dtpd.dtpd_indwt ),0 ) qty,SI_TAXINVNO "&
++"             from fb_creditnote_det cnd, fb_creditnote_hdr cnh ,fb_dtpdetails dtpd, "&
++"                  fb_teamadeproductcategory tpc, fb_teamadeproduct tmp "&
++"             where cnd.CND_ID=cnh.CNH_ID and cnd.DTPD_ID=dtpd.DTPD_ID and tpc.tpc_id = tmp.tpc_id AND dtpd.tmp_id = tmp.tmp_id "&
++"             group by tpc.tpc_manid ,CNH_DATE,SI_TAXINVNO) crn on si.SI_TAXINVNO=crn.SI_TAXINVNO  "&
++"         WHERE dtpd.tmp_id = tmp.tmp_id AND si.si_active = '1' and not exists  (select * from "&
++"         fb_dtpdetails_new d where  d.DTPD_ID=dtpd.DTPD_ID)  "&
++"         GROUP BY (tmp.tpc_id, si.si_date,nvl(qty,0))         "&
++"         UNION ALL   "&
++"         SELECT tmp.tpc_id tpc_id, si.si_date pludate, -(NVL (SUM((SID.sid_srnoend - SID.sid_srnostart + 1) * dtpd.dtpd_indwt ),0) - nvl(qty,0)) qty   "&
++"         FROM fb_dtpdetails_new dtpd  "&
++"         LEFT OUTER JOIN fb_sidetails SID ON dtpd.dtpd_id = SID.dtpd_id  "&
++"         LEFT OUTER JOIN fb_saleinvoice si ON SID.si_id = si.si_id  "&
++"         left outer join fb_teamadeproduct tmp  on dtpd.tmp_id = tmp.tmp_id "&
++"         LEFT OUTER JOIN (select  tpc.tpc_manid ,CNH_DATE,NVL (SUM (  (cnd.cnd_srnoend - cnd.cnd_srnostart + 1) * dtpd.dtpd_indwt ),0 ) qty,SI_TAXINVNO "&
++"             from fb_creditnote_det cnd, fb_creditnote_hdr cnh ,fb_dtpdetails dtpd, "&
++"                  fb_teamadeproductcategory tpc, fb_teamadeproduct tmp "&
++"             where cnd.CND_ID=cnh.CNH_ID and cnd.DTPD_ID=dtpd.DTPD_ID and tpc.tpc_id = tmp.tpc_id AND dtpd.tmp_id = tmp.tmp_id "&
++"             group by tpc.tpc_manid ,CNH_DATE,SI_TAXINVNO) crn on si.SI_TAXINVNO=crn.SI_TAXINVNO "&
++"         WHERE dtpd.tmp_id = tmp.tmp_id AND si.si_active = '1'  "&
++"         GROUP BY (tmp.tpc_id, si.si_date,nvl(qty,0))         "&
++"         ) d1,fb_teamadeproductcategory tpc   "&
++"  WHERE (tpc.tpc_id = d1.tpc_id)   "&
++" GROUP BY (tpc.tpc_manid, pludate) HAVING SUM (qty) <> 0   "&
 +"  UNION ALL  "&
 +"  SELECT   'ALL', 'ALL', 'RAINFALL IN INCH', wr.wr_date, NVL (SUM (wr.wr_rainfall), 0)  "&
 +"  FROM fb_weatherreport wr  "&
@@ -390,11 +423,28 @@ ls_text1 = "CREATE OR REPLACE VIEW FBVW_DMR (PARTICULARS, GTTYPE, NAME, PLUCKING
 		 + " GROUP BY (tpc.tpc_manid, dtp.dtp_date) "&
 		 + " HAVING NVL (SUM (  (dtpd.dtpd_srnoend - dtpd.dtpd_srnostart + 1) * dtpd.dtpd_indwt),0) <> 0  "&
 		 + " UNION ALL "&
-		 + " SELECT   'DESPATCH TEA MADE', 'ALL', tpc.tpc_manid, si.si_date, NVL (SUM (  (SID.sid_srnoend - SID.sid_srnostart + 1) * dtpd.dtpd_indwt ),0 ) "&
-		 + " FROM fb_saleinvoice si, fb_sidetails SID, fb_dtpdetails dtpd,fb_teamadeproductcategory tpc, fb_teamadeproduct tmp  "&
-		 + " WHERE tpc.tpc_id = tmp.tpc_id AND dtpd.tmp_id = tmp.tmp_id AND SID.dtpd_id = dtpd.dtpd_id AND si.si_id = SID.si_id AND si.si_active = '1'  "&
-		 + " GROUP BY (tpc.tpc_manid, si.si_date)  "&
-		 + " HAVING NVL (SUM ((SID.sid_srnoend - SID.sid_srnostart + 1) * dtpd.dtpd_indwt ), 0) <> 0 "&
+		+ " SELECT   'DESPATCH TEA MADE', 'ALL', tpc.tpc_manid, si.si_date, NVL (SUM (  (SID.sid_srnoend - SID.sid_srnostart + 1) * dtpd.dtpd_indwt ),0 )-(nvl(qty,0)) " & 
+		+ "  FROM fb_saleinvoice si, fb_sidetails SID, fb_dtpdetails dtpd,fb_teamadeproductcategory tpc, fb_teamadeproduct tmp," & 
+		+ "         (   select  tpc.tpc_manid ,CNH_DATE,NVL (SUM (  (cnd.cnd_srnoend - cnd.cnd_srnostart + 1) * dtpd.dtpd_indwt ),0 ) qty,SI_TAXINVNO" & 
+		+ "             from fb_creditnote_det cnd, fb_creditnote_hdr cnh ,fb_dtpdetails dtpd," & 
+		+ "                  fb_teamadeproductcategory tpc, fb_teamadeproduct tmp" & 
+		+ "             where cnd.CND_ID=cnh.CNH_ID and cnd.DTPD_ID=dtpd.DTPD_ID and tpc.tpc_id = tmp.tpc_id AND dtpd.tmp_id = tmp.tmp_id" & 
+		+ "             group by tpc.tpc_manid ,CNH_DATE,SI_TAXINVNO)  crn" & 
+		+ "  WHERE tpc.tpc_id = tmp.tpc_id AND dtpd.tmp_id = tmp.tmp_id AND SID.dtpd_id = dtpd.dtpd_id AND si.si_id = SID.si_id AND si.si_active = '1' and not exists  (select * from" & 
+		+ "           fb_dtpdetails_new d where  d.DTPD_ID=dtpd.DTPD_ID)  and (si.SI_TAXINVNO=crn.SI_TAXINVNO(+)) " & 
+		+ "  GROUP BY (tpc.tpc_manid, si.si_date),  nvl(qty,0)" & 
+		+ "  HAVING NVL (SUM ((SID.sid_srnoend - SID.sid_srnostart + 1) * dtpd.dtpd_indwt ), 0) -(nvl(qty,0)) <> 0 " & 
+		+ "  union all" & 
+		+ "  SELECT   'DESPATCH TEA MADE', 'ALL', tpc.tpc_manid, si.si_date, NVL (SUM (  (SID.sid_srnoend - SID.sid_srnostart + 1) * dtpd.dtpd_indwt ),0 ) -(nvl(qty,0)) " & 
+		+ "  FROM fb_saleinvoice si, fb_sidetails SID, fb_dtpdetails_new dtpd,fb_teamadeproductcategory tpc, fb_teamadeproduct tmp ," & 
+		+ "        (   select  tpc.tpc_manid ,CNH_DATE,NVL (SUM (  (cnd.cnd_srnoend - cnd.cnd_srnostart + 1) * dtpd.dtpd_indwt ),0 ) qty,SI_TAXINVNO" & 
+		+ "           from fb_creditnote_det cnd, fb_creditnote_hdr cnh ,fb_dtpdetails dtpd," & 
+		+ "                  fb_teamadeproductcategory tpc, fb_teamadeproduct tmp" & 
+		+ "           where cnd.CND_ID=cnh.CNH_ID and cnd.DTPD_ID=dtpd.DTPD_ID and tpc.tpc_id = tmp.tpc_id AND dtpd.tmp_id = tmp.tmp_id" & 
+		+ "            group by tpc.tpc_manid ,CNH_DATE,SI_TAXINVNO)  crn" & 
+		+ "  WHERE tpc.tpc_id = tmp.tpc_id AND dtpd.tmp_id = tmp.tmp_id AND SID.dtpd_id = dtpd.dtpd_id AND si.si_id = SID.si_id AND si.si_active = '1'   and (si.SI_TAXINVNO=crn.SI_TAXINVNO(+))" &  
+		+ "  GROUP BY (tpc.tpc_manid, si.si_date),  nvl(qty,0)  " & 
+		+ "  HAVING NVL (SUM ((SID.sid_srnoend - SID.sid_srnostart + 1) * dtpd.dtpd_indwt ), 0)  -(nvl(qty,0)) <> 0" & 
 		 + " UNION ALL "&
 		 + " SELECT   'UNSORTED', 'ALL', tpc.tpc_manid, pludate, SUM (qty)  "&
 		 + " FROM (SELECT ddu.tpc_id tpc_id, ddp.ddp_pluckingdate pludate, NVL (SUM (ddu.ddu_quantity), 0) qty  "&
@@ -505,7 +555,7 @@ borderstyle borderstyle = stylelowered!
 string customformat = "dd/mm/yyyy"
 date maxdate = Date("2998-12-31")
 date mindate = Date("1800-01-01")
-datetime value = DateTime(Date("2024-11-25"), Time("18:01:25.000000"))
+datetime value = DateTime(Date("2025-07-21"), Time("16:47:16.000000"))
 integer textsize = -9
 fontcharset fontcharset = ansi!
 fontpitch fontpitch = variable!
@@ -527,7 +577,7 @@ borderstyle borderstyle = stylelowered!
 string customformat = "dd/mm/yyyy"
 date maxdate = Date("2998-12-31")
 date mindate = Date("1800-01-01")
-datetime value = DateTime(Date("2024-11-25"), Time("18:01:25.000000"))
+datetime value = DateTime(Date("2025-07-21"), Time("16:47:16.000000"))
 integer textsize = -9
 fontcharset fontcharset = ansi!
 fontpitch fontpitch = variable!
