@@ -70,7 +70,7 @@ global w_gteprof015 w_gteprof015
 
 type variables
 long ll_ctr,net, ll_cnt,l_ctr,ll_last,ll_last1,ll_user_level, ll_rank,ll_season
-string ls_temp,ls_del_ind,ls_sup_id,ls_tmp_id,ls_entry_user,ls_ddp_pk, ls_id,ls_supid, ls_season
+string ls_temp,ls_del_ind,ls_sup_id,ls_tmp_id,ls_entry_user,ls_ddp_pk, ls_id,ls_supid, ls_season,ls_sup_type
 boolean lb_neworder, lb_query
 double ld_gdw_qnty,ld_gdw_oldqnty,ld_totqnty, ld_stkqnty,ld_glqty, ld_glper, ld_extea, ld_decbal, ld_intbal,ld_ndecbal, ld_ownsupbal,ld_tot,ld_old
 datetime ld_rundt,ld_stkdt,ld_last_stocktake_dt
@@ -439,7 +439,7 @@ boolean border = true
 boolean enabled = false
 date maxdate = Date("2998-12-31")
 date mindate = Date("1800-01-01")
-datetime value = DateTime(Date("2024-10-01"), Time("14:23:16.000000"))
+datetime value = DateTime(Date("2025-12-15"), Time("09:51:01.000000"))
 integer textsize = -9
 fontcharset fontcharset = ansi!
 fontpitch fontpitch = variable!
@@ -899,6 +899,31 @@ event itemchanged;if lb_query = false then
 			return 1
 		end if
 	end if
+	
+	
+	if dwo.name = 'et_estate' then
+		ls_supid=data
+		
+		setnull(ls_sup_type);
+		select upper(trim(SUP_TYPE)) into :ls_sup_type from fb_supplier where SUP_ACTIVE=1 and sup_id= :ls_supid; 
+		if sqlca.sqlcode = -1 then
+				messagebox('Error : While Selecting supplier type!!!',sqlca.sqlerrtext)
+				rollback using sqlca;
+				return 1
+		end if		
+		
+		if ls_sup_type = 'GLS' or ls_sup_type = 'UNIT' then
+		// do nothing as green supplier to check
+		else
+			messagebox('Error :!!!','Not a Green Leaf Supplier')
+			return 1
+		end if
+		
+	else
+		ls_supid=dw_1.getitemstring(row,'et_estate')
+	end if
+	
+	dw_1.scrolltorow(dw_1.insertrow(0))
 	cb_3.enabled = true
 end if
 end event

@@ -2,6 +2,12 @@
 forward
 global type w_gtepuf013 from window
 end type
+type cb_11 from commandbutton within w_gtepuf013
+end type
+type shl_1 from statichyperlink within w_gtepuf013
+end type
+type cb_10 from commandbutton within w_gtepuf013
+end type
 type st_1 from statictext within w_gtepuf013
 end type
 type em_1 from editmask within w_gtepuf013
@@ -45,6 +51,9 @@ windowstate windowstate = maximized!
 long backcolor = 67108864
 string icon = "AppIcon!"
 event ue_option ( )
+cb_11 cb_11
+shl_1 shl_1
+cb_10 cb_10
 st_1 st_1
 em_1 em_1
 cb_6 cb_6
@@ -70,6 +79,8 @@ double ld_tot_val,ld_freight,ld_insurance,ld_other,ld_net_amt,ld_discount,ld_qnt
 datetime ld_lpo_dt,ld_date,ld_lpi_date,ld_stock_dt
 datawindowchild idw_prod
 
+string ls_fullname, ls_filename
+string ls_lpi_id,ls_val_active
 
 end variables
 
@@ -78,6 +89,7 @@ public function integer wf_check_fillcol (integer fl_row)
 public function integer wf_cal_datediff (datetime fd_frdt, datetime fd_todt)
 public function integer wf_check_duplicate_rec (string fs_con_id)
 public function integer wf_cal_netamt (string fs_field, double fd_val)
+public function string wf_sftp_upload (string fs_localfilepath, string fs_filename, string fs_unique_id, string fs_table, string fs_column_name, string fs_unique_cloumn, string fs_folder)
 end prototypes
 
 event ue_option();choose case gs_ueoption
@@ -206,7 +218,67 @@ public function integer wf_cal_netamt (string fs_field, double fd_val);
 return 1
 end function
 
+public function string wf_sftp_upload (string fs_localfilepath, string fs_filename, string fs_unique_id, string fs_table, string fs_column_name, string fs_unique_cloumn, string fs_folder);setpointer(hourglass!)
+long li_rc
+string ls_command
+string ls_localfile, ls_remotefile, ls_server, ls_user, ls_pass
+string ls_netrc, ls_logfile,ls_sql,ls_file
+
+// Configuration
+ls_localfile  = fs_localfilepath                               // Local file to send
+ls_remotefile = "LTC/" + fs_folder + "/" + fs_filename
+ls_server     = "140.238.251.98"
+ls_user       = "LtcCldFTP"
+ls_pass       = "LtcCld1125$$"
+ls_netrc      = "C:\Temp\.curl_netrc"
+ls_logfile    = "C:\Temp\curl_upload_log.txt"
+
+FileDelete(ls_netrc)
+FileDelete(ls_logfile)
+// Create .netrc file
+li_rc = FileOpen(ls_netrc, LineMode!, Write!, LockWrite!, Replace!)
+IF li_rc > 0 THEN
+    FileWrite(li_rc, "machine " + ls_server)
+    FileWrite(li_rc, "login " + ls_user)
+    FileWrite(li_rc, "password " + ls_pass)
+    FileClose(li_rc)
+ELSE
+    MessageBox("Error", "Cannot create netrc file")
+    RETURN "0"
+END IF
+
+// Upload file
+ls_command = 'cmd /c curl -v -T "' + ls_localfile + '" --netrc-file "' + ls_netrc + '" "ftp://' + ls_server + '/' + ls_remotefile + '" > "' + ls_logfile + '" 2>&1'
+li_rc = Run(ls_command, Minimized!)
+
+
+
+
+
+dw_1.setitem(dw_1.getrow(),fs_column_name,fs_filename)
+
+ 
+setnull(ls_sql)
+ls_sql = "UPDATE " + fs_table + " SET " + fs_column_name + " = '" + fs_filename + "' WHERE " + fs_unique_cloumn + " = '" + fs_unique_id + "'"
+EXECUTE IMMEDIATE :ls_sql;
+IF SQLCA.SQLCode <> 0 THEN
+     MessageBox("Error", "While updating data in Garden: " + SQLCA.SQLErrText)
+     FileDelete(ls_netrc)
+     RETURN "0"
+ END IF
+
+
+
+
+
+
+
+end function
+
 on w_gtepuf013.create
+this.cb_11=create cb_11
+this.shl_1=create shl_1
+this.cb_10=create cb_10
 this.st_1=create st_1
 this.em_1=create em_1
 this.cb_6=create cb_6
@@ -221,7 +293,10 @@ this.cb_3=create cb_3
 this.cb_2=create cb_2
 this.cb_1=create cb_1
 this.dw_1=create dw_1
-this.Control[]={this.st_1,&
+this.Control[]={this.cb_11,&
+this.shl_1,&
+this.cb_10,&
+this.st_1,&
 this.em_1,&
 this.cb_6,&
 this.cbx_1,&
@@ -238,6 +313,9 @@ this.dw_1}
 end on
 
 on w_gtepuf013.destroy
+destroy(this.cb_11)
+destroy(this.shl_1)
+destroy(this.cb_10)
 destroy(this.st_1)
 destroy(this.em_1)
 destroy(this.cb_6)
@@ -305,6 +383,131 @@ IF KeyDown(KeyF3!) THEN
 		cb_3.triggerevent(clicked!)
 	end if
 end if
+end event
+
+type cb_11 from commandbutton within w_gtepuf013
+integer x = 1445
+integer y = 788
+integer width = 224
+integer height = 92
+integer taborder = 50
+integer textsize = -10
+integer weight = 400
+fontcharset fontcharset = ansi!
+fontpitch fontpitch = variable!
+fontfamily fontfamily = swiss!
+string facename = "Tahoma"
+string text = "Upload"
+end type
+
+event clicked;long    li_FileNum, li_rc
+string  ls_file_name, ls_newfile, ls_newpath
+// ---------------------------
+// Prepare directories
+// ---------------------------
+IF NOT DirectoryExists("c:\voucher") THEN
+    CreateDirectory("c:\voucher")
+END IF
+
+IF NOT DirectoryExists("c:\temp") THEN
+    CreateDirectory("c:\temp")
+END IF
+
+// ---------------------------
+// Move the source file
+// ---------------------------
+ls_file_name = dw_1.GetItemString(dw_1.GetRow(), 'lpi_file_name')
+ls_lpi_id    = dw_1.GetItemString(dw_1.GetRow(), 'lpi_id')
+
+IF NOT IsNull(ls_file_name) AND Len(ls_file_name) > 0 THEN
+	
+	select to_char(to_number(substr(:ls_lpi_id,4,length(:ls_lpi_id)))) into :ls_newfile from dual;
+	
+    ls_newfile = gs_garden_snm+ '_SPI_' + ls_newfile + lower(right(ls_file_name,(len(ls_file_name)-pos(ls_file_name,'.'))+1 ))
+    ls_newpath = "c:\voucher\" + ls_newfile
+	
+	if fileexists(ls_newpath) then 
+		filedelete(ls_newpath)
+	end if
+	 
+
+    li_FileNum = FileMove(ls_file_name, ls_newpath)
+    IF li_FileNum <> 1 THEN
+        MessageBox("Error", "File could not be moved to: " + ls_newpath)
+        RETURN
+    END IF
+ELSE
+    MessageBox("Error", "No source file name found.")
+    RETURN
+END IF
+
+string ls_result
+ls_result=wf_sftp_upload(ls_newpath,ls_newfile,ls_lpi_id,'fb_servicepurchaseinvoice','lpi_file_name','LPI_ID','GARDENSERVICEINV')
+
+setpointer(Arrow!)
+
+if ls_result = "0" then
+	messagebox('Error','File Not Uploaded')
+else
+	messagebox('Successful','File Uploaded Kindly Check By Clicking Open Button')
+end if
+
+
+end event
+
+type shl_1 from statichyperlink within w_gtepuf013
+integer x = 1234
+integer y = 800
+integer width = 210
+integer height = 64
+integer textsize = -10
+integer weight = 400
+fontcharset fontcharset = ansi!
+fontpitch fontpitch = variable!
+fontfamily fontfamily = swiss!
+string facename = "Tahoma"
+boolean underline = true
+string pointer = "HyperLink!"
+long textcolor = 134217856
+long backcolor = 67108864
+string text = "Open"
+alignment alignment = center!
+boolean focusrectangle = false
+end type
+
+event clicked;string ls_file
+if dw_1.getrow() > 0 and lb_query = false then
+//	string ls_file
+			ls_file = dw_1.getitemstring(dw_1.getrow(),'lpi_file_name')
+//			messagebox('11',ls_file)
+			shl_1.url = gs_ftp_ip+ "GARDENSERVICEINV/" +ls_file
+			if isnull(ls_file) or ls_file = "" then 
+				shl_1.visible = false
+			else
+				shl_1.visible=true
+			end if
+end if
+end event
+
+type cb_10 from commandbutton within w_gtepuf013
+integer x = 1006
+integer y = 788
+integer width = 233
+integer height = 92
+integer taborder = 40
+integer textsize = -10
+integer weight = 400
+fontcharset fontcharset = ansi!
+fontpitch fontpitch = variable!
+fontfamily fontfamily = swiss!
+string facename = "Tahoma"
+string text = "Browse"
+end type
+
+event clicked;if GetFileOpenName ("Open", ls_fullname, ls_filename, "PDF", "PDF Files (*.pdf),*.pdf,Word Document Files (*.doc), *.doc, Excel12(*.xlsx) With Header, *.xlsx", "C:\temp", 512) < 1 then return
+dw_1.setitem(dw_1.getrow(),'lpi_file_name',ls_fullname)
+
+
 end event
 
 type st_1 from statictext within w_gtepuf013
@@ -414,6 +617,25 @@ if f_check_fin_yr(datetime(ls_ac_dt)) = -1 then;	return 1;end if;
 	for ll_ctr = 1 to dw_1.rowcount() 
 		if dw_1.getitemstring(ll_ctr,'appr_flag') = 'Y'  and isnull(dw_1.getitemstring(ll_ctr,'lpi_vou_no'))=true then
 			ls_lpi = dw_1.getitemstring(ll_ctr,'lpi_id')
+			
+			
+			//Validation For File Upload
+		
+			ls_val_active='N'		
+			select nvl(VAL_IS_ACTIVE,'Y') into :ls_val_active from ltc.FB_VALIDATION_MASTER where VAL_CODE='FILEUPLOAD';		
+			
+			if isnull(ls_val_active) then ls_val_active='N'
+			
+			if ls_val_active='Y' then			
+				setnull(ls_filename);
+				ls_filename = dw_1.getitemstring(ll_ctr,'lpi_file_name')			
+				if isnull(ls_filename) or len(ls_filename) = 0 then
+					messagebox('Warning...!!!','File Upload is blank')
+					return 1
+				end if
+			end if
+			
+			
 				
 			//MES updation
 			string ls_rowid,ls_EACSUBHEAD_ID
@@ -572,9 +794,9 @@ event ue_tab_to_enter pbm_dwnprocessenter
 event ue_dwnkey pbm_dwnkey
 event ue_keydwn pbm_keydown
 integer x = 14
-integer y = 932
+integer y = 952
 integer width = 4485
-integer height = 1272
+integer height = 1260
 integer taborder = 40
 string dataobject = "dw_gtepuf013a"
 boolean hscrollbar = true
@@ -1089,7 +1311,7 @@ event ue_tab_to_enter pbm_dwnprocessenter
 integer x = 9
 integer y = 136
 integer width = 4485
-integer height = 772
+integer height = 800
 integer taborder = 30
 string dataobject = "dw_gtepuf013"
 boolean hscrollbar = true

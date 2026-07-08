@@ -301,82 +301,84 @@ if MessageBox("Send To HO", 'Do You Want To Send This Document ....?' ,Exclamati
 			messagebox('SQL Error: During Procedure Execute of up_indent_garden_ho_merge',sqlca.sqlerrtext)
 			return 1
 		end if	
+	
+	messagebox('Success..!!','DATA SEND TO HO')
 
 		
-	dw_3.settransobject(sqlca)
-	dw_3.retrieve('A','1',ls_indent_no,ls_dt,'Y')
-				
-	if dw_3.rowcount() = 0 then
-			messagebox('Alert!','No data found between the entered dates !!!')
-			return 1
-	end if
-					
-					
-	ls_filename=ls_indent_no
-	if pos(ls_filename,"/") > 0 then
-		do while pos(ls_filename,"/") > 0
-			ls_filename = replace(ls_filename,pos(ls_filename,"/"),1,""); 
-		loop
-	end if;
-					
-	ls_file1 = "c:\temp\"+gs_garden_snm+"_Indnet "+ls_filename+".pdf"
-	li_temp1 = dw_3.saveas(ls_file1,pdf!,true)
-					
-	if(li_temp1=-1) then 
-		messagebox('Error','Error occured while saving PDF')
-		return 1
-	end if	
-					
-	select MD_SEND_BY, MD_TO, MD_CC, MD_BCC, MD_SUBJECT, MD_DETAIL, MD_SIGNATURE into :ls_sender, :ls_recipient, :ls_cc, :ls_bcc, :ls_subject, :ls_body_text, :ls_signature from FB_MAIL_MESSAGE_DETAIL where nvl(MD_EMAIL_IND,'N') = 'Y' and MD_MESS_ID = 4 ;
-	if sqlca.sqlcode = -1 then
-		messagebox('Error','Error occured while fetching mail parameters - '+sqlca.sqlerrtext)
-		return 1
-	elseif sqlca.sqlcode = 100 then
-		messagebox('Warning','No parameters found for mail')
-		return 1
-	end if
-					
-	if isnull(ls_sender)	then
-		messagebox('Warning','Sender Email is blank')
-		return 1
-	end if
-					
-	if isnull(ls_recipient)	then
-		messagebox('Warning','Sender Email is blank')
-		return 1
-	end if
-					
-	if isnull(ls_cc) then ls_cc = ""
-					
-	if isnull(ls_bcc) then ls_bcc = ""
-					
-	if isnull(ls_subject) then ls_subject = ""
-					
-	if isnull(ls_body_text) then ls_body_text = ""
-					
-	if isnull(ls_signature) then ls_signature = ""
-					
-	ls_cc += gs_garden_mail
-					
-					
-					
-	ls_subject 	 = ls_subject +" "+ string(today())+" "+ gs_garden_nm
-					
-	ls_message	= "Dear Sir/Madam, "+gs_lfcr+gs_lfcr+ls_body_text +"  "+ gs_garden_nm +"  "+ " garden . Indent No. "+ ls_indent_no +gs_lfcr+gs_lfcr 
-	ls_message	 = ls_message +gs_lfcr+"Your kind attention is required."+gs_lfcr					
-	ls_message	 = ls_message +gs_lfcr+"Administrator"+gs_lfcr					
-	ls_message	 = ls_message +gs_lfcr+gs_lfcr+gs_garden_nm+gs_lfcr+gs_garden_add+gs_lfcr+gs_lfcr			
-	ls_message += ls_signature
-	ls_addattachment = ls_file1
-	n_web_mail lnvo_mail
-	lnvo_mail = Create n_web_mail
-	lb_flag = lnvo_mail.of_send_webmail_single(ls_sender,ls_recipient,ls_cc,ls_subject,ls_message,ls_bcc,ls_addattachment)
-					
-				
-	setpointer(arrow!) 		
-	messagebox('Confirmation','Total No Of Records : '+string(li_ctr))	
-	dw_1.reset()
-	dw_2.reset()
+//	dw_3.settransobject(sqlca)
+//	dw_3.retrieve('A','1',ls_indent_no,ls_dt,'Y')
+//				
+//	if dw_3.rowcount() = 0 then
+//			messagebox('Alert!','No data found between the entered dates !!!')
+//			return 1
+//	end if
+//					
+//					
+//	ls_filename=ls_indent_no
+//	if pos(ls_filename,"/") > 0 then
+//		do while pos(ls_filename,"/") > 0
+//			ls_filename = replace(ls_filename,pos(ls_filename,"/"),1,""); 
+//		loop
+//	end if;
+//					
+//	ls_file1 = "c:\temp\"+gs_garden_snm+"_Indnet "+ls_filename+".pdf"
+//	li_temp1 = dw_3.saveas(ls_file1,pdf!,true)
+//					
+//	if(li_temp1=-1) then 
+//		messagebox('Error','Error occured while saving PDF')
+//		return 1
+//	end if	
+//					
+//	select MD_SEND_BY, MD_TO, MD_CC, MD_BCC, MD_SUBJECT, MD_DETAIL, MD_SIGNATURE into :ls_sender, :ls_recipient, :ls_cc, :ls_bcc, :ls_subject, :ls_body_text, :ls_signature from FB_MAIL_MESSAGE_DETAIL where nvl(MD_EMAIL_IND,'N') = 'Y' and MD_MESS_ID = 4 ;
+//	if sqlca.sqlcode = -1 then
+//		messagebox('Error','Error occured while fetching mail parameters - '+sqlca.sqlerrtext)
+//		return 1
+//	elseif sqlca.sqlcode = 100 then
+//		messagebox('Warning','No parameters found for mail')
+//		return 1
+//	end if
+//					
+//	if isnull(ls_sender)	then
+//		messagebox('Warning','Sender Email is blank')
+//		return 1
+//	end if
+//					
+//	if isnull(ls_recipient)	then
+//		messagebox('Warning','Sender Email is blank')
+//		return 1
+//	end if
+//					
+//	if isnull(ls_cc) then ls_cc = ""
+//					
+//	if isnull(ls_bcc) then ls_bcc = ""
+//					
+//	if isnull(ls_subject) then ls_subject = ""
+//					
+//	if isnull(ls_body_text) then ls_body_text = ""
+//					
+//	if isnull(ls_signature) then ls_signature = ""
+//					
+//	ls_cc += gs_garden_mail
+//					
+//					
+//					
+//	ls_subject 	 = ls_subject +" "+ string(today())+" "+ gs_garden_nm
+//					
+//	ls_message	= "Dear Sir/Madam, "+gs_lfcr+gs_lfcr+ls_body_text +"  "+ gs_garden_nm +"  "+ " garden . Indent No. "+ ls_indent_no +gs_lfcr+gs_lfcr 
+//	ls_message	 = ls_message +gs_lfcr+"Your kind attention is required."+gs_lfcr					
+//	ls_message	 = ls_message +gs_lfcr+"Administrator"+gs_lfcr					
+//	ls_message	 = ls_message +gs_lfcr+gs_lfcr+gs_garden_nm+gs_lfcr+gs_garden_add+gs_lfcr+gs_lfcr			
+//	ls_message += ls_signature
+//	ls_addattachment = ls_file1
+//	n_web_mail lnvo_mail
+//	lnvo_mail = Create n_web_mail
+//	lb_flag = lnvo_mail.of_send_webmail_single(ls_sender,ls_recipient,ls_cc,ls_subject,ls_message,ls_bcc,ls_addattachment)
+//					
+//				
+//	setpointer(arrow!) 		
+//	messagebox('Confirmation','Total No Of Records : '+string(li_ctr))	
+//	dw_1.reset()
+//	dw_2.reset()
 	return 1
 end if	
 

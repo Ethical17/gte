@@ -8,8 +8,6 @@ type em_3 from editmask within w_gteacf010
 end type
 type st_2 from statictext within w_gteacf010
 end type
-type dw_1 from datawindow within w_gteacf010
-end type
 type ddlb_1 from dropdownlistbox within w_gteacf010
 end type
 type cb_2 from commandbutton within w_gteacf010
@@ -17,6 +15,10 @@ end type
 type cb_1 from commandbutton within w_gteacf010
 end type
 type st_1 from statictext within w_gteacf010
+end type
+type dw_2 from datawindow within w_gteacf010
+end type
+type dw_1 from datawindow within w_gteacf010
 end type
 end forward
 
@@ -35,11 +37,12 @@ event ue_option ( )
 cb_6 cb_6
 em_3 em_3
 st_2 st_2
-dw_1 dw_1
 ddlb_1 ddlb_1
 cb_2 cb_2
 cb_1 cb_1
 st_1 st_1
+dw_2 dw_2
+dw_1 dw_1
 end type
 global w_gteacf010 w_gteacf010
 
@@ -92,30 +95,33 @@ on w_gteacf010.create
 this.cb_6=create cb_6
 this.em_3=create em_3
 this.st_2=create st_2
-this.dw_1=create dw_1
 this.ddlb_1=create ddlb_1
 this.cb_2=create cb_2
 this.cb_1=create cb_1
 this.st_1=create st_1
+this.dw_2=create dw_2
+this.dw_1=create dw_1
 this.Control[]={this.cb_6,&
 this.em_3,&
 this.st_2,&
-this.dw_1,&
 this.ddlb_1,&
 this.cb_2,&
 this.cb_1,&
-this.st_1}
+this.st_1,&
+this.dw_2,&
+this.dw_1}
 end on
 
 on w_gteacf010.destroy
 destroy(this.cb_6)
 destroy(this.em_3)
 destroy(this.st_2)
-destroy(this.dw_1)
 destroy(this.ddlb_1)
 destroy(this.cb_2)
 destroy(this.cb_1)
 destroy(this.st_1)
+destroy(this.dw_2)
+destroy(this.dw_1)
 end on
 
 event open;//string ls_dt
@@ -229,6 +235,11 @@ if isnull(ld_wages) then ld_wages = 0
 
  if (ld_attn - ld_wages) >  0.99 or (ld_attn - ld_wages) <  -0.99 then
    messagebox('Information:','Calculated Wages and Attandance Wages Not Matched,Please Check Befour Wages To Account ');
+	dw_2.settransobject(sqlca)
+	dw_2.visible=true
+	dw_1.visible=false
+	dw_2.Retrieve(ls_lwwid)
+	
 	return 1;
  end if;	
  
@@ -326,19 +337,6 @@ alignment alignment = center!
 boolean focusrectangle = false
 end type
 
-type dw_1 from datawindow within w_gteacf010
-integer x = 32
-integer y = 128
-integer width = 4489
-integer height = 2416
-integer taborder = 50
-string title = "none"
-string dataobject = "dw_gteacf010"
-boolean vscrollbar = true
-boolean livescroll = true
-borderstyle borderstyle = stylelowered!
-end type
-
 type ddlb_1 from dropdownlistbox within w_gteacf010
 integer x = 480
 integer y = 12
@@ -428,5 +426,31 @@ long backcolor = 67108864
 string text = "Wages Start Date :"
 alignment alignment = right!
 boolean focusrectangle = false
+end type
+
+type dw_2 from datawindow within w_gteacf010
+boolean visible = false
+integer x = 155
+integer y = 240
+integer width = 3753
+integer height = 1628
+integer taborder = 60
+string title = "none"
+string dataobject = "dw_gteacf010_dis"
+boolean livescroll = true
+borderstyle borderstyle = stylelowered!
+end type
+
+type dw_1 from datawindow within w_gteacf010
+integer x = 32
+integer y = 128
+integer width = 4489
+integer height = 2416
+integer taborder = 50
+string title = "none"
+string dataobject = "dw_gteacf010"
+boolean vscrollbar = true
+boolean livescroll = true
+borderstyle borderstyle = stylelowered!
 end type
 

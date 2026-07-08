@@ -1355,7 +1355,7 @@ SELECT   emp.emp_id labour_id, nvl(no_workdays,0) no_workdays, emp.emp_sex emp_s
 						  ) OR
 						  (kam.kamsub_nkamtype IN ('ANNUALLEAVE')) ) 
 			group by lda.labour_id ) lda
- WHERE lda.labour_id(+) = emp.emp_id AND emp.emp_type = :ls_wr_emptype and ls_id in (select ls_id from fb_laboursheet where nvl(LS_RATIONCALFLAG,'Y') = 'Y');
+ WHERE lda.labour_id(+) = emp.emp_id AND emp.emp_type = :ls_wr_emptype and ls_id in (select ls_id from fb_laboursheet where nvl(LS_RATIONCALFLAG,'Y') = 'Y') and emp.emp_id='P01791';
 // and emp.emp_id = 'T22732';
  //and EMP_ACTIVE='1'// and emp.emp_id ='LB00026'
 // UNION ALL 

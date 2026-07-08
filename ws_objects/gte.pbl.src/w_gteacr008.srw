@@ -2,6 +2,8 @@
 forward
 global type w_gteacr008 from window
 end type
+type rb_3 from radiobutton within w_gteacr008
+end type
 type st_2 from statictext within w_gteacr008
 end type
 type dp_2 from datepicker within w_gteacr008
@@ -20,9 +22,11 @@ type cb_1 from commandbutton within w_gteacr008
 end type
 type gb_1 from groupbox within w_gteacr008
 end type
-type dw_1 from datawindow within w_gteacr008
+type dw_3 from datawindow within w_gteacr008
 end type
 type dw_2 from datawindow within w_gteacr008
+end type
+type dw_1 from datawindow within w_gteacr008
 end type
 end forward
 
@@ -40,6 +44,7 @@ boolean resizable = true
 long backcolor = 67108864
 string icon = "AppIcon!"
 event ue_option ( )
+rb_3 rb_3
 st_2 st_2
 dp_2 dp_2
 dp_1 dp_1
@@ -49,8 +54,9 @@ st_1 st_1
 cb_2 cb_2
 cb_1 cb_1
 gb_1 gb_1
-dw_1 dw_1
+dw_3 dw_3
 dw_2 dw_2
+dw_1 dw_1
 end type
 global w_gteacr008 w_gteacr008
 
@@ -141,11 +147,53 @@ elseif rb_2.checked then
 					Messagebox('Warning','Data Not Available In Given Criteria')
 				end if
 	end choose	
+elseif rb_3.checked then
+	choose case gs_ueoption
+		case "PRINT"
+				OpenWithParm(w_print,this.dw_3)
+		case "PRINTPREVIEW"
+				this.dw_3.modify("datawindow.print.preview = yes")
+		case "RESETPREVIEW"
+				this.dw_3.modify("datawindow.print.preview = no")
+	case "ZOOM"
+			SetPointer (HourGlass!)											
+			OpenwithParm (w_zoom,dw_3)
+			SetPointer (Arrow!)						
+		case "SAVEAS"
+				this.dw_3.saveas()
+		case "SFILTER"
+				iu_powerfilter.checked = NOT iu_powerfilter.checked
+				iu_powerfilter.event ue_clicked()
+				m_main.m_file.m_filter.checked = iu_powerfilter.checked				
+		case "FILTER"
+				setnull(gs_filtertext)
+				this.dw_3.setredraw(false)
+				this.dw_3.setfilter(gs_filtertext)
+				this.dw_3.filter()
+				this.dw_3.groupcalc()
+				if this.dw_3.rowcount() > 0 then;
+					this.dw_3.setredraw(true)
+				else
+					Messagebox('Warning','Data Not Available In Given Criteria')
+				end if
+		case "SORT"
+				setnull(gs_sorttext)
+				this.dw_3.setredraw(false)
+				this.dw_3.setsort(gs_sorttext)
+				this.dw_3.sort()
+				this.dw_3.groupcalc()
+				if this.dw_3.rowcount() > 0 then;
+					this.dw_3.setredraw(true)
+				else
+					Messagebox('Warning','Data Not Available In Given Criteria')
+				end if
+	end choose	
 end if
 
 end event
 
 on w_gteacr008.create
+this.rb_3=create rb_3
 this.st_2=create st_2
 this.dp_2=create dp_2
 this.dp_1=create dp_1
@@ -155,9 +203,11 @@ this.st_1=create st_1
 this.cb_2=create cb_2
 this.cb_1=create cb_1
 this.gb_1=create gb_1
-this.dw_1=create dw_1
+this.dw_3=create dw_3
 this.dw_2=create dw_2
-this.Control[]={this.st_2,&
+this.dw_1=create dw_1
+this.Control[]={this.rb_3,&
+this.st_2,&
 this.dp_2,&
 this.dp_1,&
 this.rb_2,&
@@ -166,11 +216,13 @@ this.st_1,&
 this.cb_2,&
 this.cb_1,&
 this.gb_1,&
-this.dw_1,&
-this.dw_2}
+this.dw_3,&
+this.dw_2,&
+this.dw_1}
 end on
 
 on w_gteacr008.destroy
+destroy(this.rb_3)
 destroy(this.st_2)
 destroy(this.dp_2)
 destroy(this.dp_1)
@@ -180,17 +232,22 @@ destroy(this.st_1)
 destroy(this.cb_2)
 destroy(this.cb_1)
 destroy(this.gb_1)
-destroy(this.dw_1)
+destroy(this.dw_3)
 destroy(this.dw_2)
+destroy(this.dw_1)
 end on
 
 event open;dw_1.modify("t_co.text = '"+gs_co_name+"'")
 dw_1.modify("t_gnm.text = '"+gs_garden_nameadd+"'")
 dw_2.modify("t_co.text = '"+gs_co_name+"'")
 dw_2.modify("t_gnm.text = '"+gs_garden_nameadd+"'")
+dw_3.modify("t_co.text = '"+gs_co_name+"'")
+dw_3.modify("t_gnm.text = '"+gs_garden_nameadd+"'")
 dw_1.settransobject(sqlca)
 dw_2.settransobject(sqlca)
+dw_3.settransobject(sqlca)
 dw_2.hide()
+dw_3.hide()
 
 //cb_1.of_VGradient(TRUE)
 //THIS.of_HGradient(FALSE)
@@ -333,9 +390,32 @@ LS_TEXT	= "create OR REPLACE view FB_TMBUDGET_vw as " &
  
 end event
 
-type st_2 from statictext within w_gteacr008
-integer x = 1938
+type rb_3 from radiobutton within w_gteacr008
+integer x = 978
 integer y = 32
+integer width = 599
+integer height = 76
+integer textsize = -10
+integer weight = 400
+fontcharset fontcharset = ansi!
+fontpitch fontpitch = variable!
+fontfamily fontfamily = roman!
+string facename = "Times New Roman"
+long textcolor = 33554432
+long backcolor = 67108864
+string text = "EXP + Cost/Kg Summ"
+end type
+
+event clicked;dw_1.hide()
+dw_2.hide()
+dw_3.show()
+
+
+end event
+
+type st_2 from statictext within w_gteacr008
+integer x = 2633
+integer y = 28
 integer width = 151
 integer height = 64
 integer textsize = -10
@@ -352,8 +432,8 @@ boolean focusrectangle = false
 end type
 
 type dp_2 from datepicker within w_gteacr008
-integer x = 2121
-integer y = 16
+integer x = 2816
+integer y = 12
 integer width = 393
 integer height = 100
 integer taborder = 30
@@ -362,7 +442,7 @@ borderstyle borderstyle = stylelowered!
 string customformat = "dd/mm/yyyy"
 date maxdate = Date("2998-12-31")
 date mindate = Date("1800-01-01")
-datetime value = DateTime(Date("2024-07-18"), Time("06:57:39.000000"))
+datetime value = DateTime(Date("2026-05-15"), Time("09:59:53.000000"))
 integer textsize = -9
 fontcharset fontcharset = ansi!
 fontpitch fontpitch = variable!
@@ -374,8 +454,8 @@ boolean todaycircle = true
 end type
 
 type dp_1 from datepicker within w_gteacr008
-integer x = 1522
-integer y = 16
+integer x = 2217
+integer y = 12
 integer width = 393
 integer height = 100
 integer taborder = 20
@@ -384,7 +464,7 @@ borderstyle borderstyle = stylelowered!
 string customformat = "dd/mm/yyyy"
 date maxdate = Date("2998-12-31")
 date mindate = Date("1800-01-01")
-datetime value = DateTime(Date("2024-07-18"), Time("06:57:39.000000"))
+datetime value = DateTime(Date("2026-05-15"), Time("09:59:53.000000"))
 integer textsize = -9
 fontcharset fontcharset = ansi!
 fontpitch fontpitch = variable!
@@ -421,7 +501,7 @@ end type
 
 event clicked;dw_1.hide()
 dw_2.show()
-
+dw_3.hide()
 
 
 end event
@@ -445,14 +525,14 @@ end type
 
 event clicked;dw_1.show()
 dw_2.hide()
-
+dw_3.hide()
 
 
 end event
 
 type st_1 from statictext within w_gteacr008
-integer x = 1061
-integer y = 32
+integer x = 1755
+integer y = 28
 integer width = 443
 integer height = 64
 integer textsize = -10
@@ -469,8 +549,8 @@ boolean focusrectangle = false
 end type
 
 type cb_2 from commandbutton within w_gteacr008
-integer x = 2807
-integer y = 12
+integer x = 3502
+integer y = 8
 integer width = 265
 integer height = 100
 integer taborder = 50
@@ -488,8 +568,8 @@ event clicked;Close(parent)
 end event
 
 type cb_1 from commandbutton within w_gteacr008
-integer x = 2542
-integer y = 12
+integer x = 3237
+integer y = 8
 integer width = 265
 integer height = 100
 integer taborder = 40
@@ -503,6 +583,7 @@ string text = "&Run"
 end type
 
 event clicked;double ld_actcrop_tot_tp,ld_actcrop_tot,ld_lyrcrop_tot,ld_actcrop_pur_tp,ld_actcrop_pur,ld_lyrcrop_pur,ld_actcrop_sal_tp,ld_actcrop_sal,ld_lyrcrop_sal,ld_budcrop_own,ld_budcrop_own_tot,ld_budcrop_pur,ld_budcrop_pur_tot, ld_budcrop_sale,ld_budcrop_sale_tot
+double ld_actcrop_pur_ltp, ld_actcrop_sal_ltp, ld_actcrop_tot_ltp,ld_budcrop_own_this,ld_budcrop_pur_this,ld_budcrop_sale_this
 string ls_frdt,ls_todt
 
 
@@ -522,6 +603,7 @@ ld_budcrop_own_tot = 0;ld_budcrop_pur_tot = 0
 ld_actcrop_pur_tp=0;ld_actcrop_pur=0;ld_lyrcrop_pur=0;
 ld_actcrop_tot_tp=0;ld_actcrop_tot=0;ld_lyrcrop_tot=0;
 ld_actcrop_sal_tp=0;ld_actcrop_sal=0;ld_lyrcrop_sal=0;
+ld_budcrop_own_this=0;ld_budcrop_pur_this=0;ld_budcrop_sale_this=0;
 
 if left(ls_todt,5) = '29/02' then
 
@@ -571,8 +653,9 @@ if left(ls_todt,5) = '29/02' then
 else
 	select sum(decode(sign(GLFP_pluckingdate - to_date(:ls_frdt,'dd/mm/yyyy')),-1,0,decode(sign(GLFP_pluckingdate - to_date(:ls_todt,'dd/mm/yyyy')),1,0,GWTM_TEAMADE))) TODAYTY, 
 				sum(decode(decode(sign(to_number(to_char(GLFP_pluckingdate,'mm')) - 4),-1,to_number(to_char(GLFP_pluckingdate,'yyyy'))-1,to_number(to_char(GLFP_pluckingdate,'yyyy'))),decode(sign(to_number(to_char(to_date(:ls_todt,'dd/mm/yyyy'),'mm')) - 4),-1,to_number(to_char(to_date(:ls_todt,'dd/mm/yyyy'),'yyyy'))-1,to_number(to_char(to_date(:ls_todt,'dd/mm/yyyy'),'yyyy'))),nvl(GWTM_TEAMADE,0),0)) todate,
+				sum(decode(sign(GLFP_pluckingdate - add_months(to_date(:ls_frdt,'dd/mm/yyyy'),-12)),-1,0,decode(sign(GLFP_pluckingdate - add_months(to_date(:ls_todt,'dd/mm/yyyy'),-12)),1,0,GWTM_TEAMADE))) TODAYLY, 
 				sum(decode(decode(sign(to_number(to_char(GLFP_pluckingdate,'mm')) - 4),-1,to_number(to_char(GLFP_pluckingdate,'yyyy'))-1,to_number(to_char(GLFP_pluckingdate,'yyyy'))),decode(sign(to_number(to_char(to_date(:ls_todt,'dd/mm/yyyy'),'mm')) - 4),-1,to_number(to_char(to_date(:ls_todt,'dd/mm/yyyy'),'yyyy'))-2,to_number(to_char(to_date(:ls_todt,'dd/mm/yyyy'),'yyyy'))-1),nvl(GWTM_TEAMADE,0),0)) ltotaltodate
-		 into :ld_actcrop_pur_tp,:ld_actcrop_pur,:ld_lyrcrop_pur
+		 into :ld_actcrop_pur_tp,:ld_actcrop_pur,:ld_actcrop_pur_ltp,:ld_lyrcrop_pur
 		from fb_GLFORPRODUCTION,FB_GARDENWISETEAMADE,FB_SUPPLIER 
 	where  fb_GLFORPRODUCTION.GLFP_PK=FB_GARDENWISETEAMADE.GLFP_PK AND fb_GLFORPRODUCTION.SUP_ID=FB_SUPPLIER.SUP_ID AND 
 			 FB_SUPPLIER.SUP_TYPE NOT IN ('OWN') AND GWTM_TYPE NOT IN ('O') AND 
@@ -586,8 +669,9 @@ else
 	
 	select sum(decode(sign(GLFP_pluckingdate - to_date(:ls_frdt,'dd/mm/yyyy')),-1,0,decode(sign(GLFP_pluckingdate - to_date(:ls_todt,'dd/mm/yyyy')),1,0,GWTM_TEAMADE))) TODAYTY, 
 				sum(decode(decode(sign(to_number(to_char(GLFP_pluckingdate,'mm')) - 4),-1,to_number(to_char(GLFP_pluckingdate,'yyyy'))-1,to_number(to_char(GLFP_pluckingdate,'yyyy'))),decode(sign(to_number(to_char(to_date(:ls_todt,'dd/mm/yyyy'),'mm')) - 4),-1,to_number(to_char(to_date(:ls_todt,'dd/mm/yyyy'),'yyyy'))-1,to_number(to_char(to_date(:ls_todt,'dd/mm/yyyy'),'yyyy'))),nvl(GWTM_TEAMADE,0),0)) todate,
+				sum(decode(sign(GLFP_pluckingdate - add_months(to_date(:ls_frdt,'dd/mm/yyyy'),-12)),-1,0,decode(sign(GLFP_pluckingdate - add_months(to_date(:ls_todt,'dd/mm/yyyy'),-12)),1,0,GWTM_TEAMADE))) TODAYLTY,
 				sum(decode(decode(sign(to_number(to_char(GLFP_pluckingdate,'mm')) - 4),-1,to_number(to_char(GLFP_pluckingdate,'yyyy'))-1,to_number(to_char(GLFP_pluckingdate,'yyyy'))),decode(sign(to_number(to_char(to_date(:ls_todt,'dd/mm/yyyy'),'mm')) - 4),-1,to_number(to_char(to_date(:ls_todt,'dd/mm/yyyy'),'yyyy'))-2,to_number(to_char(to_date(:ls_todt,'dd/mm/yyyy'),'yyyy'))-1),nvl(GWTM_TEAMADE,0),0)) ltotaltodate
-		 into :ld_actcrop_sal_tp,:ld_actcrop_sal,:ld_lyrcrop_sal
+		 into :ld_actcrop_sal_tp,:ld_actcrop_sal,:ld_actcrop_sal_ltp, :ld_lyrcrop_sal
 		from fb_GLFORPRODUCTION,FB_GARDENWISETEAMADE,FB_SUPPLIER 
 	where  fb_GLFORPRODUCTION.GLFP_PK=FB_GARDENWISETEAMADE.GLFP_PK AND fb_GLFORPRODUCTION.SUP_ID=FB_SUPPLIER.SUP_ID AND 
 			 GWTM_TYPE IN ('O') AND 
@@ -601,8 +685,9 @@ else
 	
 	select sum(decode(sign(dDp_dt - to_date(:ls_frdt,'dd/mm/yyyy')),-1,0,decode(sign(dDp_dt - to_date(:ls_todt,'dd/mm/yyyy')),1,0,DDU_QUANTITY))) TODAYTY, 
 				sum(decode(decode(sign(to_number(to_char(dDp_dt,'mm')) - 4),-1,to_number(to_char(dDp_dt,'yyyy'))-1,to_number(to_char(dDp_dt,'yyyy'))),decode(sign(to_number(to_char(to_date(:ls_todt,'dd/mm/yyyy'),'mm')) - 4),-1,to_number(to_char(to_date(:ls_todt,'dd/mm/yyyy'),'yyyy'))-1,to_number(to_char(to_date(:ls_todt,'dd/mm/yyyy'),'yyyy'))),nvl(DDU_QUANTITY,0),0)) todate,
+				sum(decode(sign(dDp_dt - add_months(to_date(:ls_frdt,'dd/mm/yyyy'),-12)),-1,0,decode(sign(dDp_dt - add_months(to_date(:ls_todt,'dd/mm/yyyy'),-12)),1,0,DDU_QUANTITY))) TODAYLTY, 
 				sum(decode(decode(sign(to_number(to_char(dDp_dt,'mm')) - 4),-1,to_number(to_char(dDp_dt,'yyyy'))-1,to_number(to_char(dDp_dt,'yyyy'))),decode(sign(to_number(to_char(to_date(:ls_todt,'dd/mm/yyyy'),'mm')) - 4),-1,to_number(to_char(to_date(:ls_todt,'dd/mm/yyyy'),'yyyy'))-2,to_number(to_char(to_date(:ls_todt,'dd/mm/yyyy'),'yyyy'))-1),nvl(DDU_QUANTITY,0),0)) ltotaltodate
-		into :ld_actcrop_tot_tp,:ld_actcrop_tot,:ld_lyrcrop_tot
+		into :ld_actcrop_tot_tp,:ld_actcrop_tot,:ld_actcrop_tot_ltp,:ld_lyrcrop_tot
 	 From fb_DAILYDRYERunsorted,FB_DAILYDRYERPRODUCT 
 	where fb_DAILYDRYERunsorted.DDP_PK=FB_DAILYDRYERPRODUCT.DDP_PK(+) and nvl(ddp_type,'a') not in ('P','R') and 
 				((dDp_dt between to_date((decode(sign(to_number(to_char(to_date(:ls_todt,'dd/mm/yyyy'),'mm')) - 4),-1,to_number(to_char(to_date(:ls_todt,'dd/mm/yyyy'),'yyyy'))-2,to_number(to_char(to_date(:ls_todt,'dd/mm/yyyy'),'yyyy'))-1)||'0401'),'yyyymmdd') AND to_date(((to_number(to_char(to_date(:ls_todt,'dd/mm/yyyy'),'yyyy'))-1)||to_char(to_date(:ls_todt,'dd/mm/yyyy'),'mmdd')),'yyyymmdd') ) or
@@ -631,8 +716,11 @@ select sum(decode(tmb_type,'WCWF',1,'WCOF',1,0) * decode(sign( ((TMB_YEAR * 100)
 		sum(decode(tmb_type,'WCWF',0,'WCOF',0,1) * decode(sign( ((TMB_YEAR * 100) + TMB_MONTH) - to_char(to_date(:ls_todt,'dd/mm/yyyy'),'yyyymm') ),1,0, nvl(BG_QTY,0)) ) TODAYTY, 
 		sum(decode(tmb_type,'WCWF',0,'WCOF',0,1) * nvl(BG_QTY,0)) TODAte,
 		sum(decode(tmb_type,'WCWF',0,'WCOF',1,0) * decode(sign( ((TMB_YEAR * 100) + TMB_MONTH) - to_char(to_date(:ls_todt,'dd/mm/yyyy'),'yyyymm') ),1,0, nvl(BG_QTY,0)) ) TODAYTY, 
-		sum(decode(tmb_type,'WCWF',0,'WCOF',1,0) * nvl(BG_QTY,0)) TODAte
-  into :ld_budcrop_own,:ld_budcrop_own_tot,:ld_budcrop_pur,:ld_budcrop_pur_tot, :ld_budcrop_sale,:ld_budcrop_sale_tot
+		sum(decode(tmb_type,'WCWF',0,'WCOF',1,0) * nvl(BG_QTY,0)) TODAte,
+		sum((case when  tmb_type in ('WCWF','WCOF') then 1 else 0 end) * (case when ((TMB_YEAR * 100) + TMB_MONTH) between to_number(to_char(trunc(to_date(:ls_todt,'dd/mm/yyyy'),'mm'),'yyyymm')) and to_number(to_char(to_date(:ls_todt,'dd/mm/yyyy'),'yyyymm')) then nvl(BG_QTY,0) else 0 end)) thisperiodbudgetown,
+		sum((case when  tmb_type in ('WCWF','WCOF') then 0 else 1 end) * (case when ((TMB_YEAR * 100) + TMB_MONTH) between to_number(to_char(trunc(to_date(:ls_todt,'dd/mm/yyyy'),'mm'),'yyyymm')) and to_number(to_char(to_date(:ls_todt,'dd/mm/yyyy'),'yyyymm')) then nvl(BG_QTY,0) else 0 end)) thisperiodbudgetpur,
+		sum((case when  tmb_type in ('WCWF') then 0 when tmb_type in ('WCOF') then 1 else 0 end) * (case when ((TMB_YEAR * 100) + TMB_MONTH) between to_number(to_char(trunc(to_date(:ls_todt,'dd/mm/yyyy'),'mm'),'yyyymm')) and to_number(to_char(to_date(:ls_todt,'dd/mm/yyyy'),'yyyymm')) then nvl(BG_QTY,0) else 0 end)) thisperiodbudgetsale
+  into :ld_budcrop_own,:ld_budcrop_own_tot,:ld_budcrop_pur,:ld_budcrop_pur_tot, :ld_budcrop_sale,:ld_budcrop_sale_tot,:ld_budcrop_own_this,:ld_budcrop_pur_this,:ld_budcrop_sale_this
  from FB_TMBUDGET_vw
 where ((TMB_YEAR * 100) + TMB_MONTH) between to_char(to_date(:ls_ysdt,'dd/mm/yyyy'),'yyyymm') and to_char(to_date(:ls_yedt,'dd/mm/yyyy'),'yyyymm')  ;
 		
@@ -643,8 +731,11 @@ end if
 
 if isnull(ld_actcrop_tot_tp) then ld_actcrop_tot_tp=0 
 if isnull(ld_actcrop_pur_tp) then ld_actcrop_pur_tp=0
+if isnull(ld_actcrop_tot_ltp) then ld_actcrop_tot_ltp=0 
 if isnull(ld_actcrop_tot) then ld_actcrop_tot=0
 if isnull(ld_actcrop_pur) then ld_actcrop_pur=0
+if isnull(ld_actcrop_tot) then ld_actcrop_tot=0
+if isnull(ld_actcrop_pur_ltp) then ld_actcrop_pur_ltp=0
 if isnull(ld_lyrcrop_tot) then ld_lyrcrop_tot=0
 if isnull(ld_lyrcrop_pur) then ld_lyrcrop_pur=0
 if isnull(ld_budcrop_own) then ld_budcrop_own=0
@@ -653,20 +744,32 @@ if isnull(ld_budcrop_pur) then ld_budcrop_pur=0
 if isnull(ld_budcrop_pur_tot) then ld_budcrop_pur_tot=0
 if isnull(ld_actcrop_sal_tp) then ld_actcrop_sal_tp=0
 if isnull(ld_actcrop_sal) then ld_actcrop_sal=0
+if isnull(ld_actcrop_sal_ltp) then ld_actcrop_sal_ltp=0
 if isnull(ld_lyrcrop_sal) then ld_lyrcrop_sal=0
 if isnull(ld_budcrop_sale) then ld_budcrop_sale=0
 if isnull(ld_budcrop_sale_tot) then ld_budcrop_sale_tot=0
-
+if isnull(ld_budcrop_own_this) then ld_budcrop_own_this=0
+if isnull(ld_budcrop_pur_this) then ld_budcrop_pur_this=0
+if isnull(ld_budcrop_sale_this) then ld_budcrop_sale_this=0
 if rb_1.checked then
 	dw_2.hide()
+	dw_3.hide()
 	dw_1.show()
 	dw_1.settransobject(sqlca)
 	dw_1.retrieve(dp_1.text,dp_2.text,ld_actcrop_tot_tp,ld_actcrop_pur_tp,ld_actcrop_tot,ld_actcrop_pur,ld_lyrcrop_tot,ld_lyrcrop_pur,ld_budcrop_own,ld_budcrop_own_tot,ld_budcrop_pur,ld_budcrop_pur_tot,ld_actcrop_sal_tp,ld_actcrop_sal,ld_lyrcrop_sal,ld_budcrop_sale,ld_budcrop_sale_tot)
 elseif rb_2.checked then
 	dw_1.hide()
+	dw_3.hide()
 	dw_2.show()
 	dw_2.settransobject(sqlca)
 	dw_2.retrieve(dp_1.text,dp_2.text,ld_actcrop_tot_tp,ld_actcrop_pur_tp,ld_actcrop_tot,ld_actcrop_pur,ld_lyrcrop_tot,ld_lyrcrop_pur,ld_budcrop_own,ld_budcrop_own_tot,ld_budcrop_pur,ld_budcrop_pur_tot,ld_actcrop_sal_tp,ld_actcrop_sal,ld_lyrcrop_sal,ld_budcrop_sale,ld_budcrop_sale_tot)
+elseif rb_3.checked then
+	dw_1.hide()
+	dw_2.hide()
+	dw_3.show()
+	SQLCA.DBParm="DisableBind=1"
+	dw_3.settransobject(sqlca)
+	dw_3.retrieve(dp_1.text,dp_2.text,ld_actcrop_tot_tp,ld_actcrop_pur_tp,ld_actcrop_tot,ld_actcrop_pur,ld_lyrcrop_tot,ld_lyrcrop_pur,ld_budcrop_own,ld_budcrop_own_tot,ld_budcrop_pur,ld_budcrop_pur_tot,ld_actcrop_sal_tp,ld_actcrop_sal,ld_lyrcrop_sal,ld_budcrop_sale,ld_budcrop_sale_tot, ld_actcrop_pur_ltp, ld_actcrop_sal_ltp, ld_actcrop_tot_ltp,ld_budcrop_own_this,ld_budcrop_pur_this,ld_budcrop_sale_this)
 end if
 
 setpointer(arrow!)
@@ -674,7 +777,7 @@ end event
 
 type gb_1 from groupbox within w_gteacr008
 integer x = 41
-integer width = 1019
+integer width = 1595
 integer height = 120
 integer taborder = 10
 integer textsize = -10
@@ -687,15 +790,15 @@ long textcolor = 33554432
 long backcolor = 67108864
 end type
 
-type dw_1 from datawindow within w_gteacr008
+type dw_3 from datawindow within w_gteacr008
 event ue_leftbuttonup pbm_dwnlbuttonup
 integer y = 124
-integer width = 4471
-integer height = 2248
-string dataobject = "dw_gteacr008"
+integer width = 3950
+integer height = 2100
+integer taborder = 40
+string dataobject = "dw_gteacr008c"
 boolean hscrollbar = true
 boolean vscrollbar = true
-boolean hsplitscroll = true
 boolean livescroll = true
 borderstyle borderstyle = stylelowered!
 end type
@@ -722,6 +825,33 @@ integer height = 2100
 string dataobject = "dw_gteacr008a"
 boolean hscrollbar = true
 boolean vscrollbar = true
+boolean livescroll = true
+borderstyle borderstyle = stylelowered!
+end type
+
+event ue_leftbuttonup;if isvalid(iu_powerfilter) then
+	iu_powerfilter.event post ue_buttonclicked(dwo.type,dwo.name)
+END IF
+end event
+
+event constructor;iu_powerfilter = create n_cst_powerfilter
+iu_powerfilter.of_setdw(this)
+end event
+
+event resize;if isvalid(iu_powerfilter) then
+	iu_powerfilter.event ue_positionbuttons()
+END IF
+end event
+
+type dw_1 from datawindow within w_gteacr008
+event ue_leftbuttonup pbm_dwnlbuttonup
+integer y = 124
+integer width = 4471
+integer height = 2248
+string dataobject = "dw_gteacr008"
+boolean hscrollbar = true
+boolean vscrollbar = true
+boolean hsplitscroll = true
 boolean livescroll = true
 borderstyle borderstyle = stylelowered!
 end type

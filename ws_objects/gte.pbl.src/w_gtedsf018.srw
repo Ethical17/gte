@@ -303,7 +303,7 @@ dw_2.GetChild ("dtp_lotno", idw_invno)
 idw_invno.settransobject(sqlca)	
 
 declare c1 cursor for
-select distinct SI_TAXINVNO from  fb_saleinvoice where si_date > add_months(sysdate,-2) order by 1 desc;
+select distinct SI_TAXINVNO from  fb_saleinvoice where si_date > add_months(sysdate,-12) order by 1 desc;
 	
 open c1;
 
@@ -369,6 +369,7 @@ fontpitch fontpitch = variable!
 fontfamily fontfamily = roman!
 string facename = "Times New Roman"
 long textcolor = 33554432
+boolean allowedit = true
 boolean sorted = false
 boolean vscrollbar = true
 borderstyle borderstyle = stylelowered!
@@ -999,7 +1000,7 @@ ls_tinvno = ddlb_1.text
 				:ls_SI_CENTRALEXCISENO, :ld_SI_HSECESS, :ld_CNDATE, :ls_BROK_ID, :ls_WARE_ID, :ls_COMM_ID, :ls_CUS_ID, :ls_SI_WAYBILLNO,  
 				:ls_SI_ISS_LOCN, :ls_SI_REC_LOCN, :ls_SI_PONO, :ld_SI_PODT, :ls_SI_DCNO, :ld_SI_DCDT, :ld_SI_PROMPTDT, :ld_SI_SUPPLY_DT, 
 				:ls_SI_SUPPLY_PLACE, :ls_SI_TAXINVNO,:ls_SI_DELVCHNO, :ls_si_ship_to_add, :ls_si_rev_chrg, :ls_SI_LUT_NO, :ld_SI_TCS_PER, :ld_SI_TCS_AMT, :ls_si_einv_ind, :ls_SI_ISS_GSTNNO, :ls_SI_REC_GSTNNO
-		from fb_saleinvoice where si_taxinvno = :ls_tinvno and si_taxinvno not in (select SI_TAXINVNO from fb_creditnote_hdr  where  SI_TAXINVNO =:ls_tinvno);
+		from fb_saleinvoice where si_taxinvno = upper(:ls_tinvno) and si_taxinvno not in (select SI_TAXINVNO from fb_creditnote_hdr  where  SI_TAXINVNO =:ls_tinvno);
 		
 		if sqlca.sqlcode = -1 then
 			messagebox('Error: During Getting Invoice Details, ',sqlca.sqlerrtext)
@@ -1007,40 +1008,7 @@ ls_tinvno = ddlb_1.text
 			return -1
 		elseif sqlca.sqlcode = 0 then
 			dw_1.scrolltorow(dw_1.insertrow(0))
-			
-//			if mid(ls_DSP_PONO,1,3) = 'LTR' then
-//				select distinct  WARE_GSTNNO into  :ls_rec_gstnno from FB_warehouse where  ware_ID = :ls_WARE_ID and WARE_ACTIVE = '1';
-//				if sqlca.sqlcode = -1 then
-//					messagebox('Error: During Getting Customer GSTINNO, ',sqlca.sqlerrtext)
-//					rollback using sqlca;
-//					return -1
-//				end if
-//			else
-//				select distinct  CUS_GSTNNO into  :ls_rec_gstnno from FB_customer where  cus_ID = :ls_CUS_ID and CUS_ACTIVE = '1';
-//				if sqlca.sqlcode = -1 then
-//					messagebox('Error: During Getting Customer GSTINNO, ',sqlca.sqlerrtext)
-//					rollback using sqlca;
-//					return -1
-//				end if
-//			end if
-//			
-//			if isnull(ls_rec_gstnno) or len(ls_rec_gstnno) = 0 then 
-//				messagebox('Warning !','Customer GSTIN No Missing, Please Update !!!')
-//				return 1
-//			end if
-//
-//			
-//			select distinct  UNIT_GSTNNO into  :ls_issue_gstnno from fb_gardenmaster where  unit_id  = :ls_UNIT_ID and UNIT_ACTIVE_IND = 'Y';
-//			if sqlca.sqlcode = -1 then
-//				messagebox('Error: During Getting Unit GSTNNO, ',sqlca.sqlerrtext)
-//				rollback using sqlca;
-//				return -1
-//			end if
-//			if isnull(ls_issue_gstnno) or len(ls_issue_gstnno) = 0 then 
-//				messagebox('Warning !','Issue GSTIN No Missing, Please Update !!!')
-//				return 1
-//			end if
-			
+	
 			dw_1.setfocus()
 			dw_1.setitem(dw_1.getrow(),'SI_ID',ls_si_id)
 			dw_1.setitem(dw_1.getrow(),'transp_id',ls_TRANSP_ID)
@@ -1154,6 +1122,10 @@ ls_tinvno = ddlb_1.text
 				dw_2.scrolltorow(1)
 		//  	dw_2.setcolumn('cnd_rebateamt')
 			end if
+		elseif sqlca.sqlcode = 100 then
+			dw_1.reset();
+			dw_2.reset();
+			messagebox('Warning:','NO Invoice Found')
 		end if	
 end event
 

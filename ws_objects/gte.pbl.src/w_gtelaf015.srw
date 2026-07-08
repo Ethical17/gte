@@ -763,7 +763,7 @@ public function integer wf_cal_wages (double ld_measure1, double ld_measure2, do
 			messagebox('SQL ERROR: During Parametere checking ',sqlca.sqlerrtext)
 			return -1
 		end if;
- 		if gs_garden_snm = 'FB' or gs_garden_snm = 'MK' or gs_garden_snm = 'ME' or gs_garden_snm = 'KG' or gs_garden_snm = 'BE' or gs_garden_snm = 'MV' or gs_garden_snm = 'SP' then
+ 		if gs_garden_snm = 'FB' or gs_garden_snm = 'MK' or gs_garden_snm = 'ME' or gs_garden_snm = 'KG' or gs_garden_snm = 'BE' or gs_garden_snm = 'MV' or gs_garden_snm = 'SP' or gs_garden_snm = 'GP' then
 			If ld_labage <= ll_child Then //(144 months=12 years)
 	
 				select nvl(TASK_CHANGEPOINT,0), nvl(TASK_CHANGEPOINT2,0), nvl(TASK_CHANGEPOINT3,0), nvl(TASK_RATELOWER,0), nvl(TASK_RATELOWER2,0) , nvl(TASK_RATELOWER3,0) ,nvl(TASK_RATEUPPER,0), nvl(TASK_RATEUPPER2,0), nvl(TASK_RATEUPPER3,0)
@@ -4901,7 +4901,7 @@ integer taborder = 20
 boolean border = true
 date maxdate = Date("2998-12-31")
 date mindate = Date("1800-01-01")
-datetime value = DateTime(Date("2025-04-29"), Time("15:04:54.000000"))
+datetime value = DateTime(Date("2026-06-10"), Time("09:42:03.000000"))
 integer textsize = -9
 fontcharset fontcharset = ansi!
 fontpitch fontpitch = variable!

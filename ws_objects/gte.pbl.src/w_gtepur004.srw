@@ -384,7 +384,7 @@ if  isnull(ddlb_1.text) or ddlb_1.text = "" then
 	return 1
 end if;
 
-ls_sup_id = left(right(ddlb_1.text,9),8)
+ls_sup_id = left(right(ddlb_1.text,10),9)
 
 ls_frym =dp_1.text
 ls_toym =dp_2.text
@@ -429,7 +429,7 @@ boolean border = true
 string customformat = "dd/mm/yyyy"
 date maxdate = Date("2998-12-31")
 date mindate = Date("1800-01-01")
-datetime value = DateTime(Date("2021-01-25"), Time("10:21:41.000000"))
+datetime value = DateTime(Date("2025-08-11"), Time("16:51:40.000000"))
 integer textsize = -9
 fontcharset fontcharset = ansi!
 fontpitch fontpitch = variable!
@@ -450,7 +450,7 @@ boolean border = true
 string customformat = "dd/mm/yyyy"
 date maxdate = Date("2998-12-31")
 date mindate = Date("1800-01-01")
-datetime value = DateTime(Date("2021-01-25"), Time("10:21:41.000000"))
+datetime value = DateTime(Date("2025-08-11"), Time("16:51:40.000000"))
 integer textsize = -9
 fontcharset fontcharset = ansi!
 fontpitch fontpitch = variable!

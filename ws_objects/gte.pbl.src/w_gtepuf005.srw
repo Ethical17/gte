@@ -2,6 +2,12 @@
 forward
 global type w_gtepuf005 from window
 end type
+type shl_1 from statichyperlink within w_gtepuf005
+end type
+type cb_13 from commandbutton within w_gtepuf005
+end type
+type cb_12 from commandbutton within w_gtepuf005
+end type
 type cb_11 from commandbutton within w_gtepuf005
 end type
 type dw_3 from datawindow within w_gtepuf005
@@ -51,6 +57,9 @@ windowstate windowstate = maximized!
 long backcolor = 67108864
 string icon = "AppIcon!"
 event ue_option ( )
+shl_1 shl_1
+cb_13 cb_13
+cb_12 cb_12
 cb_11 cb_11
 dw_3 dw_3
 cb_10 cb_10
@@ -84,6 +93,9 @@ string ls_sender,ls_mail,ls_recipient,ls_cc,ls_bcc,ls_subject,ls_ack_ind,ls_mess
 boolean lb_flag
 string ls_msg,ls_text
 double ld_balqty
+string ls_fullname, ls_filename
+string ls_hopi_id,ls_sup_add,ls_carrier_nm,ls_iss_loc,ls_rec_loc,ls_rev_chrg,ls_val_active
+
 
 end variables
 
@@ -93,6 +105,7 @@ public function integer wf_check_duplicate_rec (string fs_con_id)
 public function integer wf_upd_indent_recvqnty (string fs_indent_id, string fs_sp_id, double fd_po_quantity, string fs_rec_old)
 public function integer wf_cal_netamt (string fs_field, double fd_val)
 public function integer wf_mail (string fs_hopi_id)
+public function string wf_sftp_upload (string fs_localfilepath, string fs_filename, string fs_unique_id, string fs_table, string fs_column_name, string fs_unique_cloumn, string fs_folder)
 end prototypes
 
 event ue_option();choose case gs_ueoption
@@ -398,7 +411,69 @@ return 1
 
 end function
 
+public function string wf_sftp_upload (string fs_localfilepath, string fs_filename, string fs_unique_id, string fs_table, string fs_column_name, string fs_unique_cloumn, string fs_folder);setpointer(hourglass!)
+long li_rc
+string ls_command
+string ls_localfile, ls_remotefile, ls_server, ls_user, ls_pass
+string ls_netrc, ls_logfile//,ls_sql,ls_file
+
+setnull(ls_sql);setnull(ls_file)
+
+// Configuration
+ls_localfile  = fs_localfilepath                               // Local file to send
+ls_remotefile = "LTC/" + fs_folder + "/" + fs_filename
+ls_server     = "140.238.251.98"
+ls_user       = "LtcCldFTP"
+ls_pass       = "LtcCld1125$$"
+ls_netrc      = "C:\Temp\.curl_netrc"
+ls_logfile    = "C:\Temp\curl_upload_log.txt"
+
+FileDelete(ls_netrc)
+FileDelete(ls_logfile)
+// Create .netrc file
+li_rc = FileOpen(ls_netrc, LineMode!, Write!, LockWrite!, Replace!)
+IF li_rc > 0 THEN
+    FileWrite(li_rc, "machine " + ls_server)
+    FileWrite(li_rc, "login " + ls_user)
+    FileWrite(li_rc, "password " + ls_pass)
+    FileClose(li_rc)
+ELSE
+    MessageBox("Error", "Cannot create netrc file")
+    RETURN "0"
+END IF
+
+// Upload file
+ls_command = 'cmd /c curl -v -T "' + ls_localfile + '" --netrc-file "' + ls_netrc + '" "ftp://' + ls_server + '/' + ls_remotefile + '" > "' + ls_logfile + '" 2>&1'
+li_rc = Run(ls_command, Minimized!)
+
+
+
+
+
+dw_1.setitem(dw_1.getrow(),fs_column_name,fs_filename)
+
+ 
+setnull(ls_sql)
+ls_sql = "UPDATE " + fs_table + " SET " + fs_column_name + " = '" + fs_filename + "' WHERE " + fs_unique_cloumn + " = '" + fs_unique_id + "'"
+EXECUTE IMMEDIATE :ls_sql;
+IF SQLCA.SQLCode <> 0 THEN
+     MessageBox("Error", "While updating data in Garden: " + SQLCA.SQLErrText)
+     FileDelete(ls_netrc)
+     RETURN "0"
+ END IF
+
+
+
+
+
+
+
+end function
+
 on w_gtepuf005.create
+this.shl_1=create shl_1
+this.cb_13=create cb_13
+this.cb_12=create cb_12
 this.cb_11=create cb_11
 this.dw_3=create dw_3
 this.cb_10=create cb_10
@@ -416,7 +491,10 @@ this.cb_3=create cb_3
 this.cb_2=create cb_2
 this.cb_1=create cb_1
 this.dw_1=create dw_1
-this.Control[]={this.cb_11,&
+this.Control[]={this.shl_1,&
+this.cb_13,&
+this.cb_12,&
+this.cb_11,&
 this.dw_3,&
 this.cb_10,&
 this.cb_9,&
@@ -436,6 +514,9 @@ this.dw_1}
 end on
 
 on w_gtepuf005.destroy
+destroy(this.shl_1)
+destroy(this.cb_13)
+destroy(this.cb_12)
 destroy(this.cb_11)
 destroy(this.dw_3)
 destroy(this.cb_10)
@@ -506,6 +587,131 @@ IF KeyDown(KeyF3!) THEN
 		cb_3.triggerevent(clicked!)
 	end if
 end if
+end event
+
+type shl_1 from statichyperlink within w_gtepuf005
+integer x = 1573
+integer y = 880
+integer width = 219
+integer height = 64
+integer textsize = -10
+integer weight = 400
+fontcharset fontcharset = ansi!
+fontpitch fontpitch = variable!
+fontfamily fontfamily = swiss!
+string facename = "Tahoma"
+boolean underline = true
+string pointer = "HyperLink!"
+long textcolor = 134217856
+long backcolor = 67108864
+string text = "Open"
+alignment alignment = center!
+boolean focusrectangle = false
+end type
+
+event clicked;if dw_1.getrow() > 0 and lb_query = false then
+//	string ls_file
+			setnull(ls_file)
+			ls_file = dw_1.getitemstring(dw_1.getrow(),'hopi_file_name')
+//			messagebox('11',ls_file)
+			shl_1.url = gs_ftp_ip+ "PI/" +ls_file
+			if isnull(ls_file) or ls_file = "" then 
+				shl_1.visible = false
+			else
+				shl_1.visible=true
+			end if
+end if
+end event
+
+type cb_13 from commandbutton within w_gtepuf005
+integer x = 1787
+integer y = 872
+integer width = 302
+integer height = 80
+integer taborder = 50
+integer textsize = -10
+integer weight = 400
+fontcharset fontcharset = ansi!
+fontpitch fontpitch = variable!
+fontfamily fontfamily = swiss!
+string facename = "Tahoma"
+string text = "Upload"
+end type
+
+event clicked;long    li_FileNum, li_rc
+string  ls_file_name, ls_newfile, ls_newpath
+// ---------------------------
+// Prepare directories
+// ---------------------------
+IF NOT DirectoryExists("c:\voucher") THEN
+    CreateDirectory("c:\voucher")
+END IF
+
+IF NOT DirectoryExists("c:\temp") THEN
+    CreateDirectory("c:\temp")
+END IF
+
+// ---------------------------
+// Move the source file
+// ---------------------------
+ls_file_name = dw_1.GetItemString(dw_1.GetRow(), 'hopi_file_name')
+ls_hopi_id    = dw_1.GetItemString(dw_1.GetRow(), 'hopi_id')
+
+IF NOT IsNull(ls_file_name) AND Len(ls_file_name) > 0 THEN
+	
+	select to_char(to_number(substr(:ls_hopi_id,5,length(:ls_hopi_id)))) into :ls_newfile from dual;
+	
+    ls_newfile = gs_garden_snm+ '_HOPI_' + ls_newfile + lower(right(ls_file_name,(len(ls_file_name)-pos(ls_file_name,'.'))+1 ))
+    ls_newpath = "c:\voucher\" + ls_newfile
+	
+	if fileexists(ls_newpath) then 
+		filedelete(ls_newpath)
+	end if
+	 
+
+    li_FileNum = FileMove(ls_file_name, ls_newpath)
+    IF li_FileNum <> 1 THEN
+        MessageBox("Error", "File could not be moved to: " + ls_newpath)
+        RETURN
+    END IF
+ELSE
+    MessageBox("Error", "No source file name found.")
+    RETURN
+END IF
+
+string ls_result
+ls_result=wf_sftp_upload(ls_newpath,ls_newfile,ls_hopi_id,'fb_hopurchaseinvoice','hopi_file_name','hopi_id','PI')
+
+setpointer(Arrow!)
+
+if ls_result = "0" then
+	messagebox('Error','File Not Uploaded')
+else
+	messagebox('Successful','File Uploaded Kindly Check By Clicking Open Button')
+end if
+
+
+end event
+
+type cb_12 from commandbutton within w_gtepuf005
+integer x = 1271
+integer y = 868
+integer width = 302
+integer height = 84
+integer taborder = 50
+integer textsize = -10
+integer weight = 400
+fontcharset fontcharset = ansi!
+fontpitch fontpitch = variable!
+fontfamily fontfamily = swiss!
+string facename = "Tahoma"
+string text = "Browse"
+end type
+
+event clicked;if GetFileOpenName ("Open", ls_fullname, ls_filename, "PDF", "PDF Files (*.pdf),*.pdf,Word Document Files (*.doc), *.doc, Excel12(*.xlsx) With Header, *.xlsx", "C:\temp", 512) < 1 then return
+dw_1.setitem(dw_1.getrow(),'hopi_file_name',ls_fullname)
+
+
 end event
 
 type cb_11 from commandbutton within w_gtepuf005
@@ -767,7 +973,7 @@ end type
 
 event clicked;integer l_fnum
 long l_flen,l_bytes_read,l_rec_len,l_count,l_fexit, l_ctr1
-string l_byte,l_rec_val,ls_filename,lf_fnamed,ls_id,ls_sn,ls_dt,ls_sid,ls_sild, ls_oldmail
+string l_byte,l_rec_val,lf_fnamed,ls_id,ls_sn,ls_dt,ls_sid,ls_sild, ls_oldmail
 string l_field0,l_field1,l_field2,l_field3
 
 setnull(ls_oldmail)
@@ -978,7 +1184,8 @@ boolean enabled = false
 string text = "A/C Process"
 end type
 
-event clicked;setpointer(hourglass!)
+event clicked;cb_6.enabled=true
+setpointer(hourglass!)
  n_fames luo_fames
  luo_fames = Create n_fames
  
@@ -988,7 +1195,7 @@ event clicked;setpointer(hourglass!)
 	return 1;
 else
 	ls_ac_dt=em_1.text
-end if;	
+end if;
 
 if f_check_mep(ls_ac_dt) = -1 then return 1
 
@@ -1021,7 +1228,21 @@ if f_check_fin_yr(datetime(ls_ac_dt)) = -1 then;	return 1;end if;
 
 for ll_ctr = 1 to dw_1.rowcount() 
 	if dw_1.getitemstring(ll_ctr,'appr_flag') = 'Y'  and isnull(dw_1.getitemstring(ll_ctr,'hopi_vou_no'))=true then
-		ls_hopi = dw_1.getitemstring(ll_ctr,'hopi_id')
+		ls_hopi = dw_1.getitemstring(ll_ctr,'hopi_id')		
+		//Validation For File Upload
+		
+		ls_val_active='N'		
+		select nvl(VAL_IS_ACTIVE,'Y') into :ls_val_active from ltc.FB_VALIDATION_MASTER where VAL_CODE='FILEUPLOAD';	
+			if isnull(ls_val_active) then ls_val_active='N'
+		if ls_val_active='Y' then			
+			setnull(ls_filename);
+			ls_filename = dw_1.getitemstring(ll_ctr,'hopi_file_name')			
+			if isnull(ls_filename) or len(ls_filename) = 0 then
+				messagebox('Warning...!!!','File Upload is blank')
+				return 1
+			end if
+		end if
+		
 		
 		if date(ls_ac_dt) < date('01/07/2017') then 
 		
@@ -1103,7 +1324,7 @@ for ll_ctr = 1 to dw_1.rowcount()
 	if dw_1.getitemstring(ll_ctr,'appr_flag') = 'Y'  and isnull(dw_1.getitemstring(ll_ctr,'hopi_vou_no'))=true then
 		ls_hopi = dw_1.getitemstring(ll_ctr,'hopi_id')
 		if  isnull(dw_1.getitemstring(ll_ctr,'ho_po_id')) = false and (isnull(dw_1.getitemstring(ll_ctr,'hopi_mail_ind')) = true or dw_1.getitemstring(ll_ctr,'hopi_mail_ind') = 'N') then
-			li_flag =  wf_mail(ls_hopi)
+			//li_flag =  wf_mail(ls_hopi)
 		end if
 	end if
 next
@@ -1192,7 +1413,7 @@ event ue_tab_to_enter pbm_dwnprocessenter
 event ue_dwnkey pbm_dwnkey
 event ue_keydwn pbm_keydown
 integer x = 18
-integer y = 1012
+integer y = 1044
 integer width = 4859
 integer height = 1256
 integer taborder = 40
@@ -1280,7 +1501,11 @@ event itemchanged;if lb_query = false then
 		
 		if  wf_check_duplicate_rec(data) = -1 then return 1
 		 dw_2.setitem(row,'hopi_quantity',idw_prod.getitemnumber(idw_prod.getrow(),'bal'))			 
-		 dw_2.setitem(row,'hopi_quantity_bal',idw_prod.getitemnumber(idw_prod.getrow(),'bal'))
+		 dw_2.setitem(row,'hopi_quantity_bal_1',idw_prod.getitemnumber(idw_prod.getrow(),'bal'))
+		 dw_2.setitem(row,'hopi_unitprice',idw_prod.getitemnumber(idw_prod.getrow(),'unit_price'))
+		 dw_2.setitem(row,'hopi_discount',idw_prod.getitemnumber(idw_prod.getrow(),'discountper'))
+		 dw_2.setitem(row,'hopi_effectiveunitprice',idw_prod.getitemnumber(idw_prod.getrow(),'eff_unit_price'))
+		 dw_2.setitem(row,'amount',idw_prod.getitemnumber(idw_prod.getrow(),'total'))
 		 
 		select SP_HSN_NO into :ls_hsn_cd from fb_storeproduct where sp_id =  :ls_sp_id;
 		if sqlca.sqlcode = -1 then 
@@ -1290,7 +1515,8 @@ event itemchanged;if lb_query = false then
 //				messagebox('Error','Item HSN Code Missing, Please Check !!!')
 //				return 1
 		end if;	
-		dw_2.setitem(row,'hopi_hsn_no',ls_hsn_cd)		 
+		dw_2.setitem(row,'hopi_hsn_no',ls_hsn_cd)	
+		wf_cal_netamt('det',0)
 	end if
 	
 	if row = dw_2.rowcount() and dwo.name <> 'del_flag'  then
@@ -1299,7 +1525,7 @@ event itemchanged;if lb_query = false then
 
 	 if dwo.name = 'hopi_quantity' then 
 		ld_qnty = double(data)
-		ld_balqty=dw_2.getitemnumber(row,'hopi_quantity_bal');
+		ld_balqty=dw_2.getitemnumber(row,'hopi_quantity_bal_1');
 		if(ld_qnty>ld_balqty) then
 			messagebox('Warning','Recive Quantity greater than Balance qty')
 			return 1 ;
@@ -1844,7 +2070,7 @@ event ue_tab_to_enter pbm_dwnprocessenter
 integer x = 18
 integer y = 120
 integer width = 4512
-integer height = 880
+integer height = 916
 integer taborder = 30
 string dataobject = "dw_gtepuf005"
 boolean hscrollbar = true
@@ -1953,9 +2179,14 @@ end if;
 if dwo.name = 'indent_id' or dwo.name = 'ho_po_id' then
 	if dwo.name = 'indent_id' then ls_indent_id = data ;
 	if dwo.name = 'ho_po_id' then 
-		select indent_id into :ls_indent_id from fb_hopo_import where po_id = :data;
+		
+		
+		setnull(ls_indent_id);setnull(ls_sup_id);setnull(ls_sup_add);setnull(ls_carrier_nm);setnull(ls_iss_loc);setnull(ls_rec_loc);setnull(ls_rev_chrg);
+		
+		select indent_id,a.SUP_ID,b.SUP_ADD,c.sup_name,PO_ISS_LOCN, PO_REC_LOCN,decode(PO_REV_CHRG,'N','No','Y','Yes','X') into :ls_indent_id ,:ls_sup_id,:ls_sup_add,:ls_carrier_nm,:ls_iss_loc,:ls_rec_loc,:ls_rev_chrg
+		from fb_purorder a ,fb_supplier b ,fb_supplier c where a.sup_id=b.sup_id and a.PO_CARRIER_ID=c.sup_id(+) and po_id = :data;
 		if sqlca.sqlcode = -1 then
-			messagebox('Error','Error occured while selecting Indent ID from HOPO Import table : '+sqlca.sqlerrtext)
+			messagebox('Error','Error occured while selecting Purchase Data Header : '+sqlca.sqlerrtext)
 			rollback using sqlca;
 			return 1
 		elseif sqlca.sqlcode = 100 then
@@ -1964,6 +2195,16 @@ if dwo.name = 'indent_id' or dwo.name = 'ho_po_id' then
 			return 1
 		end if
 		dw_1.setitem(row,'indent_id',ls_indent_id)
+		dw_1.setitem(row,'sup_id',ls_sup_id)
+		dw_1.setitem(row,'sup_id_1',ls_sup_id)
+		dw_1.setitem(row,'sup_add',ls_sup_add)
+		dw_1.setitem(row,'hopi_carrier_name',ls_carrier_nm)
+		dw_1.setitem(row,'hopi_iss_locn',ls_iss_loc)
+		dw_1.setitem(row,'hopi_rec_locn',ls_rec_loc)
+		dw_1.setitem(row,'hopi_rev_chrg',ls_rev_chrg)
+		
+		idw_prod.SetFilter ("po_id = '"+data+"'") 
+		idw_prod.filter( )
 	end if
 	
 	dw_2.reset()
@@ -1972,21 +2213,23 @@ if dwo.name = 'indent_id' or dwo.name = 'ho_po_id' then
 		dw_2.insertrow(0)
 		dw_1.setfocus()
 	end if
-	select distinct indent_id into :ls_temp from fb_indentdetails  
-	where indent_id=:ls_indent_id and (inddet_quantity>(nvl(inddet_receivedquantity,0)+nvl(INDDET_CANCELQUANTITY,0)));
 	
-	if sqlca.sqlcode = -1 then 
-	      messagebox('Sql Error','Error During Getting Indent ID  : '+sqlca.sqlerrtext)
-	      rollback using sqlca;
-	      return 1
-	elseif sqlca.sqlcode = 100 then 
-	     messagebox('Error','Indent ID Not Available In Indent Master or Indent has been recieved completely : '+sqlca.sqlerrtext)
-		rollback using sqlca;
-		return 1
-	end if;	
+	// as indent check has been closed as NOW RECIVE IS DONE BY PO  "PIYUSH" 13/03/2026 
+//	select distinct indent_id into :ls_temp from fb_indentdetails  
+//	where indent_id=:ls_indent_id and (inddet_quantity>(nvl(inddet_receivedquantity,0)+nvl(INDDET_CANCELQUANTITY,0)));
+//	
+//	if sqlca.sqlcode = -1 then 
+//	      messagebox('Sql Error','Error During Getting Indent ID  : '+sqlca.sqlerrtext)
+//	      rollback using sqlca;
+//	      return 1
+//	elseif sqlca.sqlcode = 100 then 
+//	     messagebox('Error','Indent ID Not Available In Indent Master or Indent has been recieved completely : '+sqlca.sqlerrtext)
+//		rollback using sqlca;
+//		return 1
+//	end if;	
 	
-	idw_prod.SetFilter ("indent_id = '"+trim(ls_indent_id)+"'") 
-	idw_prod.filter( )
+//	idw_prod.SetFilter ("po_id = '"+trim(ls_indent_id)+"'") 
+//	idw_prod.filter( )
 
 end if;
 
@@ -2064,7 +2307,7 @@ event rowfocuschanged;if lb_query = false then
 			
 			idw_prod.settransobject(sqlca)
 			if not isnull(dw_1.getitemstring(dw_1.getrow(),'indent_id')) then
-				idw_prod.SetFilter ("indent_id = '"+trim(dw_1.getitemstring(dw_1.getrow(),'indent_id'))+"'") 
+				idw_prod.SetFilter ("po_id = '"+trim(dw_1.getitemstring(dw_1.getrow(),'ho_po_id'))+"'") 
 				idw_prod.retrieve( ) 
 			end if
 		end if

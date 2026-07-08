@@ -831,8 +831,8 @@ declare c1 cursor for
                                           from fb_empallowancededuction where ((EAD_YEAR * 100) +  EAD_MONTH) <= :fs_ym group by EAD_GRADE)) ead,
         (select ED_EMPID, nvl(ED_AMOUNT,0) electamt from FB_EMPELECTRICDED where  (nvl(ED_YEAR,0) * 100 + nvl(ED_MONTH,0)) = :fs_ym),
         (select EB_EMPID, nvl(EB_PFFLAG,'N') ls_ebpf_ind,  nvl(EB_AMOUNT,0) eb_amt  from fb_extrabenefits where EB_YRMON  = :fs_ym) 
-  where emp.emp_active='1' and emp.emp_type in('EXE','SS','ST','AT') and EAD_GRADE=EMP_GRADE and emp_id  = ED_EMPID(+) and emp_id  = EB_EMPID(+);
-					//and emp.emp_id= 'P00039'; 
+  where emp.emp_active='1' and emp.emp_type in('EXE','SS','ST','AT') and EAD_GRADE=EMP_GRADE and emp_id  = ED_EMPID(+) and emp_id  = EB_EMPID(+)
+					and emp.emp_id= 'EA00013'; 
 
 open c1; 
 

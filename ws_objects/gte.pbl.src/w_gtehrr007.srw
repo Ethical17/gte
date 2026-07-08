@@ -22,11 +22,11 @@ type cb_1 from commandbutton within w_gtehrr007
 end type
 type gb_1 from groupbox within w_gtehrr007
 end type
-type dw_3 from datawindow within w_gtehrr007
-end type
 type dw_1 from datawindow within w_gtehrr007
 end type
 type dw_2 from datawindow within w_gtehrr007
+end type
+type dw_3 from datawindow within w_gtehrr007
 end type
 end forward
 
@@ -53,9 +53,9 @@ cb_2 cb_2
 st_3 st_3
 cb_1 cb_1
 gb_1 gb_1
-dw_3 dw_3
 dw_1 dw_1
 dw_2 dw_2
+dw_3 dw_3
 end type
 global w_gtehrr007 w_gtehrr007
 
@@ -221,9 +221,9 @@ this.cb_2=create cb_2
 this.st_3=create st_3
 this.cb_1=create cb_1
 this.gb_1=create gb_1
-this.dw_3=create dw_3
 this.dw_1=create dw_1
 this.dw_2=create dw_2
+this.dw_3=create dw_3
 this.Control[]={this.rb_3,&
 this.rb_2,&
 this.rb_1,&
@@ -234,9 +234,9 @@ this.cb_2,&
 this.st_3,&
 this.cb_1,&
 this.gb_1,&
-this.dw_3,&
 this.dw_1,&
-this.dw_2}
+this.dw_2,&
+this.dw_3}
 end on
 
 on w_gtehrr007.destroy
@@ -250,9 +250,9 @@ destroy(this.cb_2)
 destroy(this.st_3)
 destroy(this.cb_1)
 destroy(this.gb_1)
-destroy(this.dw_3)
 destroy(this.dw_1)
 destroy(this.dw_2)
+destroy(this.dw_3)
 end on
 
 type rb_3 from radiobutton within w_gtehrr007
@@ -480,35 +480,6 @@ long textcolor = 33554432
 long backcolor = 67108864
 end type
 
-type dw_3 from datawindow within w_gtehrr007
-event ue_leftbuttonup pbm_dwnlbuttonup
-integer y = 132
-integer width = 4507
-integer height = 2344
-integer taborder = 50
-string title = "none"
-string dataobject = "dw_gtehrr007bf"
-boolean hscrollbar = true
-boolean vscrollbar = true
-boolean hsplitscroll = true
-boolean livescroll = true
-borderstyle borderstyle = stylelowered!
-end type
-
-event ue_leftbuttonup;if isvalid(iu_powerfilter) then
-	iu_powerfilter.event post ue_buttonclicked(dwo.type,dwo.name)
-END IF
-end event
-
-event constructor;iu_powerfilter = create n_cst_powerfilter
-iu_powerfilter.of_setdw(this)
-end event
-
-event resize;if isvalid(iu_powerfilter) then
-	iu_powerfilter.event ue_positionbuttons()
-END IF
-end event
-
 type dw_1 from datawindow within w_gtehrr007
 event ue_leftbuttonup pbm_dwnlbuttonup
 integer y = 132
@@ -546,6 +517,35 @@ integer taborder = 40
 string dataobject = "dw_gtehrr007s"
 boolean hscrollbar = true
 boolean vscrollbar = true
+boolean livescroll = true
+borderstyle borderstyle = stylelowered!
+end type
+
+event ue_leftbuttonup;if isvalid(iu_powerfilter) then
+	iu_powerfilter.event post ue_buttonclicked(dwo.type,dwo.name)
+END IF
+end event
+
+event constructor;iu_powerfilter = create n_cst_powerfilter
+iu_powerfilter.of_setdw(this)
+end event
+
+event resize;if isvalid(iu_powerfilter) then
+	iu_powerfilter.event ue_positionbuttons()
+END IF
+end event
+
+type dw_3 from datawindow within w_gtehrr007
+event ue_leftbuttonup pbm_dwnlbuttonup
+integer y = 132
+integer width = 4507
+integer height = 2344
+integer taborder = 50
+string title = "none"
+string dataobject = "dw_gtehrr007bf"
+boolean hscrollbar = true
+boolean vscrollbar = true
+boolean hsplitscroll = true
 boolean livescroll = true
 borderstyle borderstyle = stylelowered!
 end type

@@ -272,7 +272,7 @@ ls_invoiceno=trim(sle_2.text)
 ls_reason=trim(ddlb_1.text)
 
 if MessageBox("Warrning", 'Do You have Canceled the Invoice From GST Portal ....?' ,Exclamation!, YesNo!, 1) = 1 then
-setpointer(hourglass!)
+	setpointer(hourglass!)
 	if(len(ls_remarks)>0 and len(ls_reason)>0) then 
 	
 	

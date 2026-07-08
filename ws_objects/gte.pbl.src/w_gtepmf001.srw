@@ -487,7 +487,7 @@ end if
 
 ls_docty = trim(ddlb_1.text)
 
-if ls_docty='PFINTEREST' then  
+if ls_docty='PFINTEREST'  then  
 	DECLARE c1 CURSOR FOR  
  	select distinct pd_desc from fb_param_detail where PD_Doc_type= 'PFINTEREST';
  	open c1;
@@ -508,6 +508,27 @@ if ls_docty='PFINTEREST' then
 		fetch c1 into :ls_desc;
 		loop
 	end if
+elseif ls_docty='ROUNDOFF' then  
+	select distinct pd_desc into :ls_desc from fb_param_detail where PD_Doc_type= 'ROUNDOFF';
+	if sqlca.sqlcode = -1 then
+			messagebox('Error : While Getting Desciption of ROUNDOFF',sqlca.sqlerrtext)
+			rollback using sqlca;
+			return 1
+	elseif sqlca.sqlcode  = 0 then
+			dw_1.scrolltorow(dw_1.insertrow(0))
+			dw_1.setitem(dw_1.getrow(),'pd_doc_type',ls_docty)
+			dw_1.setitem(dw_1.getrow(),'pd_desc',ls_desc)
+			dw_1.setitem(dw_1.getrow(),'pd_valuetype','F')
+			dw_1.settaborder('pd_period_from',50)
+			dw_1.settaborder('pd_period_to',0)
+			dw_1.settaborder('pd_value',60)	
+			dw_1.setitem(dw_1.getrow(),'pd_value',0)
+			setnull(ls_desc)
+	end if
+	
+			
+	
+	
 else 	
 	dw_1.scrolltorow(dw_1.insertrow(0))
 	dw_1.setitem(dw_1.getrow(),'pd_doc_type',ls_docty)
@@ -526,31 +547,7 @@ else
 	end if
 end if
 
-//commented by Piyush 21062024 Because of no use on NEW BUtton click
-//DECLARE c1 CURSOR FOR  
-//select PD_DESC,PD_CODE,PD_PERIOD_FROM,PD_PERIOD_TO,PD_VALUETYPE,PD_VALUE from fb_param_detail
-//where PD_DOC_TYPE = :ls_docty and pd_period_to is null;
-//
-//open c1;
-//	
-//IF sqlca.sqlcode = 0 THEN
-//	fetch c1 into :ls_desc,:ls_code,:ld_frdt,:ld_todt,:ls_type,:ld_value;
-//	
-//	do while sqlca.sqlcode <> 100
-//		dw_1.scrolltorow(dw_1.insertrow(0))
-//		dw_1.setitem(dw_1.getrow(),'pd_doc_type',ls_docty)
-//		dw_1.setitem(dw_1.getrow(),'pd_desc',ls_desc)
-//		dw_1.setitem(dw_1.getrow(),'pd_code',ls_code)
-//		dw_1.setitem(dw_1.getrow(),'pd_period_from',ld_frdt)
-//		dw_1.setitem(dw_1.getrow(),'pd_period_to',ld_todt)
-//		dw_1.setitem(dw_1.getrow(),'pd_valuetype',ls_type)
-//		dw_1.setitem(dw_1.getrow(),'pd_value',ld_value)		
-//		dw_1.setitem(dw_1.getrow(),'pd_entry_by',gs_user)
-//		dw_1.setitem(dw_1.getrow(),'pd_entry_dt',datetime(today()))
-//		fetch c1 into :ls_desc,:ls_code,:ld_frdt,:ld_todt,:ls_type,:ld_value;
-//	loop
-//END IF
-//close c1;
+
 dw_1.setfocus()
 dw_1.scrolltorow(1)
 dw_1.setcolumn('pd_period_from')
@@ -559,28 +556,6 @@ lb_query = false
 
 
 
-//dw_1.settransobject(sqlca)
-//lb_neworder = true
-//lb_query = false
-//
-//if dw_1.rowcount() = 0 then
-//	dw_1.scrolltorow(dw_1.insertrow(0))
-//	dw_1.setfocus()
-//	dw_1.setitem(dw_1.getrow(),'pd_entry_by',gs_user)
-//	dw_1.setitem(dw_1.getrow(),'pd_entry_dt',datetime(today()))
-//	dw_1.setcolumn('pd_doc_type')
-//else
-//	IF wf_check_fillcol(dw_1.getrow()) = -1 THEN
-//		return 1
-//	END IF
-//	dw_1.scrolltorow(dw_1.insertrow(0))
-//	dw_1.setfocus()
-//	dw_1.setitem(dw_1.getrow(),'pd_entry_by',gs_user)
-//	dw_1.setitem(dw_1.getrow(),'pd_entry_dt',datetime(today()))
-//	dw_1.setcolumn('pd_doc_type')
-//end if
-//
-//
 end event
 
 type dw_1 from datawindow within w_gtepmf001

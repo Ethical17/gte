@@ -2,6 +2,8 @@
 forward
 global type w_login from window
 end type
+type sle_1 from singlelineedit within w_login
+end type
 type pb_1 from picturebutton within w_login
 end type
 type ddlb_1 from dropdownlistbox within w_login
@@ -19,12 +21,17 @@ boolean titlebar = true
 boolean controlmenu = true
 windowtype windowtype = response!
 long backcolor = 67108864
+sle_1 sle_1
 pb_1 pb_1
 ddlb_1 ddlb_1
 sle_2 sle_2
 p_1 p_1
 end type
 global w_login w_login
+
+type variables
+string ls_user_type
+end variables
 
 event open;f_center(this)
 
@@ -52,22 +59,43 @@ setfocus(ddlb_1)
 end event
 
 on w_login.create
+this.sle_1=create sle_1
 this.pb_1=create pb_1
 this.ddlb_1=create ddlb_1
 this.sle_2=create sle_2
 this.p_1=create p_1
-this.Control[]={this.pb_1,&
+this.Control[]={this.sle_1,&
+this.pb_1,&
 this.ddlb_1,&
 this.sle_2,&
 this.p_1}
 end on
 
 on w_login.destroy
+destroy(this.sle_1)
 destroy(this.pb_1)
 destroy(this.ddlb_1)
 destroy(this.sle_2)
 destroy(this.p_1)
 end on
+
+type sle_1 from singlelineedit within w_login
+boolean visible = false
+integer x = 763
+integer y = 180
+integer width = 457
+integer height = 112
+integer taborder = 10
+integer textsize = -10
+integer weight = 700
+fontcharset fontcharset = ansi!
+fontpitch fontpitch = variable!
+fontfamily fontfamily = swiss!
+string facename = "Verdana"
+long textcolor = 33554432
+boolean enabled = false
+borderstyle borderstyle = stylelowered!
+end type
 
 type pb_1 from picturebutton within w_login
 integer x = 146
@@ -100,7 +128,6 @@ ls_pass = sle_2.text
 
 select sysdate into :gd_dt from dual; 
 
-//messagebox('DBdate','DBdate : '+string(gd_dt)+'  Sysdate : '+string(Today()) ) 
 
 if date(gd_dt) <> today() then
 	messagebox('Warning !!!','Your System Date Is Not Correct, PLease Check !!!')
@@ -109,61 +136,86 @@ end if
 
 
 
-//pasword expire check
-select (case when (sysdate - USER_LAST_PASS_CHANGED)>30 then 'Y' else 'N' end), USER_LAST_PASS_CHANGED,trunc((sysdate - USER_LAST_PASS_CHANGED)) into :indchangepass,:ld_lspasschng,:ll_passexpireday from fb_login where upper(USER_ID) = upper(:gs_user) and
-         upper(USER_PASSWORD) = upper(:ls_pass) ;
+setnull(ls_user_type)
+ls_user_type=sle_1.text
+
+if ls_user_type = 'GTE' then
+			//pasword expire check
+			select (case when (sysdate - USER_LAST_PASS_CHANGED)>30 then 'Y' else 'N' end), USER_LAST_PASS_CHANGED,trunc((sysdate - USER_LAST_PASS_CHANGED)) into :indchangepass,:ld_lspasschng,:ll_passexpireday from fb_login where upper(USER_ID) = upper(:gs_user) and
+						upper(USER_PASSWORD) = upper(:ls_pass) ;
+						
+			if sqlca.sqlcode =  -1 then
+				 messagebox("Sql Error",sqlca.sqlerrtext,information!)
+				 return 1
+			elseif sqlca.sqlcode = 100 then
+				messagebox("Login Error","You Are Not Authorized User ....!",information!)
+				return 1
+			else
 			
-if sqlca.sqlcode =  -1 then
-	 messagebox("Sql Error",sqlca.sqlerrtext,information!)
-	 return 1
-elseif sqlca.sqlcode = 100 then
-	messagebox("Login Error","You Are Not Authorized User ....!",information!)
-	return 1
-else
-
-
-if(indchangepass='Y' and gs_user<>'ADMIN' and not isnull(ld_lspasschng)) then 
-	messagebox('Warning !!!','Your Password Has been expire,Kindly Change')
-	open(w_change_pass)
-	messagebox('Message', 'You can now login with your new password')
-	sle_2.text=''
-	return 1	
-elseif 	(indchangepass='N' or  gs_user='ADMIN' or isnull(ld_lspasschng)) then
-	if  isnull(ld_lspasschng) then
-		update fb_login set USER_LAST_PASS_CHANGED=sysdate where USER_ID = :gs_user;	
-		if sqlca.sqlcode= -1 then
-			messagebox('Error', 'Error occured whil updating last password: '+sqlca.sqlerrtext)
-			return 1
+			
+			if(indchangepass='Y' and gs_user<>'ADMIN' and not isnull(ld_lspasschng)) then 
+				messagebox('Warning !!!','Your Password Has been expire,Kindly Change')
+				open(w_change_pass)
+				messagebox('Message', 'You can now login with your new password')
+				sle_2.text=''
+				return 1	
+			elseif 	(indchangepass='N' or  gs_user='ADMIN' or isnull(ld_lspasschng)) then
+				if  isnull(ld_lspasschng) then
+					update fb_login set USER_LAST_PASS_CHANGED=sysdate where USER_ID = :gs_user;	
+					if sqlca.sqlcode= -1 then
+						messagebox('Error', 'Error occured whil updating last password: '+sqlca.sqlerrtext)
+						return 1
+					end if
+				end if
+				
+				if ll_passexpireday>=27 and gs_user<>'ADMIN' then
+					messagebox('Warning', 'Your password will expire in : '+string(30-ll_passexpireday)+ ' Days')
+				end if
+				
+				select distinct USER_FIRST_NAME,USER_LAST_NAME INTO :GS_USER_fname,:gs_user_lname
+				from fb_login, fb_login_detail where upper(USER_ID) = upper(LD_USER_ID) and upper(USER_ID) = upper(:gs_user) and
+						 upper(USER_PASSWORD) = upper(:ls_pass) and LD_APPS = 'GTE' and nvl(USER_ACTIVE_IND,'Y')='Y';
+							 
+					CHOOSE CASE sqlca.sqlcode
+						CASE 0
+								  if f_acess_log(gs_user,'GTE','LOGIN') = -1 then
+								return 1
+							 end if
+							  gb_validuserid = true
+							  open(w_mdi)
+							  w_login.visible = false
+							  //close (w_login)
+						case 100
+							  messagebox("Login Error","You Are Not Authorized User ....!",information!)
+							  gb_validuserid = false
+						case -1
+							  messagebox("Sql Error",sqlca.sqlerrtext,information!)
+							  gb_validuserid = false
+					END CHOOSE
+				
+				end if
+			end if
+		else
+			select distinct USER_FIRST_NAME,USER_LAST_NAME INTO :GS_USER_fname,:gs_user_lname
+  			from ltc.fb_login, ltc.fb_login_detail where upper(USER_ID) = upper(LD_USER_ID) and upper(USER_ID) = upper(:gs_user) and
+		 	upper(USER_PASSWORD) = upper(:ls_pass) and LD_APPS = 'LTC' ;
+			 CHOOSE CASE sqlca.sqlcode
+						CASE 0
+								  if f_acess_log(gs_user,'GTE','LOGIN') = -1 then
+								return 1
+							 end if
+							  gb_validuserid = true
+							  open(w_mdi)
+							  w_login.visible = false
+							  //close (w_login)
+						case 100
+							  messagebox("Login Error","You Are Not Authorized User ....!",information!)
+							  gb_validuserid = false
+						case -1
+							  messagebox("Sql Error",sqlca.sqlerrtext,information!)
+							  gb_validuserid = false
+					END CHOOSE
 		end if
-	end if
-	
-	if ll_passexpireday>=27 and gs_user<>'ADMIN' then
-		messagebox('Warning', 'Your password will expire in : '+string(30-ll_passexpireday)+ ' Days')
-	end if
-	
-	select distinct USER_FIRST_NAME,USER_LAST_NAME INTO :GS_USER_fname,:gs_user_lname
-	from fb_login, fb_login_detail where upper(USER_ID) = upper(LD_USER_ID) and upper(USER_ID) = upper(:gs_user) and
-			 upper(USER_PASSWORD) = upper(:ls_pass) and LD_APPS = 'GTE' and nvl(USER_ACTIVE_IND,'Y')='Y';
-				 
-		CHOOSE CASE sqlca.sqlcode
-			CASE 0
-					  if f_acess_log(gs_user,'GTE','LOGIN') = -1 then
-					return 1
-				 end if
-				  gb_validuserid = true
-				  open(w_mdi)
-				  w_login.visible = false
-				  //close (w_login)
-			case 100
-				  messagebox("Login Error","You Are Not Authorized User ....!",information!)
-				  gb_validuserid = false
-			case -1
-				  messagebox("Sql Error",sqlca.sqlerrtext,information!)
-				  gb_validuserid = false
-		END CHOOSE
-	
-	end if
-end if
 end event
 
 type ddlb_1 from dropdownlistbox within w_login
@@ -186,6 +238,21 @@ boolean vscrollbar = true
 integer limit = 20
 borderstyle borderstyle = stylelowered!
 end type
+
+event modified;gs_user = TRIM(upper(ddlb_1.text))
+
+
+setnull(ls_user_type)
+select user_type into :ls_user_type from fb_login where upper(trim(user_id))=upper(trim(:gs_user));
+if sqlca.sqlcode =  -1 then
+	 messagebox("Sql Error While Geting User Type",sqlca.sqlerrtext,information!)
+	 return 1
+end if
+
+if isnull(ls_user_type) then ls_user_type='GTE'
+
+sle_1.text=ls_user_type
+end event
 
 type sle_2 from singlelineedit within w_login
 integer x = 142

@@ -636,12 +636,12 @@ if f_check_fin_yr(datetime(ls_ac_dt)) = -1 then;	return 1;end if;
 			ls_adj_dt = string(dw_1.getitemdatetime(ll_cnt,'sa_adj_date'),'dd/mm/yyyy')
 			
 			//ls_row_id=dw_1.getitemstring(ll_cnt,'rowid')
-			if  dw_1.getitemnumber(ll_cnt,'sa_quantity') < 0  then
-				if f_stockadjustment_fifo(dw_1.getitemstring(ll_cnt,'sa_adj_id'),gs_storeid) = -1 then
-					return 1
-				end if;	
-				  setpointer(arrow!)
-			end if;
+//			if  dw_1.getitemnumber(ll_cnt,'sa_quantity') < 0  then
+//				if f_stockadjustment_fifo(dw_1.getitemstring(ll_cnt,'sa_adj_id'),gs_storeid) = -1 then
+//					return 1
+//				end if;	
+//				  setpointer(arrow!)
+//			end if;
 		
 			select fn_sTORE_ADJUSTMENT (:ls_adj_id,:ls_adj_dt,'',:gs_storeid, :gs_CO_ID,:gs_garden_snm,:GS_USER) into :ll_temp from dual;
 			if sqlca.sqlcode = -1 then
@@ -1030,7 +1030,7 @@ event itemchanged;if lb_query = false then
 	
 		 if date(ld_dt) < date(ld_stock_dt) then
 			MESSAGEBOX('Error:','The Posting date Should be greater than equal to Last Stock Transaction Date i.e. '+string(ld_stock_dt,'dd/mm/yyyy'))
-			return 1;
+			//return 1;
 		end if;	
 		 if date(ld_dt) > date(today()) then
 			MESSAGEBOX('Error:','The Issue date Should be Less than equal to Current System Date i.e. '+string(today(),'dd/mm/yyyy'))

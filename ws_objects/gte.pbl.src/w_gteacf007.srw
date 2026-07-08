@@ -2,6 +2,12 @@
 forward
 global type w_gteacf007 from window
 end type
+type cb_6 from commandbutton within w_gteacf007
+end type
+type shl_1 from statichyperlink within w_gteacf007
+end type
+type cb_10 from commandbutton within w_gteacf007
+end type
 type cb_11 from commandbutton within w_gteacf007
 end type
 type cb_9 from commandbutton within w_gteacf007
@@ -43,6 +49,9 @@ windowstate windowstate = maximized!
 long backcolor = 67108864
 string icon = "AppIcon!"
 event ue_option ( )
+cb_6 cb_6
+shl_1 shl_1
+cb_10 cb_10
 cb_11 cb_11
 cb_9 cb_9
 cb_8 cb_8
@@ -74,13 +83,18 @@ double ld_bill_amt, ld_cgst_prcnt, ld_sgst_prcnt, ld_igst_prcnt, ld_cgst_amt, ld
 string ls_hsn_cd, ls_cgst_recgl, ls_sgst_recgl, ls_igst_recgl, ls_cgst_paygl, ls_sgst_paygl, ls_igst_paygl, ls_gst_sundry_pay, ls_co_id, ls_party_tds, ls_ref_date, ls_entry_dt, ls_functions
 string ls_cgst_recsgl, ls_sgst_recsgl, ls_igst_recsgl, ls_cgst_paysgl, ls_sgst_paysgl, ls_igst_paysgl, ls_gst_sundry_paysgl, ls_gst_ind, ls_revchg_ind, ls_rev_catg, ls_ref_no, ls_chq_no
 
- string ls_exp_gl,ls_adv_gl,ls_deposit_gl,ls_atppf_sgl,ls_billno,ls_billdt,ls_party,ls_Plucking_Leaf,ls_narr,ls_lwwid, ls_vou_no, ls_tds_gl, ls_user_id, ls_business_segment,ls_revinvno, ls_tds_ind,ls_glentry_alow
+ string ls_exp_gl,ls_adv_gl,ls_deposit_gl,ls_atppf_sgl,ls_billno,ls_billdt,ls_party,ls_Plucking_Leaf,ls_narr,ls_lwwid, ls_vou_no, ls_tds_gl, ls_user_id, ls_business_segment,ls_revinvno, ls_tds_ind,ls_glentry_alow,ls_voutype
+ 
+ date ld_max_date
+ 
+ string ls_fullname, ls_filename,ls_vou_id,ls_val_active
 end variables
 
 forward prototypes
 public function integer wf_check_fillcol (integer fl_row)
-public function integer wf_check_duplicate_rec (string fs_glcd, string fs_sglcd, double fd_amt, string fs_narr, string fs_bill, datetime fd_billdt)
 public function integer wf_check_section (integer fl_row)
+public function integer wf_check_duplicate_rec (string fs_glcd, string fs_sglcd, double fd_amt, string fs_narr, string fs_bill, datetime fd_billdt, string fs_expense)
+public function string wf_sftp_upload (string fs_localfilepath, string fs_filename, string fs_unique_id, string fs_table, string fs_column_name, string fs_unique_cloumn, string fs_folder)
 end prototypes
 
 event ue_option();choose case gs_ueoption
@@ -165,32 +179,6 @@ return 1
 
 end function
 
-public function integer wf_check_duplicate_rec (string fs_glcd, string fs_sglcd, double fd_amt, string fs_narr, string fs_bill, datetime fd_billdt);long fl_row
-string ls_gl_cd1,ls_sgl_cd1,ls_billno1,ls_narr1
-datetime ld_run_dt1,ld_billdt1
-double ld_amt1
-dw_2.SelectRow(0, FALSE)
-if dw_2.rowcount() > 1 then
-	for fl_row = 1 to (dw_2.rowcount() - 1)
-		ls_gl_cd1 = dw_2.getitemstring(fl_row,'vd_gl_cd')
-		ls_sgl_cd1 = dw_2.getitemstring(fl_row,'vd_sgl_cd') 
-		ld_amt1 = dw_2.getitemnumber(fl_row,'vd_amount')
-		ls_narr1 = dw_2.getitemstring(fl_row,'vd_narr_free_text')
-		ls_billno1 = dw_2.getitemstring(fl_row,'vd_ref_no')
-		ld_billdt1 = dw_2.getitemdatetime(fl_row,'vd_ref_date')
-
-		
-		if ls_gl_cd1 = fs_glcd and ls_sgl_cd1 = fs_sglcd and ls_billno1 = fs_bill and ls_narr1 = fs_narr and ld_amt1 = fd_amt and ld_billdt1 = fd_billdt then
-			dw_2.SelectRow(fl_row, TRUE)
-			messagebox("Error ","Duplicate Record At Row : "+string(fl_row))
-			return -1
-		end if
-	next 
-end if 
-
-return 1
-end function
-
 public function integer wf_check_section (integer fl_row);string ls_acsubledger
 
 if dw_2.rowcount() > 0 and fl_row > 0 then
@@ -207,7 +195,93 @@ end if
 return 1
 end function
 
+public function integer wf_check_duplicate_rec (string fs_glcd, string fs_sglcd, double fd_amt, string fs_narr, string fs_bill, datetime fd_billdt, string fs_expense);long fl_row
+string ls_gl_cd1,ls_sgl_cd1,ls_billno1,ls_narr1,ls_exphead
+datetime ld_run_dt1,ld_billdt1
+double ld_amt1
+dw_2.SelectRow(0, FALSE)
+if dw_2.rowcount() > 1 then
+	for fl_row = 1 to (dw_2.rowcount() - 1)
+		ls_gl_cd1 = dw_2.getitemstring(fl_row,'vd_gl_cd')
+		ls_sgl_cd1 = dw_2.getitemstring(fl_row,'vd_sgl_cd') 
+		ld_amt1 = dw_2.getitemnumber(fl_row,'vd_amount')
+		ls_narr1 = dw_2.getitemstring(fl_row,'vd_narr_free_text')
+		ls_billno1 = dw_2.getitemstring(fl_row,'vd_ref_no')
+		ld_billdt1 = dw_2.getitemdatetime(fl_row,'vd_ref_date')
+		ls_exphead = dw_2.getitemstring(fl_row,'vd_expsubhead')
+		
+		if ls_gl_cd1 = fs_glcd and ls_sgl_cd1 = fs_sglcd and ls_billno1 = fs_bill and ls_narr1 = fs_narr and ld_amt1 = fd_amt and ld_billdt1 = fd_billdt and ls_exphead = fs_expense then
+			dw_2.SelectRow(fl_row, TRUE)
+			messagebox("Error ","Duplicate Record At Row : "+string(fl_row))
+			return -1
+		end if
+	next 
+end if 
+
+return 1
+end function
+
+public function string wf_sftp_upload (string fs_localfilepath, string fs_filename, string fs_unique_id, string fs_table, string fs_column_name, string fs_unique_cloumn, string fs_folder);setpointer(hourglass!)
+long li_rc
+string ls_command
+string ls_localfile, ls_remotefile, ls_server, ls_user, ls_pass
+string ls_netrc, ls_logfile,ls_sql,ls_file
+
+// Configuration
+ls_localfile  = fs_localfilepath                               // Local file to send
+ls_remotefile = "LTC/" + fs_folder + "/" + fs_filename
+ls_server     = "140.238.251.98"
+ls_user       = "LtcCldFTP"
+ls_pass       = "LtcCld1125$$"
+ls_netrc      = "C:\Temp\.curl_netrc"
+ls_logfile    = "C:\Temp\curl_upload_log.txt"
+
+FileDelete(ls_netrc)
+FileDelete(ls_logfile)
+// Create .netrc file
+li_rc = FileOpen(ls_netrc, LineMode!, Write!, LockWrite!, Replace!)
+IF li_rc > 0 THEN
+    FileWrite(li_rc, "machine " + ls_server)
+    FileWrite(li_rc, "login " + ls_user)
+    FileWrite(li_rc, "password " + ls_pass)
+    FileClose(li_rc)
+ELSE
+    MessageBox("Error", "Cannot create netrc file")
+    RETURN "0"
+END IF
+
+// Upload file
+ls_command = 'cmd /c curl -v -T "' + ls_localfile + '" --netrc-file "' + ls_netrc + '" "ftp://' + ls_server + '/' + ls_remotefile + '" > "' + ls_logfile + '" 2>&1'
+li_rc = Run(ls_command, Minimized!)
+
+
+
+
+
+dw_1.setitem(dw_1.getrow(),fs_column_name,fs_filename)
+
+ 
+setnull(ls_sql)
+ls_sql = "UPDATE " + fs_table + " SET " + fs_column_name + " = '" + fs_filename + "' WHERE " + fs_unique_cloumn + " = '" + fs_unique_id + "'"
+EXECUTE IMMEDIATE :ls_sql;
+IF SQLCA.SQLCode <> 0 THEN
+     MessageBox("Error", "While updating data in Garden: " + SQLCA.SQLErrText)
+     FileDelete(ls_netrc)
+     RETURN "0"
+ END IF
+
+
+
+
+
+
+
+end function
+
 on w_gteacf007.create
+this.cb_6=create cb_6
+this.shl_1=create shl_1
+this.cb_10=create cb_10
 this.cb_11=create cb_11
 this.cb_9=create cb_9
 this.cb_8=create cb_8
@@ -221,7 +295,10 @@ this.cb_1=create cb_1
 this.dw_1=create dw_1
 this.dw_2=create dw_2
 this.dw_3=create dw_3
-this.Control[]={this.cb_11,&
+this.Control[]={this.cb_6,&
+this.shl_1,&
+this.cb_10,&
+this.cb_11,&
 this.cb_9,&
 this.cb_8,&
 this.cb_7,&
@@ -237,6 +314,9 @@ this.dw_3}
 end on
 
 on w_gteacf007.destroy
+destroy(this.cb_6)
+destroy(this.shl_1)
+destroy(this.cb_10)
 destroy(this.cb_11)
 destroy(this.cb_9)
 destroy(this.cb_8)
@@ -380,6 +460,132 @@ IF KeyDown(KeyF3!) THEN
 		cb_3.triggerevent(clicked!)
 	end if
 end if
+end event
+
+type cb_6 from commandbutton within w_gteacf007
+integer x = 4073
+integer y = 684
+integer width = 224
+integer height = 92
+integer taborder = 60
+integer textsize = -10
+integer weight = 400
+fontcharset fontcharset = ansi!
+fontpitch fontpitch = variable!
+fontfamily fontfamily = swiss!
+string facename = "Tahoma"
+string text = "Upload"
+end type
+
+event clicked;long    li_FileNum, li_rc
+string  ls_file_name, ls_newfile, ls_newpath
+// ---------------------------
+// Prepare directories
+// ---------------------------
+IF NOT DirectoryExists("c:\voucher") THEN
+    CreateDirectory("c:\voucher")
+END IF
+
+IF NOT DirectoryExists("c:\temp") THEN
+    CreateDirectory("c:\temp")
+END IF
+
+// ---------------------------
+// Move the source file
+// ---------------------------
+ls_file_name = dw_1.GetItemString(dw_1.GetRow(), 'vh_file_name')
+ls_vou_id    = string(dw_1.GetItemnumber(dw_1.GetRow(), 'vh_doc_srl'))
+ls_vou_type    =dw_1.GetItemString(dw_1.GetRow(), 'vh_vou_type')
+
+IF NOT IsNull(ls_file_name) AND Len(ls_file_name) > 0 THEN
+	
+	//select to_char(to_number(substr(:ls_lpi_id,4,length(:ls_lpi_id)))) into :ls_newfile from dual;
+	
+    ls_newfile = gs_garden_snm+ '_'+ls_vou_type+'_' + ls_vou_id + lower(right(ls_file_name,(len(ls_file_name)-pos(ls_file_name,'.'))+1 ))
+    ls_newpath = "c:\voucher\" + ls_newfile
+	
+	if fileexists(ls_newpath) then 
+		filedelete(ls_newpath)
+	end if
+	 
+
+    li_FileNum = FileMove(ls_file_name, ls_newpath)
+    IF li_FileNum <> 1 THEN
+        MessageBox("Error", "File could not be moved to: " + ls_newpath)
+        RETURN
+    END IF
+ELSE
+    MessageBox("Error", "No source file name found.")
+    RETURN
+END IF
+
+string ls_result
+ls_result=wf_sftp_upload(ls_newpath,ls_newfile,ls_vou_id,'fb_vou_head','vh_file_name','vh_doc_srl','GARDENVOUCHER')
+
+setpointer(Arrow!)
+
+if ls_result = "0" then
+	messagebox('Error','File Not Uploaded')
+else
+	messagebox('Successful','File Uploaded Kindly Check By Clicking Open Button')
+end if
+
+
+end event
+
+type shl_1 from statichyperlink within w_gteacf007
+integer x = 3863
+integer y = 696
+integer width = 210
+integer height = 64
+integer textsize = -10
+integer weight = 400
+fontcharset fontcharset = ansi!
+fontpitch fontpitch = variable!
+fontfamily fontfamily = swiss!
+string facename = "Tahoma"
+boolean underline = true
+string pointer = "HyperLink!"
+long textcolor = 134217856
+long backcolor = 67108864
+string text = "Open"
+alignment alignment = center!
+boolean focusrectangle = false
+end type
+
+event clicked;string ls_file
+if dw_1.getrow() > 0 and lb_query = false then
+//	string ls_file
+			ls_file = dw_1.getitemstring(dw_1.getrow(),'vh_file_name')
+//			messagebox('11',ls_file)
+			shl_1.url = gs_ftp_ip+ "GARDENVOUCHER/" +ls_file
+			if isnull(ls_file) or ls_file = "" then 
+				shl_1.visible = false
+			else
+				shl_1.visible=true
+			end if
+end if
+end event
+
+type cb_10 from commandbutton within w_gteacf007
+integer x = 3634
+integer y = 684
+integer width = 233
+integer height = 92
+integer taborder = 50
+integer textsize = -10
+integer weight = 400
+fontcharset fontcharset = ansi!
+fontpitch fontpitch = variable!
+fontfamily fontfamily = swiss!
+string facename = "Tahoma"
+string text = "Browse"
+end type
+
+event clicked;if GetFileOpenName ("Open", ls_fullname, ls_filename, "PDF", "PDF Files (*.pdf),*.pdf,Word Document Files (*.doc), *.doc, Excel12(*.xlsx) With Header, *.xlsx", "C:\temp", 512) < 1 then return
+dw_1.setitem(dw_1.getrow(),'vh_file_name',ls_fullname)
+
+
 end event
 
 type cb_11 from commandbutton within w_gteacf007
@@ -718,7 +924,8 @@ IF  MessageBox("Save  Alert", 'Do You Want To Save ....?' ,Exclamation!, YesNo!,
 			messagebox('Error','The Total Credit Amount Should be More Than Total Debit Amount (In Case Of BRV and CRV voucher')
 			return
 		end if		
-       end if;	
+     end if;	
+		 
 		
 	/// Generate reference no
 	if lb_neworder = true then
@@ -781,6 +988,23 @@ if lb_neworder = false  then
 			
 			ll_ref = dw_1.getitemnumber(ll_row,'VH_DOC_SRL')
 			ls_vou_dt = string(dw_1.getitemdatetime(ll_row,'vh_vou_date'),'dd/mm/yyyy')
+			
+			
+			//Validation For File Upload
+		
+			ls_val_active='N'		
+			select nvl(VAL_IS_ACTIVE,'Y') into :ls_val_active from ltc.FB_VALIDATION_MASTER where VAL_CODE='FILEUPLOAD';		
+			
+			if isnull(ls_val_active) then ls_val_active='N'
+			
+			if ls_val_active='Y' then			
+				setnull(ls_filename);
+				ls_filename = dw_1.getitemstring(ll_ctr,'vh_file_name')			
+				if isnull(ls_filename) or len(ls_filename) = 0 then
+					messagebox('Warning...!!!','File Upload is blank')
+					return 1
+				end if
+			end if
 			
 			///////////////////////////////		
 			string ls_dedn_dt,ls_detail
@@ -1422,7 +1646,6 @@ if dw_1.rowcount() = 0 then
 	
 	dw_1.setitem(dw_1.getrow(),'vh_entry_by',gs_user)
 	dw_1.setitem(dw_1.getrow(),'vh_entry_dt',datetime(today()))
-	dw_1.setitem(dw_1.getrow(),'vh_vou_date',datetime(today()))
 	//dw_1.setitem(dw_1.getrow(),'vh_ac_year',long(string(datetime(today()),'yyyymm')))
 	dw_1.setitem(dw_1.getrow(),'VH_CO_ID',gs_CO_ID)
 	
@@ -1660,7 +1883,7 @@ if dwo.name = 'vh_vou_type'  then
 			messagebox('Warning!','Voucher Type Should Be Cash Payment/ Cash Receipt, Please Check !!!')
 			return 1
 		end if
-
+		
 		if dw_2.rowcount( )>0 then
 			for  ll_ctr = dw_2.rowcount() to 1 step -1
 				dw_2.setitem(ll_ctr ,'vd_amount',0)
@@ -1716,6 +1939,7 @@ end if
 
 if dwo.name = 'vh_vou_date'  and lb_query = false then
 	ld_voudt=datetime(data)
+	ls_voutype=dw_1.getitemstring(row,'vh_vou_type')
 //	 if f_check_fin_yr(ld_voudt) = -1 then;	return 1;end if;
 
 	select AP_STATUS into  :ls_status from fb_ac_year a,fb_acyear_period b
@@ -1759,6 +1983,45 @@ if dwo.name = 'vh_vou_date'  and lb_query = false then
 			dw_1.setitem(dw_1.getrow(),'vh_ac_period',long(ll_acpd))
 		end if;  
 	end if
+	
+	if gs_opt = 'CV' or gs_opt = 'BV' then	 
+		if isnull(ls_voutype) or len(ls_voutype)=0  then
+			messagebox('Warning..!! ','First Select Voucher Type');
+			return 1;
+		else
+			select max(trunc(vh_vou_date)) into :ld_max_date  from fb_vou_head where VH_VOU_TYPE =:ls_voutype;
+			
+			 if date(ld_voudt) < date(ld_max_date) then
+				
+				ls_val_active='N'		
+				select nvl(VAL_IS_ACTIVE,'Y') into :ls_val_active from ltc.FB_VALIDATION_MASTER where VAL_CODE=:gs_opt and VAL_GARDEN= :gs_unit;		
+				if sqlca.sqlcode = -1 then
+					messagebox('Sql Error : During Checking Validation Master : ',sqlca.sqlerrtext);
+					return 1;
+				elseif sqlca.sqlcode = 0 then	
+					if isnull(ls_val_active) then ls_val_active='N'
+		
+					if ls_val_active<>'Y' then 
+						MESSAGEBOX('Error:','The Voucher date Should be greater than equal to Last Voucher Transaction Date i.e. '+string(ld_max_date,'dd/mm/yyyy'))
+						return 1
+					end if
+				elseif sqlca.sqlcode = 100 then	
+					MESSAGEBOX('Error:','The Voucher date Should be greater than equal to Last Voucher Transaction Date i.e. '+string(ld_max_date,'dd/mm/yyyy'))
+						return 1
+				end if;  
+				
+				
+				
+			end if
+			 if date(ld_voudt) > date(today()) then
+				MESSAGEBOX('Error:','The Voucher date Should be Less than equal to Current System Date i.e. '+string(today(),'dd/mm/yyyy'))
+				return 1
+			end if
+			
+			
+		end if
+	end if
+	
 end if
 
 	if dwo.name = 'vh_contra_gl' then
@@ -1803,9 +2066,6 @@ if dwo.name = 'appr_flag'  then
 				setnull(ls_temp)
 				dw_1.setitem(row,'vh_approved_by',ls_temp)
 				dw_1.setitem(row,'vh_approved_dt',datetime(ls_temp)) 
-				if gs_opt = 'CV'  then
-					dw_1.setitem(row,'vh_vou_date',datetime(ls_temp)) 
-				end if
 				
 				dw_2.settaborder('vd_functions',0)	
 				dw_2.settaborder('vd_business_segment',0)	
@@ -1848,19 +2108,12 @@ if dwo.name = 'appr_flag'  then
 			  
 		   dw_1.setitem(row,'vh_approved_by',gs_user)
 		   dw_1.setitem(row,'vh_approved_dt',datetime(today())) 
-			if gs_opt = 'CV'  then
-				dw_1.setitem(row,'vh_vou_date',datetime(today())) 
-			end if
-			
 		end if
 
 	elseif ls_tmp_id = 'N' then		
 		setnull(ls_temp)		
 		dw_1.setitem(row,'vh_approved_by',ls_temp)
 		dw_1.setitem(row,'vh_approved_dt',datetime(ls_temp)) 
-		if gs_opt = 'CV'  then
-			dw_1.setitem(row,'vh_vou_date',datetime(ls_temp)) 
-		end if
 		
 		dw_2.settaborder('vd_functions',0)	
 		dw_2.settaborder('vd_business_segment',0)	
@@ -2032,7 +2285,7 @@ event itemchanged;if dwo.name = 'vd_gl_cd'  then
 	ls_glentry_alow = 'N'
 	
 	select distinct ACLEDGER_ID,ACLEDGER_TYPE into :ls_exp_gl,:ls_glentry_alow from fb_acledger 
-	where ACLEDGER_ACTYPE = 'E' and nvl(ACLEDGER_ACTIVE_IND,'N')='Y'  and ACLEDGER_ID=:ls_gl_cd;
+	where  nvl(ACLEDGER_ACTIVE_IND,'N')='Y'  and ACLEDGER_ID=:ls_gl_cd;
 	
 	if sqlca.sqlcode = -1 then
 		messagebox('Sql Error : During Select Expense Ledger : ',sqlca.sqlerrtext);
@@ -2051,7 +2304,7 @@ event itemchanged;if dwo.name = 'vd_gl_cd'  then
 	end if
 	 
 	//if (ls_gl_cd <>'LEG0014' or ls_gl_cd <>'LEG0015') then
-	if ls_gl_cd <>ls_exp_gl then
+	if ls_gl_cd <>ls_exp_gl or ls_glentry_alow<>'E'  then
 		  setnull(ls_preferred_mes)
 		  setnull(ls_section_id)	  
 		  dw_2.setitem(row,'vd_preferred_mes',ls_preferred_mes)
@@ -2101,6 +2354,14 @@ if lb_query = false then
 	ls_old_dc_ind=dw_2.getitemstring(row,'old_dc_ind')
 	ld_voudt=dw_1.getitemdatetime(dw_1.getrow(),'vh_vou_date') 	
 end if
+
+
+//if dwo.name ='vd_expsubhead' then
+//	setnull(ls_temp)
+//	dw_2.setitem(row,'vd_preferred_mes',ls_temp)
+//	dw_2.setitem(row,'vd_dc_ind',ls_temp)
+//	dw_2.setitem(row,'vd_amount',0)
+//end if 
 
 if dwo.name = 'vd_sgl_cd' then
 	ls_sgl_cd = data
@@ -2243,6 +2504,8 @@ if dwo.name = 'vd_cheque_no' then
 	dw_2.setitem(row,'vd_cheque_dt',ld_voudt)
 end if
 
+
+
 if dwo.name = 'vd_preferred_mes' then
 	ls_cons = trim(data)
 	ls_expsubhead=dw_2.getitemstring(row,'vd_expsubhead') 
@@ -2298,6 +2561,21 @@ if dwo.name = 'vd_amount' then
 	ls_billno = dw_2.getitemstring(row,'vd_ref_no')
 	ld_billdt = dw_2.getitemdatetime(row,'vd_ref_date')
 	ls_vou_type = dw_1.getitemstring(dw_1.getrow(),'vh_vou_type')
+	ls_expsubhead=dw_2.getitemstring(row,'vd_expsubhead') 
+	
+	select distinct 'X' into :ls_temp from fb_acledger where ACLEDGER_ACTYPE='E' and ACLEDGER_ID =:ls_gl_cd;
+	 if sqlca.sqlcode = -1 then
+		messagebox('Sql Error : During ledger Check for Expense : ',sqlca.sqlerrtext);
+		return 1;
+	elseif sqlca.sqlcode =0 then
+		if isnull(ls_expsubhead) or len(trim(dw_2.getitemstring(row,'vd_expsubhead'))) = 0 then 
+			messagebox('Warning!','Prefered Expense Sub head cannot be same, Please Select From List !!!')
+			return 1;
+		end if
+		
+		
+	end if	
+	
 	
 	If ((not isnull(trim(dw_2.getitemstring(row,'vd_expsubhead'))) or len(trim(dw_2.getitemstring(row,'vd_expsubhead'))) > 0)  and  (isnull(dw_2.getitemstring(row,'vd_preferred_mes')) or len(dw_2.getitemstring(row,'vd_preferred_mes')) = 0))	then
 		messagebox('Warning!','Prefered MES Is Blank, Please Select From List !!!')
@@ -2321,7 +2599,7 @@ if dwo.name = 'vd_amount' then
 	end if
 	
 	
-	if  wf_check_duplicate_rec(ls_gl_cd,ls_sgl_cd,ld_amt,ls_narr,ls_billno,ld_billdt) = -1 then return 1
+	if  wf_check_duplicate_rec(ls_gl_cd,ls_sgl_cd,ld_amt,ls_narr,ls_billno,ld_billdt,ls_expsubhead) = -1 then return 1
 	
 	ls_cons=dw_2.getitemstring(row,'vd_preferred_mes') 
 	ls_expsubhead=dw_2.getitemstring(row,'vd_expsubhead') 
@@ -2484,6 +2762,8 @@ if gs_opt = 'EV'  then
 	end if
 end if;	
 
+
+
 if dwo.name = 'vd_gst_ind'  then		
 	gd_amount = dw_2.getitemnumber(row,'vd_amount')
 	gs_party_cd = dw_2.getitemstring(row,'vd_party_cd')	
@@ -2590,7 +2870,8 @@ if dwo.name = 'vd_narr_free_text' then
 	ls_billno = dw_2.getitemstring(row,'vd_ref_no')
 	ld_amt = dw_2.getitemnumber(row,'vd_amount')
 	ld_billdt = dw_2.getitemdatetime(row,'vd_ref_date')
-	if  wf_check_duplicate_rec(ls_gl_cd,ls_sgl_cd,ld_amt,data,ls_billno,ld_billdt) = -1 then return 1
+	ls_expsubhead=dw_2.getitemstring(row,'vd_expsubhead') 
+	if  wf_check_duplicate_rec(ls_gl_cd,ls_sgl_cd,ld_amt,data,ls_billno,ld_billdt,ls_expsubhead) = -1 then return 1
 end if
 if dwo.name = 'vd_ref_no' then
 	ls_gl_cd = dw_2.getitemstring(row,'vd_gl_cd')
@@ -2598,7 +2879,8 @@ if dwo.name = 'vd_ref_no' then
 	ld_amt = dw_2.getitemnumber(row,'vd_amount')
 	ls_narr = dw_2.getitemstring(row,'vd_narr_free_text')
 	ld_billdt = dw_2.getitemdatetime(row,'vd_ref_date')
-	if  wf_check_duplicate_rec(ls_gl_cd,ls_sgl_cd,ld_amt,ls_narr,data,ld_billdt) = -1 then return 1
+	ls_expsubhead=dw_2.getitemstring(row,'vd_expsubhead') 
+	if  wf_check_duplicate_rec(ls_gl_cd,ls_sgl_cd,ld_amt,ls_narr,data,ld_billdt,ls_expsubhead) = -1 then return 1
 end if
 if dwo.name = 'vd_ref_date' then
 	ls_gl_cd = dw_2.getitemstring(row,'vd_gl_cd')
@@ -2606,7 +2888,8 @@ if dwo.name = 'vd_ref_date' then
 	ld_amt = dw_2.getitemnumber(row,'vd_amount')
 	ls_narr = dw_2.getitemstring(row,'vd_narr_free_text')
 	ls_billno = dw_2.getitemstring(row,'vd_ref_no')
-	if  wf_check_duplicate_rec(ls_gl_cd,ls_sgl_cd,ld_amt,ls_narr,ls_billno,datetime(data)) = -1 then return 1
+	ls_expsubhead=dw_2.getitemstring(row,'vd_expsubhead') 
+	if  wf_check_duplicate_rec(ls_gl_cd,ls_sgl_cd,ld_amt,ls_narr,ls_billno,datetime(data),ls_expsubhead) = -1 then return 1
 end if
 
 

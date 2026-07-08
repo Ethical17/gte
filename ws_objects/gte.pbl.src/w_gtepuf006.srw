@@ -54,7 +54,7 @@ type variables
 long ll_last,ll_ctr,ll_cnt,ll_count
 string ls_temp,ls_cons,ls_sup_id,ls_indent_id,ls_tmp_id,ls_sp_id,ls_rem
 boolean lb_neworder, lb_query
-double ld_efunit_price,ld_amount,ld_qnty,ld_old_qnty,ld_indqnty
+double ld_efunit_price,ld_amount,ld_qnty,ld_old_qnty,ld_indqnty,ld_discountper
 datawindowchild idw_prod
 datetime ld_date
 end variables
@@ -466,10 +466,20 @@ event itemchanged;if lb_query = false then
 	if dwo.name = 'lpo_unitprice' then
 		ld_efunit_price =double(data)
 		ld_qnty =dw_2.getitemnumber(row,'lpo_quantity')
-		
-		ld_amount=ld_qnty * ld_efunit_price 
+		ld_discountper=dw_2.getitemnumber(row,'lpo_discountper')
+		ld_amount=(ld_qnty * ld_efunit_price)-((ld_qnty * ld_efunit_price) * (ld_discountper/100))
 		dw_2.setitem(row,'amount',ld_amount)
 	end if
+	
+	if dwo.name='lpo_discountper' then
+		ld_discountper=double(data)
+		ld_efunit_price =dw_2.getitemnumber(row,'lpo_unitprice')
+		ld_qnty =dw_2.getitemnumber(row,'lpo_quantity')
+		
+		ld_amount=(ld_qnty * ld_efunit_price)-((ld_qnty * ld_efunit_price) * (ld_discountper/100))
+		dw_2.setitem(row,'amount',ld_amount)
+	end if
+	
 end if;
 cb_3.enabled = true
 end event

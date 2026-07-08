@@ -2,6 +2,8 @@
 forward
 global type w_gtelar001 from window
 end type
+type cb_3 from commandbutton within w_gtelar001
+end type
 type ddlb_3 from dropdownlistbox within w_gtelar001
 end type
 type st_3 from statictext within w_gtelar001
@@ -20,6 +22,8 @@ type ddlb_2 from dropdownlistbox within w_gtelar001
 end type
 type dw_1 from datawindow within w_gtelar001
 end type
+type dw_2 from datawindow within w_gtelar001
+end type
 end forward
 
 global type w_gtelar001 from window
@@ -35,6 +39,7 @@ windowstate windowstate = maximized!
 long backcolor = 67108864
 string icon = "AppIcon!"
 event ue_option ( )
+cb_3 cb_3
 ddlb_3 ddlb_3
 st_3 st_3
 st_2 st_2
@@ -44,6 +49,7 @@ cb_1 cb_1
 cb_2 cb_2
 ddlb_2 ddlb_2
 dw_1 dw_1
+dw_2 dw_2
 end type
 global w_gtelar001 w_gtelar001
 
@@ -97,6 +103,7 @@ end choose
 end event
 
 on w_gtelar001.create
+this.cb_3=create cb_3
 this.ddlb_3=create ddlb_3
 this.st_3=create st_3
 this.st_2=create st_2
@@ -106,7 +113,9 @@ this.cb_1=create cb_1
 this.cb_2=create cb_2
 this.ddlb_2=create ddlb_2
 this.dw_1=create dw_1
-this.Control[]={this.ddlb_3,&
+this.dw_2=create dw_2
+this.Control[]={this.cb_3,&
+this.ddlb_3,&
 this.st_3,&
 this.st_2,&
 this.ddlb_1,&
@@ -114,10 +123,12 @@ this.st_1,&
 this.cb_1,&
 this.cb_2,&
 this.ddlb_2,&
-this.dw_1}
+this.dw_1,&
+this.dw_2}
 end on
 
 on w_gtelar001.destroy
+destroy(this.cb_3)
 destroy(this.ddlb_3)
 destroy(this.st_3)
 destroy(this.st_2)
@@ -127,6 +138,7 @@ destroy(this.cb_1)
 destroy(this.cb_2)
 destroy(this.ddlb_2)
 destroy(this.dw_1)
+destroy(this.dw_2)
 end on
 
 event open;dw_1.modify("t_co.text = '"+gs_co_name+"'")
@@ -152,6 +164,37 @@ end if
 
 ddlb_2.text = 'ALL'
 setpointer(arrow!)
+end event
+
+type cb_3 from commandbutton within w_gtelar001
+integer x = 3653
+integer y = 4
+integer width = 375
+integer height = 96
+integer taborder = 30
+integer textsize = -10
+integer weight = 400
+fontcharset fontcharset = ansi!
+fontpitch fontpitch = variable!
+fontfamily fontfamily = roman!
+string facename = "Times New Roman"
+string text = "Dump Data"
+boolean cancel = true
+end type
+
+event clicked;string ls_file
+dw_2.settransobject(sqlca)
+
+setpointer(hourglass!)
+dw_2.retrieve()
+
+if dw_2.rowcount()>0 then
+	ls_file ="C:\temp\Employee" +string(today(),"_ddmmyy_")+string(now(),"hhmmss")+ ".xls"
+	dw_2.SaveAs(ls_file, EXCEL!, TRUE)
+	messagebox('Success','Path ' + ls_file)
+else
+	messagebox('Warning..!!!','No data Found')
+end if
 end event
 
 type ddlb_3 from dropdownlistbox within w_gtelar001
@@ -387,6 +430,35 @@ integer y = 124
 integer width = 5079
 integer height = 2672
 string dataobject = "dw_gtelar001"
+boolean hscrollbar = true
+boolean vscrollbar = true
+boolean resizable = true
+boolean livescroll = true
+borderstyle borderstyle = stylelowered!
+end type
+
+event ue_leftbuttonup;if isvalid(iu_powerfilter) then
+	iu_powerfilter.event post ue_buttonclicked(dwo.type,dwo.name)
+END IF
+end event
+
+event constructor;iu_powerfilter = create n_cst_powerfilter
+iu_powerfilter.of_setdw(this)
+end event
+
+event resize;if isvalid(iu_powerfilter) then
+	iu_powerfilter.event ue_positionbuttons()
+END IF
+end event
+
+type dw_2 from datawindow within w_gtelar001
+event ue_leftbuttonup pbm_dwnlbuttonup
+boolean visible = false
+integer y = 124
+integer width = 5079
+integer height = 2672
+integer taborder = 50
+string dataobject = "dw_gteempdump"
 boolean hscrollbar = true
 boolean vscrollbar = true
 boolean resizable = true

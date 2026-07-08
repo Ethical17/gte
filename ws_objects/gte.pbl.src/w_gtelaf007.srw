@@ -570,12 +570,12 @@ IF MessageBox("Save  Alert", 'Do You Want To Save ....?' ,Exclamation!, YesNo!, 
 				if isnull(ls_rowid) then
 					//messagebox('Error : Isnull RowID'+ls_rowid,sqlca.sqlerrtext)
 					select distinct 'x' into :ls_temp from fb_kamsubhead
-					where kamsub_id = :ls_id and trim(kamsub_name) = trim(:ls_name) and trim(kamsub_type) = trim(:ls_type) and 
+					where kamsub_id = :ls_id and trim(kamsub_type) = trim(:ls_type) and 
 					nvl(trim(kamsub_nkamtype),'x') = trim(nvl(:ls_nktype,'x')) and kamsub_frdt >= :ld_frdt and kamsub_todt is null;
 				else
 					//messagebox('Error : NOT NULL RowID'+ls_rowid,sqlca.sqlerrtext)
 					select distinct 'x' into :ls_temp from fb_kamsubhead
-					where kamsub_id = :ls_id and trim(kamsub_name) = trim(:ls_name) and trim(kamsub_type) = trim(:ls_type) and 
+					where kamsub_id = :ls_id and trim(kamsub_type) = trim(:ls_type) and 
 					nvl(trim(kamsub_nkamtype),'x') = trim(nvl(:ls_nktype,'x')) and kamsub_frdt >= :ld_frdt and kamsub_todt is null and rowid <> nvl(:ls_rowid, 'x');
 				end if
 			
@@ -603,7 +603,7 @@ IF MessageBox("Save  Alert", 'Do You Want To Save ....?' ,Exclamation!, YesNo!, 
 			ld_frdt = dw_1.getitemdatetime(ll_ctr,'kamsub_frdt')
 			
 			update fb_kamsubhead set kamsub_todt = (:ld_frdt - 1), kamsub_active_ind = 'N' 
-			where kamsub_id = :ls_id and trim(kamsub_name) = trim(:ls_name) and trim(kamsub_type) = trim(:ls_type)  and trim(kamsub_nkamtype) = trim(:ls_nktype) and kamsub_todt is null and kamsub_frdt < :ld_frdt;
+			where kamsub_id = :ls_id  and trim(kamsub_type) = trim(:ls_type)  and trim(kamsub_nkamtype) = trim(:ls_nktype) and kamsub_todt is null and kamsub_frdt < :ld_frdt;
 	
 			 if sqlca.sqlcode = -1 then
 				messagebox('Error : While Updating Record 1',sqlca.sqlerrtext)

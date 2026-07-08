@@ -2,6 +2,8 @@
 forward
 global type w_gteacf010_mr from window
 end type
+type dw_2 from datawindow within w_gteacf010_mr
+end type
 type cb_6 from commandbutton within w_gteacf010_mr
 end type
 type em_3 from editmask within w_gteacf010_mr
@@ -32,6 +34,7 @@ boolean resizable = true
 windowstate windowstate = maximized!
 long backcolor = 67108864
 event ue_option ( )
+dw_2 dw_2
 cb_6 cb_6
 em_3 em_3
 st_2 st_2
@@ -89,6 +92,7 @@ event ue_option();	choose case gs_ueoption
 end event
 
 on w_gteacf010_mr.create
+this.dw_2=create dw_2
 this.cb_6=create cb_6
 this.em_3=create em_3
 this.st_2=create st_2
@@ -97,7 +101,8 @@ this.ddlb_1=create ddlb_1
 this.cb_2=create cb_2
 this.cb_1=create cb_1
 this.st_1=create st_1
-this.Control[]={this.cb_6,&
+this.Control[]={this.dw_2,&
+this.cb_6,&
 this.em_3,&
 this.st_2,&
 this.dw_1,&
@@ -108,6 +113,7 @@ this.st_1}
 end on
 
 on w_gteacf010_mr.destroy
+destroy(this.dw_2)
 destroy(this.cb_6)
 destroy(this.em_3)
 destroy(this.st_2)
@@ -158,6 +164,19 @@ else
 	close c1;
 end if;
 end event
+
+type dw_2 from datawindow within w_gteacf010_mr
+boolean visible = false
+integer x = 50
+integer y = 140
+integer width = 2670
+integer height = 1556
+integer taborder = 60
+string title = "none"
+string dataobject = "dw_gteacf010_dis"
+boolean livescroll = true
+borderstyle borderstyle = stylelowered!
+end type
 
 type cb_6 from commandbutton within w_gteacf010_mr
 integer x = 3593
@@ -229,6 +248,10 @@ if isnull(ld_wages) then ld_wages = 0
 
  if (ld_attn - ld_wages) >  0.99 or (ld_attn - ld_wages) <  -0.99 then
    messagebox('Information:','Calculated Wages and Attandance Wages Not Matched,Please Check Befour Wages To Account ');
+	dw_2.settransobject(sqlca)
+	dw_2.visible=true
+	dw_1.visible=false
+	dw_2.Retrieve(ls_lwwid)
 	return 1;
  end if;	
  

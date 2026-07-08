@@ -2,6 +2,14 @@
 forward
 global type w_gtepuf007 from window
 end type
+type cb_12 from commandbutton within w_gtepuf007
+end type
+type shl_1 from statichyperlink within w_gtepuf007
+end type
+type cb_11 from commandbutton within w_gtepuf007
+end type
+type cb_10 from commandbutton within w_gtepuf007
+end type
 type st_1 from statictext within w_gtepuf007
 end type
 type em_1 from editmask within w_gtepuf007
@@ -45,6 +53,10 @@ windowstate windowstate = maximized!
 long backcolor = 67108864
 string icon = "AppIcon!"
 event ue_option ( )
+cb_12 cb_12
+shl_1 shl_1
+cb_11 cb_11
+cb_10 cb_10
 st_1 st_1
 em_1 em_1
 cb_6 cb_6
@@ -70,6 +82,8 @@ double ld_tot_val,ld_freight,ld_insurance,ld_other,ld_net_amt,ld_discount,ld_qnt
 datetime ld_lpo_dt,ld_date,ld_lpi_date,ld_stock_dt
 datawindowchild idw_prod
 string ls_po_id
+string ls_fullname, ls_filename
+string ls_lpi_id,ls_val_active
 
 
 end variables
@@ -81,6 +95,7 @@ public function integer wf_check_duplicate_rec (string fs_con_id)
 public function integer wf_cal_netamt (string fs_field, double fd_val)
 public function integer wf_upd_po_recvqnty (string fs_po_id, string fs_sp_id, double fd_recpt_qnty, string fs_rec_old)
 public function integer wf_check_special_char (string fs_value)
+public function string wf_sftp_upload (string fs_localfilepath, string fs_filename, string fs_unique_id, string fs_table, string fs_column_name, string fs_unique_cloumn, string fs_folder)
 end prototypes
 
 event ue_option();choose case gs_ueoption
@@ -273,7 +288,68 @@ next
 return 1
 end function
 
+public function string wf_sftp_upload (string fs_localfilepath, string fs_filename, string fs_unique_id, string fs_table, string fs_column_name, string fs_unique_cloumn, string fs_folder);setpointer(hourglass!)
+long li_rc
+string ls_command
+string ls_localfile, ls_remotefile, ls_server, ls_user, ls_pass
+string ls_netrc, ls_logfile,ls_sql,ls_file
+
+// Configuration
+ls_localfile  = fs_localfilepath                               // Local file to send
+ls_remotefile = "LTC/" + fs_folder + "/" + fs_filename
+ls_server     = "140.238.251.98"
+ls_user       = "LtcCldFTP"
+ls_pass       = "LtcCld1125$$"
+ls_netrc      = "C:\Temp\.curl_netrc"
+ls_logfile    = "C:\Temp\curl_upload_log.txt"
+
+FileDelete(ls_netrc)
+FileDelete(ls_logfile)
+// Create .netrc file
+li_rc = FileOpen(ls_netrc, LineMode!, Write!, LockWrite!, Replace!)
+IF li_rc > 0 THEN
+    FileWrite(li_rc, "machine " + ls_server)
+    FileWrite(li_rc, "login " + ls_user)
+    FileWrite(li_rc, "password " + ls_pass)
+    FileClose(li_rc)
+ELSE
+    MessageBox("Error", "Cannot create netrc file")
+    RETURN "0"
+END IF
+
+// Upload file
+ls_command = 'cmd /c curl -v -T "' + ls_localfile + '" --netrc-file "' + ls_netrc + '" "ftp://' + ls_server + '/' + ls_remotefile + '" > "' + ls_logfile + '" 2>&1'
+li_rc = Run(ls_command, Minimized!)
+
+
+
+
+
+dw_1.setitem(dw_1.getrow(),fs_column_name,fs_filename)
+
+ 
+setnull(ls_sql)
+ls_sql = "UPDATE " + fs_table + " SET " + fs_column_name + " = '" + fs_filename + "' WHERE " + fs_unique_cloumn + " = '" + fs_unique_id + "'"
+EXECUTE IMMEDIATE :ls_sql;
+IF SQLCA.SQLCode <> 0 THEN
+     MessageBox("Error", "While updating data in Garden: " + SQLCA.SQLErrText)
+     FileDelete(ls_netrc)
+     RETURN "0"
+ END IF
+
+
+
+
+
+
+
+end function
+
 on w_gtepuf007.create
+this.cb_12=create cb_12
+this.shl_1=create shl_1
+this.cb_11=create cb_11
+this.cb_10=create cb_10
 this.st_1=create st_1
 this.em_1=create em_1
 this.cb_6=create cb_6
@@ -288,7 +364,11 @@ this.cb_3=create cb_3
 this.cb_2=create cb_2
 this.cb_1=create cb_1
 this.dw_1=create dw_1
-this.Control[]={this.st_1,&
+this.Control[]={this.cb_12,&
+this.shl_1,&
+this.cb_11,&
+this.cb_10,&
+this.st_1,&
 this.em_1,&
 this.cb_6,&
 this.cbx_1,&
@@ -305,6 +385,10 @@ this.dw_1}
 end on
 
 on w_gtepuf007.destroy
+destroy(this.cb_12)
+destroy(this.shl_1)
+destroy(this.cb_11)
+destroy(this.cb_10)
 destroy(this.st_1)
 destroy(this.em_1)
 destroy(this.cb_6)
@@ -374,66 +458,11 @@ IF KeyDown(KeyF3!) THEN
 end if
 end event
 
-type st_1 from statictext within w_gtepuf007
-integer x = 1536
-integer y = 32
-integer width = 498
-integer height = 60
-integer textsize = -9
-integer weight = 400
-fontcharset fontcharset = ansi!
-fontpitch fontpitch = variable!
-fontfamily fontfamily = roman!
-string facename = "Times New Roman"
-long textcolor = 33554432
-long backcolor = 67108864
-string text = " A/C Process Date :"
-alignment alignment = center!
-boolean focusrectangle = false
-end type
-
-type em_1 from editmask within w_gtepuf007
-integer x = 2048
-integer y = 20
-integer width = 411
-integer height = 84
-integer taborder = 70
-integer textsize = -9
-integer weight = 400
-fontcharset fontcharset = ansi!
-fontpitch fontpitch = variable!
-fontfamily fontfamily = roman!
-string facename = "Times New Roman"
-long textcolor = 33554432
-string text = "none"
-alignment alignment = center!
-maskdatatype maskdatatype = datemask!
-string mask = "dd/mm/yyyy"
-boolean dropdowncalendar = true
-end type
-
-event modified;if isdate(em_1.text) = false then 
-	messagebox('Error At Process date','Please Enter Account Process date...!')
-	cb_6.enabled = false	
-	return 1
-else
-	ls_temp=em_1.text
-	if cb_3.enabled = true then
-		messagebox('Warning!','You Have Made Some Changes, Please Save First !!!');
-		return 1
-	end if
-	if dw_1.getitemstring(dw_1.getrow(),'appr_flag') = 'Y' then
-		cb_6.enabled = true
-	end if
-end if;	
-end event
-
-type cb_6 from commandbutton within w_gtepuf007
-integer x = 2469
-integer y = 4
+type cb_12 from commandbutton within w_gtepuf007
+integer x = 3077
 integer width = 343
 integer height = 104
-integer taborder = 80
+integer taborder = 10
 integer textsize = -9
 integer weight = 400
 fontcharset fontcharset = ansi!
@@ -444,9 +473,10 @@ boolean enabled = false
 string text = "A/C Process"
 end type
 
-event clicked; n_fames luo_fames
+event clicked; setpointer(hourglass!)
+ n_fames luo_fames
  luo_fames = Create n_fames
- setpointer(hourglass!)
+ 
 	 if isdate(em_1.text) = false then
 		messagebox('Error :','Please Enter Valid Account Process date')
 		rollback using sqlca;
@@ -461,7 +491,7 @@ event clicked; n_fames luo_fames
 
 	 if date(ls_ac_dt) < date(ld_stock_dt) then
 		MESSAGEBOX('Error:','The Posting date Should be greater than equal to Last Stock Transaction Date i.e. '+string(ld_stock_dt,'dd/mm/yyyy'))
-		return 1;
+		//return 1;
      end if;	
 
 	 if date(ls_ac_dt) > date(today()) then
@@ -489,6 +519,21 @@ if f_check_fin_yr(datetime(ls_ac_dt)) = -1 then;	return 1;end if;
 		if dw_1.getitemstring(ll_ctr,'appr_flag') = 'Y'  and isnull(dw_1.getitemstring(ll_ctr,'lpi_vou_no'))=true then
 			ls_lpi = dw_1.getitemstring(ll_ctr,'lpi_id')
 			ls_rev_cat = dw_1.getitemstring(ll_ctr,'lpi_rev_cat')
+			//Validation For File Upload
+		
+			ls_val_active='N'		
+			select nvl(VAL_IS_ACTIVE,'Y') into :ls_val_active from ltc.FB_VALIDATION_MASTER where VAL_CODE='FILEUPLOAD';		
+			
+			if isnull(ls_val_active) then ls_val_active='N'
+			
+			if ls_val_active='Y' then			
+				setnull(ls_filename);
+				ls_filename = dw_1.getitemstring(ll_ctr,'lpi_file_name')			
+				if isnull(ls_filename) or len(ls_filename) = 0 then
+					messagebox('Warning...!!!','File Upload is blank')
+					return 1
+				end if
+			end if
 			
 			if date(ls_ac_dt) < date('01/07/2017') then 
 				declare c1 cursor  for 
@@ -652,6 +697,345 @@ messagebox('Information;',' JV Created Successfully')
 cb_6.enabled = false
 end event
 
+type shl_1 from statichyperlink within w_gtepuf007
+integer x = 1595
+integer y = 776
+integer width = 210
+integer height = 64
+integer textsize = -10
+integer weight = 400
+fontcharset fontcharset = ansi!
+fontpitch fontpitch = variable!
+fontfamily fontfamily = swiss!
+string facename = "Tahoma"
+boolean underline = true
+string pointer = "HyperLink!"
+long textcolor = 134217856
+long backcolor = 67108864
+string text = "Open"
+alignment alignment = center!
+boolean focusrectangle = false
+end type
+
+event clicked;string ls_file
+if dw_1.getrow() > 0 and lb_query = false then
+//	string ls_file
+			ls_file = dw_1.getitemstring(dw_1.getrow(),'lpi_file_name')
+//			messagebox('11',ls_file)
+			shl_1.url = gs_ftp_ip+ "GARDENLOCALPI/" +ls_file
+			if isnull(ls_file) or ls_file = "" then 
+				shl_1.visible = false
+			else
+				shl_1.visible=true
+			end if
+end if
+end event
+
+type cb_11 from commandbutton within w_gtepuf007
+integer x = 1806
+integer y = 764
+integer width = 224
+integer height = 92
+integer taborder = 40
+integer textsize = -10
+integer weight = 400
+fontcharset fontcharset = ansi!
+fontpitch fontpitch = variable!
+fontfamily fontfamily = swiss!
+string facename = "Tahoma"
+string text = "Upload"
+end type
+
+event clicked;long    li_FileNum, li_rc
+string  ls_file_name, ls_newfile, ls_newpath
+// ---------------------------
+// Prepare directories
+// ---------------------------
+IF NOT DirectoryExists("c:\voucher") THEN
+    CreateDirectory("c:\voucher")
+END IF
+
+IF NOT DirectoryExists("c:\temp") THEN
+    CreateDirectory("c:\temp")
+END IF
+
+// ---------------------------
+// Move the source file
+// ---------------------------
+ls_file_name = dw_1.GetItemString(dw_1.GetRow(), 'lpi_file_name')
+ls_lpi_id    = dw_1.GetItemString(dw_1.GetRow(), 'lpi_id')
+
+IF NOT IsNull(ls_file_name) AND Len(ls_file_name) > 0 THEN
+	
+	select to_char(to_number(substr(:ls_lpi_id,4,length(:ls_lpi_id)))) into :ls_newfile from dual;
+	
+    ls_newfile = gs_garden_snm+ '_LPI_' + ls_newfile + lower(right(ls_file_name,(len(ls_file_name)-pos(ls_file_name,'.'))+1 ))
+    ls_newpath = "c:\voucher\" + ls_newfile
+	
+	if fileexists(ls_newpath) then 
+		filedelete(ls_newpath)
+	end if
+	 
+
+    li_FileNum = FileMove(ls_file_name, ls_newpath)
+    IF li_FileNum <> 1 THEN
+        MessageBox("Error", "File could not be moved to: " + ls_newpath)
+        RETURN
+    END IF
+ELSE
+    MessageBox("Error", "No source file name found.")
+    RETURN
+END IF
+
+string ls_result
+ls_result=wf_sftp_upload(ls_newpath,ls_newfile,ls_lpi_id,'fb_localpurchaseinvoice','lpi_file_name','LPI_ID','GARDENLOCALPI')
+
+setpointer(Arrow!)
+
+if ls_result = "0" then
+	messagebox('Error','File Not Uploaded')
+else
+	messagebox('Successful','File Uploaded Kindly Check By Clicking Open Button')
+end if
+
+
+end event
+
+type cb_10 from commandbutton within w_gtepuf007
+integer x = 1367
+integer y = 764
+integer width = 233
+integer height = 92
+integer taborder = 40
+integer textsize = -10
+integer weight = 400
+fontcharset fontcharset = ansi!
+fontpitch fontpitch = variable!
+fontfamily fontfamily = swiss!
+string facename = "Tahoma"
+string text = "Browse"
+end type
+
+event clicked;if GetFileOpenName ("Open", ls_fullname, ls_filename, "PDF", "PDF Files (*.pdf),*.pdf,Word Document Files (*.doc), *.doc, Excel12(*.xlsx) With Header, *.xlsx", "C:\temp", 512) < 1 then return
+dw_1.setitem(dw_1.getrow(),'lpi_file_name',ls_fullname)
+
+
+end event
+
+type st_1 from statictext within w_gtepuf007
+integer x = 1536
+integer y = 32
+integer width = 498
+integer height = 60
+integer textsize = -9
+integer weight = 400
+fontcharset fontcharset = ansi!
+fontpitch fontpitch = variable!
+fontfamily fontfamily = roman!
+string facename = "Times New Roman"
+long textcolor = 33554432
+long backcolor = 67108864
+string text = " A/C Process Date :"
+alignment alignment = center!
+boolean focusrectangle = false
+end type
+
+type em_1 from editmask within w_gtepuf007
+integer x = 2048
+integer y = 20
+integer width = 411
+integer height = 84
+integer taborder = 70
+integer textsize = -9
+integer weight = 400
+fontcharset fontcharset = ansi!
+fontpitch fontpitch = variable!
+fontfamily fontfamily = roman!
+string facename = "Times New Roman"
+long textcolor = 33554432
+string text = "none"
+alignment alignment = center!
+maskdatatype maskdatatype = datemask!
+string mask = "dd/mm/yyyy"
+boolean dropdowncalendar = true
+end type
+
+event modified;if isdate(em_1.text) = false then 
+	messagebox('Error At Process date','Please Enter Account Process date...!')
+	cb_6.enabled = false	
+	return 1
+else
+	ls_temp=em_1.text
+	if cb_3.enabled = true then
+		messagebox('Warning!','You Have Made Some Changes, Please Save First !!!');
+		return 1
+	end if
+	if dw_1.getitemstring(dw_1.getrow(),'appr_flag') = 'Y' then
+		cb_6.enabled = true
+	end if
+end if;	
+end event
+
+type cb_6 from commandbutton within w_gtepuf007
+integer x = 2469
+integer y = 4
+integer width = 343
+integer height = 104
+integer taborder = 80
+integer textsize = -9
+integer weight = 400
+fontcharset fontcharset = ansi!
+fontpitch fontpitch = variable!
+fontfamily fontfamily = roman!
+string facename = "Times New Roman"
+boolean enabled = false
+string text = "A/C Process"
+end type
+
+event clicked; setpointer(hourglass!)
+ n_fames luo_fames
+ luo_fames = Create n_fames
+ 
+	 if isdate(em_1.text) = false then
+		messagebox('Error :','Please Enter Valid Account Process date')
+		rollback using sqlca;
+		return 1;
+	else
+		ls_ac_dt=em_1.text
+	end if;	
+
+	if f_check_mep(ls_ac_dt) = -1 then return 1
+
+	select max(DS_DATE) into :ld_stock_dt from fb_daily_stock;
+
+	 if date(ls_ac_dt) < date(ld_stock_dt) then
+		MESSAGEBOX('Error:','The Posting date Should be greater than equal to Last Stock Transaction Date i.e. '+string(ld_stock_dt,'dd/mm/yyyy'))
+		//return 1;
+     end if;	
+
+	 if date(ls_ac_dt) > date(today()) then
+		MESSAGEBOX('Error:','The Issue date Should be Less than equal to Current System Date i.e. '+string(today(),'dd/mm/yyyy'))
+		return 1;
+	end if;
+
+	select distinct 'x' into :ls_temp from FB_SERIAL_NO 
+	where SN_DOC_TYPE in ('JV','CV','BV','RCIN') and SN_ACCT_YEAR=to_char(to_date(:ls_ac_dt,'dd/mm/yyyy'),'yyyymm');
+	
+	if sqlca.sqlcode = 100 then
+		INSERT INTO FB_SERIAL_NO ( SN_DOC_TYPE, SN_SRL_NO, SN_ACCT_YEAR ) VALUES ( 'JV', 0, to_char(to_date(:ls_ac_dt,'dd/mm/yyyy'),'yyyymm')); 
+		INSERT INTO FB_SERIAL_NO ( SN_DOC_TYPE, SN_SRL_NO, SN_ACCT_YEAR ) VALUES ( 'BV', 0, to_char(to_date(:ls_ac_dt,'dd/mm/yyyy'),'yyyymm')); 
+		INSERT INTO FB_SERIAL_NO ( SN_DOC_TYPE, SN_SRL_NO, SN_ACCT_YEAR ) VALUES ( 'CV', 0, to_char(to_date(:ls_ac_dt,'dd/mm/yyyy'),'yyyymm')); 
+		INSERT INTO FB_SERIAL_NO ( SN_DOC_TYPE, SN_SRL_NO, SN_ACCT_YEAR ) VALUES ( 'RCIN', 0, to_char(to_date(:ls_ac_dt,'dd/mm/yyyy'),'yyyymm')); 
+		commit using sqlca;
+	end if
+
+string ls_lpi
+double ld_qty,ld_rate,ld_amt,ld_oth_amt,ld_tot_amt
+ 
+if f_check_fin_yr(datetime(ls_ac_dt)) = -1 then;	return 1;end if;
+
+	for ll_ctr = 1 to dw_1.rowcount() 
+		if dw_1.getitemstring(ll_ctr,'appr_flag') = 'Y'  and isnull(dw_1.getitemstring(ll_ctr,'lpi_vou_no'))=true then
+			ls_lpi = dw_1.getitemstring(ll_ctr,'lpi_id')
+			ls_rev_cat = dw_1.getitemstring(ll_ctr,'lpi_rev_cat')
+			//Validation For File Upload
+		
+			ls_val_active='N'		
+			select nvl(VAL_IS_ACTIVE,'Y') into :ls_val_active from ltc.FB_VALIDATION_MASTER where VAL_CODE='FILEUPLOAD';		
+			
+			if isnull(ls_val_active) then ls_val_active='N'
+			
+			if ls_val_active='Y' then			
+				setnull(ls_filename);
+				ls_filename = dw_1.getitemstring(ll_ctr,'lpi_file_name')			
+				if isnull(ls_filename) or len(ls_filename) = 0 then
+					messagebox('Warning...!!!','File Upload is blank')
+					return 1
+				end if
+			end if
+			
+			if ls_rev_cat = 'N' then
+					declare c3 cursor for
+					 select  b.SP_ID SP_ID, lPI_QUANTITY, lPI_EFFECTIVEUNITPRICE,
+							  ((lpi_effectiveunitprice* lpi_QUANTITY)+(nvl(LPI_CGST_AMT,0) + nvl(LPI_SGST_AMT,0) + nvl(LPI_IGST_AMT,0))) Amount,
+							 ((lpi_effectiveunitprice* lpi_QUANTITY)+(nvl(LPI_CGST_AMT,0) + nvl(LPI_SGST_AMT,0) + nvl(LPI_IGST_AMT,0)))*((nvl(LPI_FREIGHT,0)+nvl(LPI_INSURANCE,0)+nvl(LPI_OTHERAMO,0))/totamt) other_val
+					  FROM fb_localpurchaseinvoice a,fb_lpidetails b,
+							  (select lpi_id,  round(SUM(((lpi_effectiveunitprice* lpi_QUANTITY)+(nvl(LPI_CGST_AMT,0) + nvl(LPI_SGST_AMT,0) + nvl(LPI_IGST_AMT,0)))),2) totamt from fb_lpidetails group by lpi_id) x
+					 WHERE a.lpi_id = b.lpi_id and a.LPI_ID = x.LPI_ID and b.lPI_ID = :ls_lpi; 	
+			else  
+					declare c2 cursor for 
+					 select  b.SP_ID SP_ID, lPI_QUANTITY, lPI_EFFECTIVEUNITPRICE,
+							  ((lpi_effectiveunitprice* lpi_QUANTITY)) Amount,
+							 ((lpi_effectiveunitprice* lpi_QUANTITY))*((nvl(LPI_FREIGHT,0)+nvl(LPI_INSURANCE,0)+nvl(LPI_OTHERAMO,0))/totamt) other_val
+					  FROM fb_localpurchaseinvoice a,fb_lpidetails b,
+							  (select lpi_id,  round(SUM(((lpi_effectiveunitprice* lpi_QUANTITY))),2) totamt from fb_lpidetails group by lpi_id) x
+					 WHERE a.lpi_id = b.lpi_id and a.LPI_ID = x.LPI_ID and b.lPI_ID = :ls_lpi ;
+			end if	
+					
+			if ls_rev_cat = 'N' then
+					open c3;
+			else
+					open c2;
+			end if
+					
+			if sqlca.sqlcode = -1 then 
+						messagebox('Sql Error : During Opening Cursor C2/C3 : ',sqlca.sqlerrtext); 
+						rollback using sqlca; 
+						return 1; 
+			else 
+					
+				setnull(ls_sp_id); ld_qty=0;ld_rate=0;ld_amt=0;ld_oth_amt=0;ld_tot_amt=0
+					
+				if ls_rev_cat = 'N' then
+						fetch c3 into :ls_sp_id,:ld_qty,:ld_rate,:ld_amt,:ld_oth_amt;
+				else
+						fetch c2 into :ls_sp_id,:ld_qty,:ld_rate,:ld_amt,:ld_oth_amt;
+				end if
+					do while sqlca.sqlcode <> 100 		
+						if isnull(ld_oth_amt) then ld_oth_amt=0
+						if isnull(ld_amt) then ld_amt=0
+						ld_tot_amt = Truncate ((ld_amt + ld_oth_amt),2)
+						ld_rate =  Truncate ((ld_tot_amt / ld_qty),2)	
+						setnull(ls_po_id);
+						ls_po_id=dw_1.getitemstring(ll_ctr,'lpo_id')
+						declare p2 procedure for up_lopo_stock (:ls_lpi,:ls_ac_dt,:ls_po_id,:ls_sp_id,:ld_qty,:ld_rate,:ld_tot_amt,'Local Purchase Invoice','R',:gs_storeid);				
+						if sqlca.sqlcode = -1 then
+							 messagebox('SQL Error: During Procedure Declare of up_hopo_stock',sqlca.sqlerrtext)
+							 return 1
+						end if
+						execute p2;
+						if sqlca.sqlcode = -1 then
+							 messagebox('SQL Error: During Procedure Execute of up_hopo_stock',sqlca.sqlerrtext)
+							 return 1
+						end if
+						setnull(ls_sp_id); ld_qty=0;ld_rate=0;ld_amt=0;ld_oth_amt=0;ld_tot_amt=0
+					
+						if ls_rev_cat = 'N' then
+							fetch c3 into :ls_sp_id,:ld_qty,:ld_rate,:ld_amt,:ld_oth_amt;
+						else
+							fetch c2 into :ls_sp_id,:ld_qty,:ld_rate,:ld_amt,:ld_oth_amt;
+						end if
+					loop;
+			
+				
+				if luo_fames.wf_purchase_tostore_ac_gst(dw_1.getitemstring(ll_ctr,'lpi_id'),ls_ac_dt) = -1 then 
+					rollback using sqlca;
+					return 1;
+				end if;
+			end if
+		end if
+	next	
+	
+dw_1.update( )
+commit using sqlca;
+
+DESTROY n_fames
+dw_1.reset()
+dw_2.reset()
+messagebox('Information;',' JV Created Successfully')
+cb_6.enabled = false
+end event
+
 type cbx_1 from checkbox within w_gtepuf007
 integer x = 1102
 integer y = 24
@@ -761,9 +1145,9 @@ event ue_tab_to_enter pbm_dwnprocessenter
 event ue_dwnkey pbm_dwnkey
 event ue_keydwn pbm_keydown
 integer x = 14
-integer y = 892
+integer y = 948
 integer width = 4485
-integer height = 1272
+integer height = 1200
 integer taborder = 40
 string dataobject = "dw_gtepuf007a"
 boolean hscrollbar = true
@@ -1378,7 +1762,7 @@ event ue_tab_to_enter pbm_dwnprocessenter
 integer x = 9
 integer y = 116
 integer width = 4485
-integer height = 768
+integer height = 816
 integer taborder = 30
 string dataobject = "dw_gtepuf007"
 boolean hscrollbar = true

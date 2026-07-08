@@ -2,6 +2,8 @@
 forward
 global type w_gtelaf002 from window
 end type
+type cb_6 from commandbutton within w_gtelaf002
+end type
 type cb_5 from commandbutton within w_gtelaf002
 end type
 type rb_3 from radiobutton within w_gtelaf002
@@ -71,6 +73,7 @@ windowstate windowstate = maximized!
 long backcolor = 67108864
 string icon = "AppIcon!"
 event ue_option ( )
+cb_6 cb_6
 cb_5 cb_5
 rb_3 rb_3
 rb_2 rb_2
@@ -321,6 +324,7 @@ return 1
 end function
 
 on w_gtelaf002.create
+this.cb_6=create cb_6
 this.cb_5=create cb_5
 this.rb_3=create rb_3
 this.rb_2=create rb_2
@@ -335,7 +339,8 @@ this.cb_2=create cb_2
 this.cb_1=create cb_1
 this.labour_details=create labour_details
 this.gb_1=create gb_1
-this.Control[]={this.cb_5,&
+this.Control[]={this.cb_6,&
+this.cb_5,&
 this.rb_3,&
 this.rb_2,&
 this.rb_1,&
@@ -352,6 +357,7 @@ this.gb_1}
 end on
 
 on w_gtelaf002.destroy
+destroy(this.cb_6)
 destroy(this.cb_5)
 destroy(this.rb_3)
 destroy(this.rb_2)
@@ -405,6 +411,15 @@ else
 	cb_1.enabled = true
 end if 
 
+
+if gs_unit='CU026' then
+	cb_6.visible=true
+	cb_6.enabled=true
+else
+	cb_6.visible=false
+	cb_6.enabled=false
+end if
+
 end event
 
 event key;//IF KeyDown(KeyEscape!) THEN
@@ -421,6 +436,38 @@ event key;//IF KeyDown(KeyEscape!) THEN
 //		cb_3.triggerevent(clicked!)
 //	end if
 //end if
+end event
+
+type cb_6 from commandbutton within w_gtelaf002
+boolean visible = false
+integer x = 3383
+integer y = 28
+integer width = 384
+integer height = 92
+integer taborder = 80
+integer textsize = -10
+integer weight = 400
+fontcharset fontcharset = ansi!
+fontpitch fontpitch = variable!
+fontfamily fontfamily = swiss!
+string facename = "Tahoma"
+boolean enabled = false
+string text = "Update PF"
+end type
+
+event clicked;setpointer(HourGlass!)
+
+
+update msote.fb_employee set EMP_PFNO=null where EMP_PFNO is not null;
+if sqlca.sqlcode = -1 then
+						messagebox('Error : While Getting Labour ID Generate',sqlca.sqlerrtext)
+						rollback using sqlca;
+						setpointer(ARROW!)
+						return 1
+						elseif sqlca.sqlcode = 0 then
+							messagebox('Success :','PF No has been Nullify')
+						end if
+setpointer(ARROW!)
 end event
 
 type cb_5 from commandbutton within w_gtelaf002

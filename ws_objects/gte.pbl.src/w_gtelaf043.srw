@@ -1172,7 +1172,7 @@ event clicked;	select distinct 'x' into :ls_rec from fb_mobile_attendance where 
 		setpointer(hourglass!)	
 		
 		//messagebox('Parameter','gs_user -'+gs_user + ' gs_garden_snm -'+gs_garden_snm+ ' gs_gstn_stcd -'+ gs_gstn_stcd)
-		declare p2 procedure for up_daily_labour_Attn(:gs_user,:gs_garden_snm,:gs_gstn_stcd);
+		declare p2 procedure for up_daily_labour_Attn(:gs_user,:gs_garden_snm,:gs_garden_state);
 		if sqlca.sqlcode = -1 then
 			messagebox('SQL Error: During Procedure Declare of up_daily_labour_Attn',sqlca.sqlerrtext)					
 			return 1

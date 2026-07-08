@@ -27,6 +27,7 @@ string gs_co_gstnno, gs_co_gstn_stcd, gs_party_gstin, gs_party_gstin_stcd, gs_re
 string gs_hsn_cd,gs_CGST_RECGL,gs_SGST_RECGL, gs_IGST_RECGL, gs_CGST_PAYGL, gs_SGST_PAYGL, gs_IGST_PAYGL,  gs_GST_SUNDRY_PAY	
 string gs_CGST_RECSGL,gs_SGST_RECSGL, gs_IGST_RECSGL, gs_CGST_PAYSGL, gs_SGST_PAYSGL, gs_IGST_PAYSGL,  gs_GST_SUNDRY_PAYSGL,gs_party_sgl, gs_party_gl, gs_party_cd
 double gd_selev_amt, gd_selpv_amt, gd_selav_amt
+string gs_ftp_ip = "140.238.251.98:8083/appfiles/LTC/"
 end variables
 
 global type gte from application

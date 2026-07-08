@@ -68,7 +68,7 @@ string ls_temp,ls_name,ls_last,ls_type,ls_tmp_id,ls_count,ls_bonusid,ls_emp_type
 boolean lb_neworder, lb_query
 datetime ld_frdt, ld_todt,ld_otodt,ld_ofrdt
 string ls_frdt, ls_todt
-double ld_boper,ld_puper,ld_paper,la_faper,ld_minday
+double ld_boper,ld_puper,ld_paper,la_faper,ld_minday,ld_bonus_limit
 long ll_user_level_pf
 
 
@@ -1072,6 +1072,20 @@ elseif sqlca.sqlcode = -1 then
 	return 1
 end if
 
+select sum(nvl(pd_value,0)) into :ld_bonus_limit
+from fb_param_detail 
+where pd_doc_type in ('BONUSALLOW') and to_date(:ls_frdt,'dd/mm/yyyy') between PD_PERIOD_FROM and nvl(PD_PERIOD_TO,trunc(sysdate));
+
+if sqlca.sqlcode = -1 then
+	messagebox('SQL ERROR: During Parametere checking ',sqlca.sqlerrtext)
+	return -1
+end if;
+
+if isnull(ld_bonus_limit) or ld_bonus_limit = 0 then 
+	messagebox('Warning:', 'Bonus Limit hasnt been set ')
+	return -1
+end if
+
 
 
 string ls_LBP_ID ,ls_start_dt,ls_end_dt,ls_ID,ls_LTYPE,ls_OTYPE,Ls_LWW_IND,Ls_ARR_IND,Ls_ATNINC_IND
@@ -1336,61 +1350,117 @@ end if
 //					group by  'D',labour_id)
 //			group by :ls_LBP_ID,labour_id;		
 		else //others
-			insert into fb_labbonus(LBP_ID,LABOUR_ID,LB_WORKDAYS,LB_GREARN,LB_BONUSAMO,LB_DED,LB_EARN_AMT,LB_LWW_AMT,LB_ARR_AMT,LB_ATNINC_AMT)
-	 		select :ls_LBP_ID,labour_id, sum(nvl(workdays,0)) workdays,sum(nvl(lda_wages,0)) grearn,
-	 		 		round(sum(nvl(lda_wages,0))* decode(sign(sum(nvl(workdays,0))-nvl(:Ld_MINWDAYS,0)),-1,0, (0.01*nvl(:ld_BONUSPER,0))) ,2) bonusamo,0,
-					sum(decode(recty,'A',nvl(lda_wages,0),0)) earn, sum(decode(recty,'B',nvl(lda_wages,0),0)) lww,
-					sum(decode(recty,'C',nvl(lda_wages,0),0)) arr, sum(decode(recty,'D',nvl(lda_wages,0),0)) attninc
-			from (SELECT  'A' recty,labour_id, 
-							   sum(decode(trim(kam.kamsub_nkamtype),'OTHERS',lda.lda_status,'HOLIDAYPAY',lda.lda_status,'MATERNITY',lda.lda_status,'SICKALLOWANCE',lda.lda_status,0)) workdays,
-							   sum(decode(nvl(LDA_ENTRY_BY,'ADMIN'),'ADMIN',(nvl(lda_wages,0)+nvl(lda_elp,0)),nvl(lda_wages,0))) lda_wages
-					    from fb_labourdailyattendance lda,fb_employee l,(select distinct KAMSUB_ID, KAMSUB_NKAMTYPE,KAMSUB_FRDT, nvl(KAMSUB_TODT,SYSDATE) KAMSUB_TODT from fb_kamsubhead where nvl(kamsub_active_ind,'N') = 'Y') kam 
-					 where l.emp_id=lda.labour_id and kam.kamsub_id=lda.kamsub_id and l.ls_id=:ls_ID and 
-					 		  //lda_date between KAMSUB_FRDT and KAMSUB_TODT and
-					 		  lda_date between to_date(:ls_start_dt,'dd/mm/yyyy')  and to_date(:ls_end_dt, 'dd/mm/yyyy') and
-							  not exists (select em_lsid from fb_exemptmaster 
-							  				where lda.lda_date between EM_FROMDT and EM_TODT and EM_BONUSIND='Y' and EM_LSID = l.ls_id) and
-							  (decode(nvl(LDA_ENTRY_BY,'ADMIN'),'ADMIN',(nvl(lda_wages,0)+nvl(lda_elp,0)),nvl(lda_wages,0))) > 0 
-					group by  labour_id
-					union all
-				    SELECT  'B',llw.labour_id,  sum(decode(:gs_garden_snm,'ME',nvl(LWW_DAYS,0),0)) ,sum(llw.lww_earn)
-					 FROM fb_lablwwseason lls, fb_lablwwperiod llp, fb_lablww llw
-					 where lls.lls_id = llp.lls_id AND llp.llp_id = llw.llp_id  AND llw.labour_id in (select emp_id from fb_employee where ls_id=:ls_ID) and
-					 		  LLS_PDATE between to_date(:ls_start_dt,'dd/mm/yyyy') and to_date(:ls_end_dt, 'dd/mm/yyyy') and
-							 :Ls_LWW_IND='Y'
-					group by 'B',llw.labour_id
-					 UNION ALL 
+//			insert into fb_labbonus(LBP_ID,LABOUR_ID,LB_WORKDAYS,LB_GREARN,LB_BONUSAMO,LB_DED,LB_EARN_AMT,LB_LWW_AMT,LB_ARR_AMT,LB_ATNINC_AMT)
+//	 		select :ls_LBP_ID,labour_id, sum(nvl(workdays,0)) workdays,sum(nvl(lda_wages,0)) grearn,
+//	 		 		round(sum(nvl(lda_wages,0))* decode(sign(sum(nvl(workdays,0))-nvl(:Ld_MINWDAYS,0)),-1,0, (0.01*nvl(:ld_BONUSPER,0))) ,2) bonusamo,0,
+//					sum(decode(recty,'A',nvl(lda_wages,0),0)) earn, sum(decode(recty,'B',nvl(lda_wages,0),0)) lww,
+//					sum(decode(recty,'C',nvl(lda_wages,0),0)) arr, sum(decode(recty,'D',nvl(lda_wages,0),0)) attninc
+//			from (SELECT  'A' recty,labour_id, 
+//							   sum(decode(trim(kam.kamsub_nkamtype),'OTHERS',lda.lda_status,'HOLIDAYPAY',lda.lda_status,'MATERNITY',lda.lda_status,'SICKALLOWANCE',lda.lda_status,0)) workdays,
+//							   sum(decode(nvl(LDA_ENTRY_BY,'ADMIN'),'ADMIN',(nvl(lda_wages,0)+nvl(lda_elp,0)),nvl(lda_wages,0))) lda_wages
+//					    from fb_labourdailyattendance lda,fb_employee l,(select distinct KAMSUB_ID, KAMSUB_NKAMTYPE,KAMSUB_FRDT, nvl(KAMSUB_TODT,SYSDATE) KAMSUB_TODT from fb_kamsubhead where nvl(kamsub_active_ind,'N') = 'Y') kam 
+//					 where l.emp_id=lda.labour_id and kam.kamsub_id=lda.kamsub_id and l.ls_id=:ls_ID and 
+//					 		  //lda_date between KAMSUB_FRDT and KAMSUB_TODT and
+//					 		  lda_date between to_date(:ls_start_dt,'dd/mm/yyyy')  and to_date(:ls_end_dt, 'dd/mm/yyyy') and
+//							  not exists (select em_lsid from fb_exemptmaster 
+//							  				where lda.lda_date between EM_FROMDT and EM_TODT and EM_BONUSIND='Y' and EM_LSID = l.ls_id) and
+//							  (decode(nvl(LDA_ENTRY_BY,'ADMIN'),'ADMIN',(nvl(lda_wages,0)+nvl(lda_elp,0)),nvl(lda_wages,0))) > 0 
+//					group by  labour_id
+//					union all
+//				    SELECT  'B',llw.labour_id,  sum(decode(:gs_garden_snm,'ME',nvl(LWW_DAYS,0),0)) ,sum(llw.lww_earn)
+//					 FROM fb_lablwwseason lls, fb_lablwwperiod llp, fb_lablww llw
+//					 where lls.lls_id = llp.lls_id AND llp.llp_id = llw.llp_id  AND llw.labour_id in (select emp_id from fb_employee where ls_id=:ls_ID) and
+//					 		  LLS_PDATE between to_date(:ls_start_dt,'dd/mm/yyyy') and to_date(:ls_end_dt, 'dd/mm/yyyy') and
+//							 :Ls_LWW_IND='Y'
+//					group by 'B',llw.labour_id
+//					 UNION ALL 
+//                        SELECT 'C', lar.labour_id, 0,sum(lar.la_amount) *(AP_PAYPER_1/100)
+//					FROM fb_labourarrear lar,fb_arrearperiod arp
+//					WHERE lar.ap_id = arp.ap_id AND 
+//							lar.labour_id in (select emp_id from fb_employee where ls_id=:ls_ID) and
+//							AP_PAYDT_1 between  to_date(:ls_start_dt,'dd/mm/yyyy') and to_date(:ls_end_dt, 'dd/mm/yyyy') and 
+//							:Ls_ARR_IND='Y'
+//					group by 'C', lar.labour_id,AP_PAYPER_1
+//					union all
+//					SELECT 'C', lar.labour_id, 0,sum(lar.la_amount) *(AP_PAYPER_2/100)
+//					FROM fb_labourarrear lar,fb_arrearperiod arp
+//					WHERE lar.ap_id = arp.ap_id AND 
+//							lar.labour_id in (select emp_id from fb_employee where ls_id=:ls_ID) and
+//							AP_PAYDT_2 between  to_date(:ls_start_dt,'dd/mm/yyyy') and to_date(:ls_end_dt, 'dd/mm/yyyy') and 
+//							:Ls_ARR_IND='Y'
+//					group by 'C', lar.labour_id,AP_PAYPER_2
+//					union all
+//					SELECT 'C', lar.labour_id, 0,sum(lar.la_amount) *(AP_PAYPER_3/100)
+//					FROM fb_labourarrear lar,fb_arrearperiod arp
+//					WHERE lar.ap_id = arp.ap_id AND
+//							lar.labour_id in (select emp_id from fb_employee where ls_id=:ls_ID) and
+//							AP_PAYDT_3 between  to_date(:ls_start_dt,'dd/mm/yyyy') and to_date(:ls_end_dt, 'dd/mm/yyyy') and 
+//							:Ls_ARR_IND='Y'
+//					group by 'C', lar.labour_id,AP_PAYPER_3
+//					union all
+//					select 'D',labour_id,0,sum(nvl(LABOUR_ATTN_INC,0))
+//					    from fb_labourweeklywages lw,fb_labourwagesweek lww 
+//					 where lw.lww_id =  lww.lww_id and lw.labour_id in (select emp_id from fb_employee where ls_id=:ls_ID) and
+//							 lww.lww_startdate between to_date(:ls_start_dt,'dd/mm/yyyy') and to_date(:ls_end_dt, 'dd/mm/yyyy') and 
+//							 :Ls_ATNINC_IND='Y' and nvl(LABOUR_ATTN_INC,0) > 0
+//					group by  'D',labour_id)
+//			group by :ls_LBP_ID,labour_id;		// Commented BY piyush As there was no previous logic of exceeding 84000
+
+			insert into fb_labbonus(LBP_ID,LABOUR_ID,LB_WORKDAYS,LB_GREARN,LB_BONUSAMO,LB_DED,LB_EARN_AMT,LB_LWW_AMT,LB_ARR_AMT,LB_ATNINC_AMT)             
+			select :ls_LBP_ID,labour_id, sum(nvl(workdays,0)) workdays,
+             			(case when sum(nvl(lda_wages,0))>:ld_bonus_limit then :ld_bonus_limit else sum(nvl(lda_wages,0)) end) grearn,
+                      round((case when sum(nvl(lda_wages,0))>:ld_bonus_limit then :ld_bonus_limit else sum(nvl(lda_wages,0)) end)* decode(sign(sum(nvl(workdays,0))-nvl(:Ld_MINWDAYS,0)),-1,0, (0.01*nvl(:ld_BONUSPER,0))) ,2) bonusamo,0,
+                    	sum(decode(recty,'A',nvl(lda_wages,0),0)) earn, sum(decode(recty,'B',nvl(lda_wages,0),0)) lww,
+                    sum(decode(recty,'C',nvl(lda_wages,0),0)) arr, sum(decode(recty,'D',nvl(lda_wages,0),0)) attninc
+            from (SELECT  'A' recty,labour_id, 
+                               sum(decode(trim(kam.kamsub_nkamtype),'OTHERS',lda.lda_status,'HOLIDAYPAY',lda.lda_status,'MATERNITY',lda.lda_status,'SICKALLOWANCE',lda.lda_status,0)) workdays,
+                               sum(decode(nvl(LDA_ENTRY_BY,'ADMIN'),'ADMIN',(nvl(lda_wages,0)+nvl(lda_elp,0)),nvl(lda_wages,0))) lda_wages
+                        from fb_labourdailyattendance lda,fb_employee l,(select distinct KAMSUB_ID, KAMSUB_NKAMTYPE,KAMSUB_FRDT, nvl(KAMSUB_TODT,SYSDATE) KAMSUB_TODT from fb_kamsubhead where nvl(kamsub_active_ind,'N') = 'Y') kam 
+                     where l.emp_id=lda.labour_id and kam.kamsub_id=lda.kamsub_id and l.ls_id=:ls_ID and                             
+                               lda_date between to_date(:ls_start_dt,'dd/mm/yyyy')  and to_date(:ls_end_dt, 'dd/mm/yyyy') and
+                              not exists (select em_lsid from fb_exemptmaster 
+                                              where lda.lda_date between EM_FROMDT and EM_TODT and EM_BONUSIND='Y' and EM_LSID = l.ls_id) and
+                              (decode(nvl(LDA_ENTRY_BY,'ADMIN'),'ADMIN',(nvl(lda_wages,0)+nvl(lda_elp,0)),nvl(lda_wages,0))) > 0 
+                    group by  labour_id
+                    union all
+                    SELECT  'B',llw.labour_id,  sum(decode(:gs_garden_snm,'ME',nvl(LWW_DAYS,0),0)) ,sum(llw.lww_earn)
+                     FROM fb_lablwwseason lls, fb_lablwwperiod llp, fb_lablww llw
+                     where lls.lls_id = llp.lls_id AND llp.llp_id = llw.llp_id  AND llw.labour_id in (select emp_id from fb_employee where ls_id=:ls_ID) and
+                               LLS_PDATE between to_date(:ls_start_dt,'dd/mm/yyyy') and to_date(:ls_end_dt, 'dd/mm/yyyy') and
+                             :Ls_LWW_IND='Y'
+                    group by 'B',llw.labour_id
+                     UNION ALL 
                         SELECT 'C', lar.labour_id, 0,sum(lar.la_amount) *(AP_PAYPER_1/100)
-					FROM fb_labourarrear lar,fb_arrearperiod arp
-					WHERE lar.ap_id = arp.ap_id AND 
-							lar.labour_id in (select emp_id from fb_employee where ls_id=:ls_ID) and
-							AP_PAYDT_1 between  to_date(:ls_start_dt,'dd/mm/yyyy') and to_date(:ls_end_dt, 'dd/mm/yyyy') and 
-							:Ls_ARR_IND='Y'
-					group by 'C', lar.labour_id,AP_PAYPER_1
-					union all
-					SELECT 'C', lar.labour_id, 0,sum(lar.la_amount) *(AP_PAYPER_2/100)
-					FROM fb_labourarrear lar,fb_arrearperiod arp
-					WHERE lar.ap_id = arp.ap_id AND 
-							lar.labour_id in (select emp_id from fb_employee where ls_id=:ls_ID) and
-							AP_PAYDT_2 between  to_date(:ls_start_dt,'dd/mm/yyyy') and to_date(:ls_end_dt, 'dd/mm/yyyy') and 
-							:Ls_ARR_IND='Y'
-					group by 'C', lar.labour_id,AP_PAYPER_2
-					union all
-					SELECT 'C', lar.labour_id, 0,sum(lar.la_amount) *(AP_PAYPER_3/100)
-					FROM fb_labourarrear lar,fb_arrearperiod arp
-					WHERE lar.ap_id = arp.ap_id AND
-							lar.labour_id in (select emp_id from fb_employee where ls_id=:ls_ID) and
-							AP_PAYDT_3 between  to_date(:ls_start_dt,'dd/mm/yyyy') and to_date(:ls_end_dt, 'dd/mm/yyyy') and 
-							:Ls_ARR_IND='Y'
-					group by 'C', lar.labour_id,AP_PAYPER_3
-					union all
-					select 'D',labour_id,0,sum(nvl(LABOUR_ATTN_INC,0))
-					    from fb_labourweeklywages lw,fb_labourwagesweek lww 
-					 where lw.lww_id =  lww.lww_id and lw.labour_id in (select emp_id from fb_employee where ls_id=:ls_ID) and
-							 lww.lww_startdate between to_date(:ls_start_dt,'dd/mm/yyyy') and to_date(:ls_end_dt, 'dd/mm/yyyy') and 
-							 :Ls_ATNINC_IND='Y' and nvl(LABOUR_ATTN_INC,0) > 0
-					group by  'D',labour_id)
-			group by :ls_LBP_ID,labour_id;			
+                    FROM fb_labourarrear lar,fb_arrearperiod arp
+                    WHERE lar.ap_id = arp.ap_id AND 
+                            lar.labour_id in (select emp_id from fb_employee where ls_id=:ls_ID) and
+                            AP_PAYDT_1 between  to_date(:ls_start_dt,'dd/mm/yyyy') and to_date(:ls_end_dt, 'dd/mm/yyyy') and 
+                            :Ls_ARR_IND='Y'
+                    group by 'C', lar.labour_id,AP_PAYPER_1
+                    union all
+                    SELECT 'C', lar.labour_id, 0,sum(lar.la_amount) *(AP_PAYPER_2/100)
+                    FROM fb_labourarrear lar,fb_arrearperiod arp
+                    WHERE lar.ap_id = arp.ap_id AND 
+                            lar.labour_id in (select emp_id from fb_employee where ls_id=:ls_ID) and
+                            AP_PAYDT_2 between  to_date(:ls_start_dt,'dd/mm/yyyy') and to_date(:ls_end_dt, 'dd/mm/yyyy') and 
+                            :Ls_ARR_IND='Y'
+                    group by 'C', lar.labour_id,AP_PAYPER_2
+                    union all
+                    SELECT 'C', lar.labour_id, 0,sum(lar.la_amount) *(AP_PAYPER_3/100)
+                    FROM fb_labourarrear lar,fb_arrearperiod arp
+                    WHERE lar.ap_id = arp.ap_id AND
+                            lar.labour_id in (select emp_id from fb_employee where ls_id=:ls_ID) and
+                            AP_PAYDT_3 between  to_date(:ls_start_dt,'dd/mm/yyyy') and to_date(:ls_end_dt, 'dd/mm/yyyy') and 
+                            :Ls_ARR_IND='Y'
+                    group by 'C', lar.labour_id,AP_PAYPER_3
+                    union all
+                    select 'D',labour_id,0,sum(nvl(LABOUR_ATTN_INC,0))
+                        from fb_labourweeklywages lw,fb_labourwagesweek lww 
+                     where lw.lww_id =  lww.lww_id and lw.labour_id in (select emp_id from fb_employee where ls_id=:ls_ID) and
+                             lww.lww_startdate between to_date(:ls_start_dt,'dd/mm/yyyy') and to_date(:ls_end_dt, 'dd/mm/yyyy') and 
+                             :Ls_ATNINC_IND='Y' and nvl(LABOUR_ATTN_INC,0) > 0
+                    group by  'D',labour_id)
+            group by :ls_LBP_ID,labour_id;
     		End If
 
 			if sqlca.sqlcode = -1 then

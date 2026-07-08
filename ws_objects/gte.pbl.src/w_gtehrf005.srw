@@ -65,6 +65,7 @@ string ls_temp,ls_del_ind,ls_tran_ty,ls_emp_id,ls_tmp_id,ls_entry_user,ls_last,l
 boolean lb_neworder, lb_query
 datetime ld_rundt,ld_date
 double ld_sick, ld_mat, ld_cl, ld_el,ld_stcl,ld_sscl,ld_sssk,ld_sickout
+date ld_lastattndate
 
 end variables
 
@@ -381,6 +382,13 @@ ls_division = left(right(ddlb_1.text,6),5)
 
 ld_rundt = datetime(dp_1.text)
 
+select max(EATTEN_DATE) into :ld_lastattndate from fb_empattendance;
+if sqlca.sqlcode = -1 then
+	messagebox('Error : While Getting Max Attendance Date',sqlca.sqlerrtext)
+	rollback using sqlca;
+	return 1
+end if
+
 select distinct 'x' into :ls_temp from fb_empattendance b where trunc(EATTEN_DATE) = trunc(:ld_rundt);
 if sqlca.sqlcode = -1 then
 	messagebox('Error : While Getting Employee Details',sqlca.sqlerrtext)
@@ -416,6 +424,17 @@ else
 	dw_1.Object.datawindow.querymode = 'no'
 	dw_1.Retrieve(gs_user,date(ld_rundt),ls_division)
 	dw_1.settaborder('emp_id',0)
+	
+	if date(ld_rundt)>=date('01-oct-2025') then //
+		if date(ld_rundt)<date(ld_lastattndate) then
+			dw_1.settaborder('eatten_status',0)
+			dw_1.settaborder('eatten_hajari',0)
+		elseif date(ld_rundt)=date(ld_lastattndate) then
+			dw_1.settaborder('eatten_status',10)
+			dw_1.settaborder('eatten_hajari',20)
+		end if
+	end if
+	
 	dw_1.SetRedraw (TRUE)
 	cb_2.text = "&Query"
 	cb_1.enabled = true
@@ -459,10 +478,23 @@ if isnull(ddlb_2.text) or len(ddlb_2.text) = 0 then
 	return 
 end if
 
-if date(dp_1.text) > date(today()) and (left(dp_1.text,2) <> '27' and left(dp_1.text,2) <> '28' and left(dp_1.text,2) <> '29' and left(dp_1.text,2) <> '30' and left(dp_1.text,2) <> '31')   then
-	messagebox('Warning!','Reading Date should not be Greater Than Current date, Please Check !!!')
-	return 1
-end if
+ld_date=datetime(dp_1.text)
+
+	if date(dp_1.text) > date(today())   then //and (left(dp_1.text,2) <> '27' and left(dp_1.text,2) <> '28' and left(dp_1.text,2) <> '29' and left(dp_1.text,2) <> '30' and left(dp_1.text,2) <> '31') -- From parameter master
+	
+		select distinct 'X' into :ls_temp from ltc.FB_PARAM_DETAIL where PD_DOC_TYPE ='HRATTNADV' and trunc(:ld_date) between PD_PERIOD_FROM and PD_PERIOD_to and pd_gardensnm=:gs_garden_snm;
+		if sqlca.sqlcode = -1 then
+			messagebox('Error..!!! While Checking Parameter Master',sqlca.sqlerrtext)
+			return 1
+		elseif sqlca.sqlcode = 0 then
+			// Do nothing
+		elseif sqlca.sqlcode = 100 then
+			messagebox('Warning!','Reading Date should not be Greater Than Current date, Please Check !!!')
+			return 1
+		end if
+	
+		
+	end if
 
 ls_division = left(right(ddlb_1.text,6),5)
 
@@ -518,6 +550,10 @@ lb_neworder = true
 lb_query = false
 
 
+dw_1.settaborder('eatten_status',10)
+dw_1.settaborder('eatten_hajari',20)
+
+
 end event
 
 type st_1 from statictext within w_gtehrf005
@@ -546,7 +582,7 @@ integer taborder = 20
 boolean border = true
 date maxdate = Date("2998-12-31")
 date mindate = Date("1800-01-01")
-datetime value = DateTime(Date("2021-06-19"), Time("12:18:11.000000"))
+datetime value = DateTime(Date("2025-09-24"), Time("13:27:44.000000"))
 integer textsize = -9
 fontcharset fontcharset = ansi!
 fontpitch fontpitch = variable!

@@ -795,21 +795,24 @@ IF MessageBox("Save  Alert", 'Do You Want To Save ....?' ,Exclamation!, YesNo!, 
 				dw_1.setitem(dw_1.getrow(),'SI_TAXINVNO',ls_tinvno)	
 			end if 
 			
-			if not isnull(ls_rec_gstn) and len(ls_rec_gstn) > 0 then
-				declare p2 procedure for up_post_e_invoicing ('PSINV',:ls_tinvno, 'GTEDSF007');
 			
-				if sqlca.sqlcode = -1 then
-					 messagebox('SQL Error: During Procedure Declare',sqlca.sqlerrtext)
-					 return 1
-				end if
-				
-				execute p2;
-				
-				if sqlca.sqlcode = -1 then
-					 messagebox('SQL Error: During Procedure Execute',sqlca.sqlerrtext)
-					 return 1
-				end if	
-			end if
+			// Piyush "NOT NECESSARY AS ALWAYS EXECUTED WITHOUT INSERT INTO MAIN TABLE" ** DON'T OPEN use check box of generated einvoice
+
+//			if not isnull(ls_rec_gstn) and len(ls_rec_gstn) > 0 then
+//				declare p2 procedure for up_post_e_invoicing ('PSINV',:ls_tinvno, 'GTEDSF007');
+//			
+//				if sqlca.sqlcode = -1 then
+//					 messagebox('SQL Error: During Procedure Declare',sqlca.sqlerrtext)
+//					 return 1
+//				end if
+//				
+//				execute p2;
+//				
+//				if sqlca.sqlcode = -1 then
+//					 messagebox('SQL Error: During Procedure Execute',sqlca.sqlerrtext)
+//					 return 1
+//				end if	
+//			end if
 			
 //		end if
 		elseif ls_iss_gstn = ls_rec_gstn then		

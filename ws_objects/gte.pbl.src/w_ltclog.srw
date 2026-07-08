@@ -154,7 +154,7 @@ string facename = "Times New Roman"
 long textcolor = 33554432
 alignment alignment = center!
 maskdatatype maskdatatype = datemask!
-string mask = "000000"
+string mask = "dd/mm/yyyy"
 end type
 
 type st_3 from statictext within w_ltclog
@@ -190,7 +190,7 @@ string facename = "Times New Roman"
 long textcolor = 33554432
 alignment alignment = center!
 maskdatatype maskdatatype = datemask!
-string mask = "000000"
+string mask = "dd/mm/yyyy"
 end type
 
 type st_1 from statictext within w_ltclog

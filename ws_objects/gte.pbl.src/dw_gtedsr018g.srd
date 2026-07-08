@@ -1,6 +1,6 @@
 ﻿$PBExportHeader$dw_gtedsr018g.srd
-release 19;
-datawindow(units=0 timer_interval=0 color=1073741824 brushmode=0 transparency=0 gradient.angle=0 gradient.color=8421504 gradient.focus=0 gradient.repetition.count=0 gradient.repetition.length=100 gradient.repetition.mode=0 gradient.scale=100 gradient.spread=100 gradient.transparency=0 picture.blur=0 picture.clip.bottom=0 picture.clip.left=0 picture.clip.right=0 picture.clip.top=0 picture.mode=0 picture.scale.x=100 picture.scale.y=100 picture.transparency=0 processing=0 HTMLDW=no print.printername="" print.documentname="" print.orientation = 0 print.margin.left = 50 print.margin.right = 50 print.margin.top = 96 print.margin.bottom = 96 print.paper.source = 0 print.paper.size = 0 print.canusedefaultprinter=yes print.prompt=no print.buttons=no print.preview.buttons=no print.cliptext=no print.overrideprintjob=no print.collate=yes print.background=no print.preview.background=no print.preview.outline=yes hidegrayline=no showbackcoloronxp=no picture.file="" )
+release 22;
+datawindow(units=0 data.export.format=1 timer_interval=0 color=1073741824 brushmode=0 transparency=0 gradient.angle=0 gradient.color=8421504 gradient.focus=0 gradient.repetition.count=0 gradient.repetition.length=100 gradient.repetition.mode=0 gradient.scale=100 gradient.spread=100 gradient.transparency=0 picture.blur=0 picture.clip.bottom=0 picture.clip.left=0 picture.clip.right=0 picture.clip.top=0 picture.mode=0 picture.scale.x=100 picture.scale.y=100 picture.transparency=0 processing=0 HTMLDW=no print.printername="" print.documentname="" print.orientation = 0 print.margin.left = 50 print.margin.right = 50 print.margin.top = 96 print.margin.bottom = 96 print.paper.source = 0 print.paper.size = 0 print.canusedefaultprinter=yes print.prompt=no print.buttons=no print.preview.buttons=no print.cliptext=no print.overrideprintjob=no print.collate=yes print.background=no print.preview.background=no print.preview.outline=yes hidegrayline=no showbackcoloronxp=no picture.file="" )
 header(height=2160 color="536870912" transparency="0" gradient.color="8421504" gradient.transparency="0" gradient.angle="0" brushmode="0" gradient.repetition.mode="0" gradient.repetition.count="0" gradient.repetition.length="100" gradient.focus="0" gradient.scale="100" gradient.spread="100" )
 summary(height=1240 color="536870912" transparency="0" gradient.color="8421504" gradient.transparency="0" gradient.angle="0" brushmode="0" gradient.repetition.mode="0" gradient.repetition.count="0" gradient.repetition.length="100" gradient.focus="0" gradient.scale="100" gradient.spread="100" )
 footer(height=76 color="536870912" transparency="0" gradient.color="8421504" gradient.transparency="0" gradient.angle="0" brushmode="0" gradient.repetition.mode="0" gradient.repetition.count="0" gradient.repetition.length="100" gradient.focus="0" gradient.scale="100" gradient.spread="100" )
@@ -8,11 +8,11 @@ detail(height=80 color="536870912" transparency="0" gradient.color="8421504" gra
 table(column=(type=char(20) updatewhereclause=yes name=taxinvoiceno dbname="taxinvoiceno" )
  column=(type=datetime updatewhereclause=yes name=issuedate dbname="issuedate" )
  column=(type=char(25) updatewhereclause=yes name=customerid dbname="customerid" )
- column=(type=char(50) updatewhereclause=yes name=customername dbname="customername" )
- column=(type=char(100) updatewhereclause=yes name=customeraddress dbname="customeraddress" )
+ column=(type=char(250) updatewhereclause=yes name=customername dbname="customername" )
+ column=(type=char(200) updatewhereclause=yes name=customeraddress dbname="customeraddress" )
  column=(type=char(30) updatewhereclause=yes name=customerphone dbname="customerphone" )
  column=(type=char(20) updatewhereclause=yes name=cus_gstnno dbname="cus_gstnno" )
- column=(type=char(2) updatewhereclause=yes name=cus_gstn_stcd dbname="cus_gstn_stcd" )
+ column=(type=char(20) updatewhereclause=yes name=cus_gstn_stcd dbname="cus_gstn_stcd" )
  column=(type=char(15) updatewhereclause=yes name=cnh_pono dbname="cnh_pono" )
  column=(type=datetime updatewhereclause=yes name=cnh_podt dbname="cnh_podt" )
  column=(type=char(15) updatewhereclause=yes name=cnh_dcno dbname="cnh_dcno" )
@@ -20,7 +20,7 @@ table(column=(type=char(20) updatewhereclause=yes name=taxinvoiceno dbname="taxi
  column=(type=datetime updatewhereclause=yes name=cnh_promptdt dbname="cnh_promptdt" )
  column=(type=datetime updatewhereclause=yes name=cnh_supply_dt dbname="cnh_supply_dt" )
  column=(type=char(15) updatewhereclause=yes name=cnh_supply_place dbname="cnh_supply_place" )
- column=(type=char(50) updatewhereclause=yes name=transporter_nm dbname="transporter_nm" )
+ column=(type=char(250) updatewhereclause=yes name=transporter_nm dbname="transporter_nm" )
  column=(type=char(2) updatewhereclause=yes name=cnh_iss_locn dbname="cnh_iss_locn" )
  column=(type=char(60) updatewhereclause=yes name=despatch_from dbname="despatch_from" )
  column=(type=char(2) updatewhereclause=yes name=cnh_rec_locn dbname="cnh_rec_locn" )
@@ -82,7 +82,8 @@ table(column=(type=char(20) updatewhereclause=yes name=taxinvoiceno dbname="taxi
         case when UNIT_ID='U026' then upper(nvl(TMP_TEADESC,'')) else HM_HSN_DESC end HM_HSN_DESC,
         cnh_SHIP_TO_ADD,cnh_rev_chrg,cnh_lut_no,
         cnh_TCS_PER, cnh_TCS_AMT,(select distinct irn from fb_einvoice where docno = :ra_inv_no) irn
-from fb_creditnote_hdr a, fb_creditnote_det b, fb_customer d, fb_teamadeproduct e, fb_transport f,fb_hsn_master, fb_broker g, fb_warehouse h, 
+from fb_creditnote_hdr a, fb_creditnote_det b, fb_customer d, fb_teamadeproduct e,  (select TRANSP_ID, TRANSP_NAME from fb_transport  union all select sup_id transp_id,SUP_name TRANSP_NAME from fb_supplier where SUP_VENDOR_TYPE='TRA') f,fb_hsn_master, 
+     (select brok_id,BROK_NAME,BROK_TELEPHONE,BROK_ADD from fb_broker union all select sup_id ,SUP_name ,SUP_TELEPHONE,SUP_ADD from fb_supplier where SUP_VENDOR_TYPE='BRO') g, (select ware_id,WARE_GSTN_STCD,WARE_GSTNNO from fb_warehouse union all select sup_id,nvl(SUP_GSTNNO,'x') ,nvl( SUP_GSTN_STCD,'x') from fb_supplier where SUP_VENDOR_TYPE='WAR' and SUP_ACTIVE=1 ) h, 
      (select  SM_CD, initcap(SM_DESC) despatch_from from fb_statecode_master) iss,
      (select  SM_CD, initcap(SM_DESC) despatch_to from fb_statecode_master) rec,
      (select DTP_LOTNO,TMP_ID, DTPD_SRNOSTART, DTPD_SRNOEND, DTPD_INDWT, DTPD_CHESTWT,DTPD_ID 
@@ -337,5 +338,6 @@ xsltgen()
 jsgen()
 export.xml(headgroups="1" includewhitespace="0" metadatatype=0 savemetadata=0 )
 import.xml()
-export.pdf(method=0 distill.custompostscript="0" xslfop.print="0" nativepdf.customsize=0 nativepdf.customorientation=0 nativepdf.pdfstandard=0 nativepdf.useprintspec=no )
+export.pdf(method=0 distill.custompostscript="0" nativepdf.customsize=0 nativepdf.customorientation=0 nativepdf.pdfstandard=0 nativepdf.useprintspec=no )
 export.xhtml()
+ 

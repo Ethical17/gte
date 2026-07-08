@@ -453,6 +453,8 @@ type m_gteacf002 from menu within m_accmaster
 end type
 type m_gteacf004 from menu within m_accmaster
 end type
+type m_test from menu within m_accmaster
+end type
 type m_gteacf006 from menu within m_accmaster
 end type
 type m_gteacf005 from menu within m_accmaster
@@ -467,6 +469,7 @@ type m_accmaster from menu within m_accounts
 m_gteacf001 m_gteacf001
 m_gteacf002 m_gteacf002
 m_gteacf004 m_gteacf004
+m_test m_test
 m_gteacf006 m_gteacf006
 m_gteacf005 m_gteacf005
 m_gteacf003 m_gteacf003
@@ -524,6 +527,8 @@ end type
 type m_gteacr001 from menu within m_accreports
 end type
 type m_gteacr002 from menu within m_accreports
+end type
+type m_gteacr002n from menu within m_accreports
 end type
 type m_gteacr003 from menu within m_accreports
 end type
@@ -588,6 +593,7 @@ end type
 type m_accreports from menu within m_accounts
 m_gteacr001 m_gteacr001
 m_gteacr002 m_gteacr002
+m_gteacr002n m_gteacr002n
 m_gteacr003 m_gteacr003
 m_gteacr004 m_gteacr004
 m_gteacr030 m_gteacr030
@@ -1147,6 +1153,8 @@ type m_gtelar079 from menu within m_labreports
 end type
 type m_gtelar078 from menu within m_labreports
 end type
+type m_labourgratuitygtelar078 from menu within m_labreports
+end type
 type m_censusreports from menu within m_labreports
 end type
 type m_0 from menu within m_censusreports
@@ -1234,6 +1242,7 @@ m_lpgissuereportgtelar074 m_lpgissuereportgtelar074
 m_gtelar076 m_gtelar076
 m_gtelar079 m_gtelar079
 m_gtelar078 m_gtelar078
+m_labourgratuitygtelar078 m_labourgratuitygtelar078
 m_censusreports m_censusreports
 end type
 type m_labourwelfare from menu within m_main
@@ -1247,6 +1256,8 @@ type m_hrmaster from menu within m_hrpayroll
 end type
 type m_gtehrf001 from menu within m_hrmaster
 end type
+type m_gtehrf033 from menu within m_hrmaster
+end type
 type m_gtehrf003 from menu within m_hrmaster
 end type
 type m_gtehrf004 from menu within m_hrmaster
@@ -1257,6 +1268,7 @@ type m_gtehrf022 from menu within m_hrmaster
 end type
 type m_hrmaster from menu within m_hrpayroll
 m_gtehrf001 m_gtehrf001
+m_gtehrf033 m_gtehrf033
 m_gtehrf003 m_gtehrf003
 m_gtehrf004 m_gtehrf004
 m_gtehrf013 m_gtehrf013
@@ -1265,6 +1277,8 @@ end type
 type m_hrtransaction from menu within m_hrpayroll
 end type
 type m_gtehrf005 from menu within m_hrtransaction
+end type
+type m_gtehrf032 from menu within m_hrtransaction
 end type
 type m_gtehrf005a from menu within m_hrtransaction
 end type
@@ -1298,6 +1312,7 @@ type m_gtehrf020 from menu within m_hrtransaction
 end type
 type m_hrtransaction from menu within m_hrpayroll
 m_gtehrf005 m_gtehrf005
+m_gtehrf032 m_gtehrf032
 m_gtehrf005a m_gtehrf005a
 m_gtehrf006 m_gtehrf006
 m_gtehrf019 m_gtehrf019
@@ -1477,6 +1492,10 @@ type m_tools from menu within m_main
 end type
 type m_userpermission from menu within m_tools
 end type
+type m_gteuserpermission from menu within m_tools
+end type
+type m_gtepswr001 from menu within m_tools
+end type
 type m_pfaccess from menu within m_tools
 end type
 type m_projectstatus from menu within m_tools
@@ -1531,8 +1550,12 @@ type m_reverseproess from menu within m_tools
 end type
 type m_recalculateelp from menu within m_tools
 end type
+type m_ltclog from menu within m_tools
+end type
 type m_tools from menu within m_main
 m_userpermission m_userpermission
+m_gteuserpermission m_gteuserpermission
+m_gtepswr001 m_gtepswr001
 m_pfaccess m_pfaccess
 m_projectstatus m_projectstatus
 m_csvexport m_csvexport
@@ -1560,6 +1583,7 @@ m_einv_dboard m_einv_dboard
 m_gteeinvr001 m_gteeinvr001
 m_reverseproess m_reverseproess
 m_recalculateelp m_recalculateelp
+m_ltclog m_ltclog
 end type
 type m_logout from menu within m_main
 end type
@@ -4995,7 +5019,11 @@ on m_gtepuf005.destroy
 call super::destroy
 end on
 
-event clicked;opensheetwithparm(w_gtepuf005,this.tag,w_mdi,0,layered!)
+event clicked;if gs_garden_snm = 'KG' then
+	opensheetwithparm(w_gtepuf005_kg,this.tag,w_mdi,0,layered!)
+else
+	opensheetwithparm(w_gtepuf005,this.tag,w_mdi,0,layered!)
+end if
 end event
 
 type m_gtepuf006 from menu within m_purtransaction
@@ -6599,6 +6627,7 @@ type m_accmaster from menu within m_accounts
 m_gteacf001 m_gteacf001
 m_gteacf002 m_gteacf002
 m_gteacf004 m_gteacf004
+m_test m_test
 m_gteacf006 m_gteacf006
 m_gteacf005 m_gteacf005
 m_gteacf003 m_gteacf003
@@ -6630,6 +6659,7 @@ this.bitmapgradient = true
 this.m_gteacf001=create m_gteacf001
 this.m_gteacf002=create m_gteacf002
 this.m_gteacf004=create m_gteacf004
+this.m_test=create m_test
 this.m_gteacf006=create m_gteacf006
 this.m_gteacf005=create m_gteacf005
 this.m_gteacf003=create m_gteacf003
@@ -6638,6 +6668,7 @@ this.m_gteacf023=create m_gteacf023
 this.Item[UpperBound(this.Item)+1]=this.m_gteacf001
 this.Item[UpperBound(this.Item)+1]=this.m_gteacf002
 this.Item[UpperBound(this.Item)+1]=this.m_gteacf004
+this.Item[UpperBound(this.Item)+1]=this.m_test
 this.Item[UpperBound(this.Item)+1]=this.m_gteacf006
 this.Item[UpperBound(this.Item)+1]=this.m_gteacf005
 this.Item[UpperBound(this.Item)+1]=this.m_gteacf003
@@ -6650,6 +6681,7 @@ call super::destroy
 destroy(this.m_gteacf001)
 destroy(this.m_gteacf002)
 destroy(this.m_gteacf004)
+destroy(this.m_test)
 destroy(this.m_gteacf006)
 destroy(this.m_gteacf005)
 destroy(this.m_gteacf003)
@@ -6749,6 +6781,36 @@ end on
 
 event clicked;opensheetwithparm(w_gteacf004,this.tag,w_mdi,0,layered!)
 end event
+
+type m_test from menu within m_accmaster
+end type
+
+event clicked;opensheetwithparm(w_test,this.tag,w_mdi,0,layered!)
+end event
+
+on m_test.create
+call super::create
+this.text = "TEST"
+this.menutextcolor = 134217735
+this.menubackcolor = 134217732
+this.menuhighlightcolor = 134217741
+this.textsize = 8
+this.weight = 400
+this.facename = "Tahoma"
+this.titlebackcolor = 134217730
+this.bitmapbackcolor = 12632256
+this.menubitmaps = true
+this.titlegradient = true
+this.toolbartextcolor = 134217746
+this.toolbarbackcolor = 67108864
+this.toolbarhighlightcolor = 134217741
+this.toolbargradient = true
+this.bitmapgradient = true
+end on
+
+on m_test.destroy
+call super::destroy
+end on
 
 type m_gteacf006 from menu within m_accmaster
 end type
@@ -7443,6 +7505,7 @@ end on
 type m_accreports from menu within m_accounts
 m_gteacr001 m_gteacr001
 m_gteacr002 m_gteacr002
+m_gteacr002n m_gteacr002n
 m_gteacr003 m_gteacr003
 m_gteacr004 m_gteacr004
 m_gteacr030 m_gteacr030
@@ -7498,6 +7561,7 @@ this.toolbargradient = true
 this.bitmapgradient = true
 this.m_gteacr001=create m_gteacr001
 this.m_gteacr002=create m_gteacr002
+this.m_gteacr002n=create m_gteacr002n
 this.m_gteacr003=create m_gteacr003
 this.m_gteacr004=create m_gteacr004
 this.m_gteacr030=create m_gteacr030
@@ -7530,6 +7594,7 @@ this.m_gteacr028=create m_gteacr028
 this.m_gteacr034=create m_gteacr034
 this.Item[UpperBound(this.Item)+1]=this.m_gteacr001
 this.Item[UpperBound(this.Item)+1]=this.m_gteacr002
+this.Item[UpperBound(this.Item)+1]=this.m_gteacr002n
 this.Item[UpperBound(this.Item)+1]=this.m_gteacr003
 this.Item[UpperBound(this.Item)+1]=this.m_gteacr004
 this.Item[UpperBound(this.Item)+1]=this.m_gteacr030
@@ -7566,6 +7631,7 @@ on m_accreports.destroy
 call super::destroy
 destroy(this.m_gteacr001)
 destroy(this.m_gteacr002)
+destroy(this.m_gteacr002n)
 destroy(this.m_gteacr003)
 destroy(this.m_gteacr004)
 destroy(this.m_gteacr030)
@@ -7660,6 +7726,37 @@ end on
 event clicked;opensheetwithparm(w_gteacr002,this.tag,w_mdi,0,layered!)
 
 end event
+
+type m_gteacr002n from menu within m_accreports
+end type
+
+event clicked;opensheetwithparm(w_gteacr002n,this.tag,w_mdi,0,layered!)
+
+end event
+
+on m_gteacr002n.create
+call super::create
+this.text = "&Cash Book - Gteacr002n"
+this.menutextcolor = 134217735
+this.menubackcolor = 134217732
+this.menuhighlightcolor = 134217741
+this.textsize = 8
+this.weight = 400
+this.facename = "Tahoma"
+this.titlebackcolor = 134217730
+this.bitmapbackcolor = 12632256
+this.menubitmaps = true
+this.titlegradient = true
+this.toolbartextcolor = 134217746
+this.toolbarbackcolor = 67108864
+this.toolbarhighlightcolor = 134217741
+this.toolbargradient = true
+this.bitmapgradient = true
+end on
+
+on m_gteacr002n.destroy
+call super::destroy
+end on
 
 type m_gteacr003 from menu within m_accreports
 end type
@@ -10782,7 +10879,7 @@ on m_gtelaf008.destroy
 call super::destroy
 end on
 
-event clicked;if gs_garden_snm = 'FB' or gs_garden_snm = 'MK' or gs_garden_snm = 'ME' or gs_garden_snm = 'KG' or gs_garden_snm = 'BE' or gs_garden_snm = 'MV' or gs_garden_snm = 'SP' then
+event clicked;if gs_garden_snm = 'FB' or gs_garden_snm = 'MK' or gs_garden_snm = 'ME' or gs_garden_snm = 'KG' or gs_garden_snm = 'BE' or gs_garden_snm = 'MV' or gs_garden_snm = 'SP' or gs_garden_snm = 'GP' then
 	opensheetwithparm(w_gtelaf039,this.tag,w_mdi,0,layered!)
 else
 	opensheetwithparm(w_gtelaf008,this.tag,w_mdi,0,layered!)
@@ -12781,6 +12878,7 @@ m_lpgissuereportgtelar074 m_lpgissuereportgtelar074
 m_gtelar076 m_gtelar076
 m_gtelar079 m_gtelar079
 m_gtelar078 m_gtelar078
+m_labourgratuitygtelar078 m_labourgratuitygtelar078
 m_censusreports m_censusreports
 event create ( )
 event destroy ( )
@@ -12881,6 +12979,7 @@ this.m_lpgissuereportgtelar074=create m_lpgissuereportgtelar074
 this.m_gtelar076=create m_gtelar076
 this.m_gtelar079=create m_gtelar079
 this.m_gtelar078=create m_gtelar078
+this.m_labourgratuitygtelar078=create m_labourgratuitygtelar078
 this.m_censusreports=create m_censusreports
 this.Item[UpperBound(this.Item)+1]=this.m_gtelar001
 this.Item[UpperBound(this.Item)+1]=this.m_gtelar077
@@ -12958,6 +13057,7 @@ this.Item[UpperBound(this.Item)+1]=this.m_lpgissuereportgtelar074
 this.Item[UpperBound(this.Item)+1]=this.m_gtelar076
 this.Item[UpperBound(this.Item)+1]=this.m_gtelar079
 this.Item[UpperBound(this.Item)+1]=this.m_gtelar078
+this.Item[UpperBound(this.Item)+1]=this.m_labourgratuitygtelar078
 this.Item[UpperBound(this.Item)+1]=this.m_censusreports
 end on
 
@@ -13039,6 +13139,7 @@ destroy(this.m_lpgissuereportgtelar074)
 destroy(this.m_gtelar076)
 destroy(this.m_gtelar079)
 destroy(this.m_gtelar078)
+destroy(this.m_labourgratuitygtelar078)
 destroy(this.m_censusreports)
 end on
 
@@ -13404,7 +13505,6 @@ end event
 
 on m_gtelar005n.create
 call super::create
-this.visible = false
 this.text = "&Wages Pay Sheet - Gtelar005n"
 this.menutextcolor = 134217735
 this.menubackcolor = 134217732
@@ -13591,7 +13691,6 @@ end event
 
 on m_gtelar007n.create
 call super::create
-this.visible = false
 this.text = "Wages &Summary - Gtelar007n"
 this.menutextcolor = 134217735
 this.menubackcolor = 134217732
@@ -15475,6 +15574,36 @@ on m_gtelar078.destroy
 call super::destroy
 end on
 
+type m_labourgratuitygtelar078 from menu within m_labreports
+end type
+
+event clicked;opensheetwithparm(w_gtelar084,this.tag,w_mdi,0,layered!)
+end event
+
+on m_labourgratuitygtelar078.create
+call super::create
+this.text = "Labour Performance Section and Weighment wise - Gtelar084"
+this.menutextcolor = 134217735
+this.menubackcolor = 134217732
+this.menuhighlightcolor = 134217741
+this.textsize = 8
+this.weight = 400
+this.facename = "Tahoma"
+this.titlebackcolor = 134217730
+this.bitmapbackcolor = 12632256
+this.menubitmaps = true
+this.titlegradient = true
+this.toolbartextcolor = 134217746
+this.toolbarbackcolor = 67108864
+this.toolbarhighlightcolor = 134217741
+this.toolbargradient = true
+this.bitmapgradient = true
+end on
+
+on m_labourgratuitygtelar078.destroy
+call super::destroy
+end on
+
 type m_censusreports from menu within m_labreports
 m_0 m_0
 m_populationregister m_populationregister
@@ -15616,6 +15745,7 @@ end on
 
 type m_hrmaster from menu within m_hrpayroll
 m_gtehrf001 m_gtehrf001
+m_gtehrf033 m_gtehrf033
 m_gtehrf003 m_gtehrf003
 m_gtehrf004 m_gtehrf004
 m_gtehrf013 m_gtehrf013
@@ -15644,11 +15774,13 @@ this.toolbarhighlightcolor = 134217741
 this.toolbargradient = true
 this.bitmapgradient = true
 this.m_gtehrf001=create m_gtehrf001
+this.m_gtehrf033=create m_gtehrf033
 this.m_gtehrf003=create m_gtehrf003
 this.m_gtehrf004=create m_gtehrf004
 this.m_gtehrf013=create m_gtehrf013
 this.m_gtehrf022=create m_gtehrf022
 this.Item[UpperBound(this.Item)+1]=this.m_gtehrf001
+this.Item[UpperBound(this.Item)+1]=this.m_gtehrf033
 this.Item[UpperBound(this.Item)+1]=this.m_gtehrf003
 this.Item[UpperBound(this.Item)+1]=this.m_gtehrf004
 this.Item[UpperBound(this.Item)+1]=this.m_gtehrf013
@@ -15658,6 +15790,7 @@ end on
 on m_hrmaster.destroy
 call super::destroy
 destroy(this.m_gtehrf001)
+destroy(this.m_gtehrf033)
 destroy(this.m_gtehrf003)
 destroy(this.m_gtehrf004)
 destroy(this.m_gtehrf013)
@@ -15694,6 +15827,37 @@ end on
 
 event clicked;opensheetwithparm(w_gtehrf001,this.tag,w_mdi,0,layered!)
 end event
+
+type m_gtehrf033 from menu within m_hrmaster
+end type
+
+event clicked;opensheetwithparm(w_gtehrf033,this.tag,w_mdi,0,layered!)
+end event
+
+on m_gtehrf033.create
+call super::create
+this.visible = false
+this.text = "&Employee Promotion - Gtehrf033"
+this.menutextcolor = 134217735
+this.menubackcolor = 134217732
+this.menuhighlightcolor = 134217741
+this.textsize = 8
+this.weight = 400
+this.facename = "Tahoma"
+this.titlebackcolor = 134217730
+this.bitmapbackcolor = 12632256
+this.menubitmaps = true
+this.titlegradient = true
+this.toolbartextcolor = 134217746
+this.toolbarbackcolor = 67108864
+this.toolbarhighlightcolor = 134217741
+this.toolbargradient = true
+this.bitmapgradient = true
+end on
+
+on m_gtehrf033.destroy
+call super::destroy
+end on
 
 type m_gtehrf003 from menu within m_hrmaster
 end type
@@ -15821,6 +15985,7 @@ end on
 
 type m_hrtransaction from menu within m_hrpayroll
 m_gtehrf005 m_gtehrf005
+m_gtehrf032 m_gtehrf032
 m_gtehrf005a m_gtehrf005a
 m_gtehrf006 m_gtehrf006
 m_gtehrf019 m_gtehrf019
@@ -15860,6 +16025,7 @@ this.toolbarhighlightcolor = 134217741
 this.toolbargradient = true
 this.bitmapgradient = true
 this.m_gtehrf005=create m_gtehrf005
+this.m_gtehrf032=create m_gtehrf032
 this.m_gtehrf005a=create m_gtehrf005a
 this.m_gtehrf006=create m_gtehrf006
 this.m_gtehrf019=create m_gtehrf019
@@ -15876,6 +16042,7 @@ this.m_gtehrf021=create m_gtehrf021
 this.m_gtehrf017=create m_gtehrf017
 this.m_gtehrf020=create m_gtehrf020
 this.Item[UpperBound(this.Item)+1]=this.m_gtehrf005
+this.Item[UpperBound(this.Item)+1]=this.m_gtehrf032
 this.Item[UpperBound(this.Item)+1]=this.m_gtehrf005a
 this.Item[UpperBound(this.Item)+1]=this.m_gtehrf006
 this.Item[UpperBound(this.Item)+1]=this.m_gtehrf019
@@ -15896,6 +16063,7 @@ end on
 on m_hrtransaction.destroy
 call super::destroy
 destroy(this.m_gtehrf005)
+destroy(this.m_gtehrf032)
 destroy(this.m_gtehrf005a)
 destroy(this.m_gtehrf006)
 destroy(this.m_gtehrf019)
@@ -15943,6 +16111,37 @@ end on
 
 event clicked;opensheetwithparm(w_gtehrf005,this.tag,w_mdi,0,layered!)
 end event
+
+type m_gtehrf032 from menu within m_hrtransaction
+end type
+
+event clicked;opensheetwithparm(w_gtehrf032,this.tag,w_mdi,0,layered!)
+end event
+
+on m_gtehrf032.create
+call super::create
+this.visible = false
+this.text = "Attendance Correction - Gtehrf032"
+this.menutextcolor = 134217735
+this.menubackcolor = 134217732
+this.menuhighlightcolor = 134217741
+this.textsize = 8
+this.weight = 400
+this.facename = "Tahoma"
+this.titlebackcolor = 134217730
+this.bitmapbackcolor = 12632256
+this.menubitmaps = true
+this.titlegradient = true
+this.toolbartextcolor = 134217746
+this.toolbarbackcolor = 67108864
+this.toolbarhighlightcolor = 134217741
+this.toolbargradient = true
+this.bitmapgradient = true
+end on
+
+on m_gtehrf032.destroy
+call super::destroy
+end on
 
 type m_gtehrf005a from menu within m_hrtransaction
 end type
@@ -16015,6 +16214,7 @@ end event
 
 on m_gtehrf019.create
 call super::create
+this.visible = false
 this.text = "PF Advance Entry - Gtehrf019"
 this.menutextcolor = 134217735
 this.menubackcolor = 134217732
@@ -16138,6 +16338,7 @@ end event
 
 on m_gtehrf018.create
 call super::create
+this.visible = false
 this.text = "All Deductions - Gtehrf018"
 this.menutextcolor = 134217735
 this.menubackcolor = 134217732
@@ -16387,6 +16588,7 @@ end event
 
 on m_gtehrf020.create
 call super::create
+this.visible = false
 this.text = "Extra Benefits - Gtehrf020"
 this.menutextcolor = 134217735
 this.menubackcolor = 134217732
@@ -18133,6 +18335,8 @@ end on
 
 type m_tools from menu within m_main
 m_userpermission m_userpermission
+m_gteuserpermission m_gteuserpermission
+m_gtepswr001 m_gtepswr001
 m_pfaccess m_pfaccess
 m_projectstatus m_projectstatus
 m_csvexport m_csvexport
@@ -18160,6 +18364,7 @@ m_einv_dboard m_einv_dboard
 m_gteeinvr001 m_gteeinvr001
 m_reverseproess m_reverseproess
 m_recalculateelp m_recalculateelp
+m_ltclog m_ltclog
 end type
 
 on m_tools.create
@@ -18182,6 +18387,8 @@ this.toolbarhighlightcolor = 134217741
 this.toolbargradient = true
 this.bitmapgradient = true
 this.m_userpermission=create m_userpermission
+this.m_gteuserpermission=create m_gteuserpermission
+this.m_gtepswr001=create m_gtepswr001
 this.m_pfaccess=create m_pfaccess
 this.m_projectstatus=create m_projectstatus
 this.m_csvexport=create m_csvexport
@@ -18209,7 +18416,10 @@ this.m_einv_dboard=create m_einv_dboard
 this.m_gteeinvr001=create m_gteeinvr001
 this.m_reverseproess=create m_reverseproess
 this.m_recalculateelp=create m_recalculateelp
+this.m_ltclog=create m_ltclog
 this.Item[UpperBound(this.Item)+1]=this.m_userpermission
+this.Item[UpperBound(this.Item)+1]=this.m_gteuserpermission
+this.Item[UpperBound(this.Item)+1]=this.m_gtepswr001
 this.Item[UpperBound(this.Item)+1]=this.m_pfaccess
 this.Item[UpperBound(this.Item)+1]=this.m_projectstatus
 this.Item[UpperBound(this.Item)+1]=this.m_csvexport
@@ -18237,11 +18447,14 @@ this.Item[UpperBound(this.Item)+1]=this.m_einv_dboard
 this.Item[UpperBound(this.Item)+1]=this.m_gteeinvr001
 this.Item[UpperBound(this.Item)+1]=this.m_reverseproess
 this.Item[UpperBound(this.Item)+1]=this.m_recalculateelp
+this.Item[UpperBound(this.Item)+1]=this.m_ltclog
 end on
 
 on m_tools.destroy
 call super::destroy
 destroy(this.m_userpermission)
+destroy(this.m_gteuserpermission)
+destroy(this.m_gtepswr001)
 destroy(this.m_pfaccess)
 destroy(this.m_projectstatus)
 destroy(this.m_csvexport)
@@ -18269,6 +18482,7 @@ destroy(this.m_einv_dboard)
 destroy(this.m_gteeinvr001)
 destroy(this.m_reverseproess)
 destroy(this.m_recalculateelp)
+destroy(this.m_ltclog)
 end on
 
 type m_userpermission from menu within m_tools
@@ -18299,6 +18513,67 @@ this.bitmapgradient = true
 end on
 
 on m_userpermission.destroy
+call super::destroy
+end on
+
+type m_gteuserpermission from menu within m_tools
+end type
+
+event clicked;opensheetwithparm(w_gteuserpermission,this.tag,w_mdi,0,layered!)
+end event
+
+on m_gteuserpermission.create
+call super::create
+this.text = "User Permission New"
+this.menutextcolor = 134217735
+this.menubackcolor = 134217732
+this.menuhighlightcolor = 134217741
+this.textsize = 8
+this.weight = 400
+this.facename = "Tahoma"
+this.titlebackcolor = 134217730
+this.bitmapbackcolor = 12632256
+this.menubitmaps = true
+this.titlegradient = true
+this.toolbartextcolor = 134217746
+this.toolbarbackcolor = 67108864
+this.toolbarhighlightcolor = 134217741
+this.toolbargradient = true
+this.bitmapgradient = true
+end on
+
+on m_gteuserpermission.destroy
+call super::destroy
+end on
+
+type m_gtepswr001 from menu within m_tools
+end type
+
+event clicked;opensheetwithparm(w_gtepswr001,this.tag,w_mdi,0,layered!)
+end event
+
+on m_gtepswr001.create
+call super::create
+this.visible = false
+this.text = "User Password"
+this.menutextcolor = 134217735
+this.menubackcolor = 134217732
+this.menuhighlightcolor = 134217741
+this.textsize = 8
+this.weight = 400
+this.facename = "Tahoma"
+this.titlebackcolor = 134217730
+this.bitmapbackcolor = 12632256
+this.menubitmaps = true
+this.titlegradient = true
+this.toolbartextcolor = 134217746
+this.toolbarbackcolor = 67108864
+this.toolbarhighlightcolor = 134217741
+this.toolbargradient = true
+this.bitmapgradient = true
+end on
+
+on m_gtepswr001.destroy
 call super::destroy
 end on
 
@@ -19118,6 +19393,37 @@ this.bitmapgradient = true
 end on
 
 on m_recalculateelp.destroy
+call super::destroy
+end on
+
+type m_ltclog from menu within m_tools
+end type
+
+event clicked;opensheetwithparm(w_ltclog,this.tag,w_mdi,0,layered!)
+end event
+
+on m_ltclog.create
+call super::create
+this.visible = false
+this.text = "Audit Trail"
+this.menutextcolor = 134217735
+this.menubackcolor = 134217732
+this.menuhighlightcolor = 134217741
+this.textsize = 8
+this.weight = 400
+this.facename = "Tahoma"
+this.titlebackcolor = 134217730
+this.bitmapbackcolor = 12632256
+this.menubitmaps = true
+this.titlegradient = true
+this.toolbartextcolor = 134217746
+this.toolbarbackcolor = 67108864
+this.toolbarhighlightcolor = 134217741
+this.toolbargradient = true
+this.bitmapgradient = true
+end on
+
+on m_ltclog.destroy
 call super::destroy
 end on
 

@@ -333,7 +333,7 @@ boolean border = true
 string customformat = "dd/mm/yyyy"
 date maxdate = Date("2998-12-31")
 date mindate = Date("1800-01-01")
-datetime value = DateTime(Date("2012-10-29"), Time("16:15:54.000000"))
+datetime value = DateTime(Date("2025-08-11"), Time("16:49:01.000000"))
 integer textsize = -9
 fontcharset fontcharset = ansi!
 fontpitch fontpitch = variable!
@@ -354,7 +354,7 @@ boolean border = true
 string customformat = "dd/mm/yyyy"
 date maxdate = Date("2998-12-31")
 date mindate = Date("1800-01-01")
-datetime value = DateTime(Date("2012-10-29"), Time("16:15:54.000000"))
+datetime value = DateTime(Date("2025-08-11"), Time("16:49:01.000000"))
 integer textsize = -9
 fontcharset fontcharset = ansi!
 fontpitch fontpitch = variable!
@@ -441,7 +441,7 @@ if  isnull(ddlb_1.text) or ddlb_1.text = "" then
 	return 1
 end if;
 
-ls_sup_id = left(right(ddlb_1.text,9),8)
+ls_sup_id = left(right(ddlb_1.text,10),9)
 
 dw_1.settransobject(sqlca)
 dw_1.retrieve(dp_1.text,dp_2.text,ls_sup_id)

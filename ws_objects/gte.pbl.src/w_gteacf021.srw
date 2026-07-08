@@ -34,7 +34,7 @@ global w_gteacf021 w_gteacf021
 
 type variables
 long ll_user_level
-string ls_gl,ls_frym, ls_toym,ls_ac_dt
+string ls_gl,ls_frym, ls_toym,ls_ac_dt,ls_temp
 n_cst_powerfilter iu_powerfilter
 end variables
 
@@ -79,7 +79,7 @@ boolean enabled = false
 string customformat = "dd/mm/yyyy"
 date maxdate = Date("2998-12-31")
 date mindate = Date("1800-01-01")
-datetime value = DateTime(Date("2024-04-29"), Time("11:19:52.000000"))
+datetime value = DateTime(Date("2025-09-15"), Time("09:51:54.000000"))
 integer textsize = -9
 fontcharset fontcharset = ansi!
 fontpitch fontpitch = variable!
@@ -166,23 +166,36 @@ else
 	ls_ac_dt=dp_1.text
 end if;	 
 
-setpointer(hourglass!)
 
-//if f_check_fin_yr(datetime(ls_ac_dt)) = -1 then;	return 1;end if;
-
-if luo_fames.wf_horemittance_entry(ls_ac_dt, string(ld_st_year,'dd/mm/yyyy'), string(ld_end_year,'dd/mm/yyyy')) = -1 then 
+select distinct 'X' into :ls_temp from fb_vou_det a , fb_vou_head b where a.vd_doc_srl=b.vh_doc_srl and vd_detail like 'Being Amt. Adj. To Trail Balance For The Year%' and vh_vou_date = to_date(:ls_ac_dt, 'dd/mm/yyyy');
+if sqlca.sqlcode = -1 then
+	messagebox('Error : While Getting HO Remittance Openning Value',sqlca.sqlerrtext)
 	rollback using sqlca;
-	return 1;
-end if;
+	return 1
+elseif sqlca.sqlcode = 0 then
+	messagebox('Error!','Already Generated. Cannot Generate Again. Kindly Check')
+	rollback using sqlca;
+	return 1
+else
+	
 
-commit using sqlca;
-
-DESTROY n_fames
-
-setpointer(arrow!)
-
-messagebox('Information','Jv Created Successfully !!!')
-
+	setpointer(hourglass!)
+	
+	//if f_check_fin_yr(datetime(ls_ac_dt)) = -1 then;	return 1;end if;
+	
+	if luo_fames.wf_horemittance_entry(ls_ac_dt, string(ld_st_year,'dd/mm/yyyy'), string(ld_end_year,'dd/mm/yyyy')) = -1 then 
+		rollback using sqlca;
+		return 1;
+	end if;
+	
+	commit using sqlca;
+	
+	DESTROY n_fames
+	
+	setpointer(arrow!)
+	
+	messagebox('Information','Jv Created Successfully !!!')
+end if
 //sql for ho openning remittance entry
 
 ////SELECT  sum(decode(a.ACLEDGER_CUMLATIVE_IND,'C',decode(a.ACLEDGER_ACTYPE,'A',(decode(VD_DC_IND,'D',1,-1) * nvl(VD_AMOUNT,0)),'E',(decode(VD_DC_IND,'D',1,-1) * nvl(VD_AMOUNT,0)),0),

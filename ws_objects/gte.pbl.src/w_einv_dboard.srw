@@ -2,6 +2,10 @@
 forward
 global type w_einv_dboard from window
 end type
+type cb_5 from commandbutton within w_einv_dboard
+end type
+type cb_3 from commandbutton within w_einv_dboard
+end type
 type cb_1 from commandbutton within w_einv_dboard
 end type
 type cbx_2 from checkbox within w_einv_dboard
@@ -29,6 +33,8 @@ windowstate windowstate = maximized!
 long backcolor = 67108864
 string icon = "AppIcon!"
 event ue_option ( )
+cb_5 cb_5
+cb_3 cb_3
 cb_1 cb_1
 cbx_2 cbx_2
 cb_6 cb_6
@@ -46,6 +52,7 @@ long ll_stno,ll_endno,ll_nochest,ll_season, ll_rec
 boolean lb_neworder, lb_query
 double ld_saleval,ld_due,ld_bankchrg, ld_amount, ld_totval, ld_paid, ld_balamt,ld_bnkchrgproportion, ld_chqamt,ld_net,ld_brokerage, ld_cgst_per, ld_sgst_per, ld_igst_per,ld_cgst_amt, ld_sgst_amt, ld_igst_amt, ld_inspchrg,ld_miscchrg
 datetime ld_dt, ld_aus_dt,ld_aus_date, ld_prompt_dt, ld_acsaledt, ld_aprv_dt
+
 end variables
 
 forward prototypes
@@ -54,6 +61,8 @@ public function integer wf_check_duplicate_rec (string fs_prod)
 public function integer wf_genjson (string fs_docno)
 public function integer wf_callapi (string fs_json_string, string fs_docno)
 public function long wf_gen_csv ()
+public function integer wf_genjson_tcs (string fs_docno)
+public function integer wf_callapi_tcs (string fs_json_string, string fs_docno)
 end prototypes
 
 event ue_option();choose case gs_ueoption
@@ -1028,7 +1037,7 @@ if li_rc = 1 then
 				// Obtain the response data
 		
 				lnv_HttpClient.GetResponseBody(lblb_blob) // Obtain the response data and convert to a blob
-				update fb_einvoice set qr_code = :lblb_blob, irn = :ls_irn, ackno = :ls_ackno, ackdt =  to_date(:ls_ackdt,'yyyy-mm-dd hh24:mi:ss')  where docno = :fs_docno;
+				update fb_einvoice set qr_code = :lblb_blob, irn = :ls_irn, ackno = :ls_ackno, ackdt =  to_date(:ls_ackdt,'dd/mm/yyyy hh24:mi:ss')  where docno = :fs_docno;
 				if sqlca.sqlcode = -1 then
 					messagebox('Error','Error occured while upting IRN and QR Code'+sqlca.sqlerrtext)
 					rollback using sqlca;
@@ -1533,14 +1542,1039 @@ where nvl(IRN,'x') = 'x' AND NVL(xls_gen,'N') = 'N' ;
 //end if
 end function
 
+public function integer wf_genjson_tcs (string fs_docno);string ls_version, ls_irn, ls_taxsch, ls_suptyp, ls_regrev, ls_ecmgstin, ls_igstonintra, ls_doctyp, ls_docno, ls_docdt, ls_sgstin, ls_slglnm, ls_strdnm, ls_saddr1, ls_saddr2, ls_sloc, ls_spin, ls_sstcd, ls_sph, ls_sem
+string ls_bgstin, ls_blglnm, ls_btrdnm, ls_baddr1, ls_baddr2, ls_bloc, ls_bpin, ls_bstcd, ls_bpos, ls_bph, ls_bem, ls_distrdnm, ls_disaddr1, ls_disaddr2, ls_disloc, ls_dispin, ls_disstcd, ls_shipgstin, ls_shiplglnm, ls_shiptrdnm
+string ls_shipaddr1, ls_shipaddr2, ls_shiploc, ls_shippin, ls_shipstcd, ls_paynm, ls_payacctdet, ls_paymode, ls_payfininsbr, ls_payterm, ls_payinstr, ls_paycrtrn, ls_paydirdr, ls_paycrday, ls_paypaidamt, ls_paypaymtdue
+string ls_refinvrm, ls_invstdt, ls_invenddt, ls_inv_no, ls_invdt, ls_othrefno, ls_recadvrefr, ls_recadvdt, ls_tendrefr, ls_contrrefr, ls_extrefr, ls_projrefr, ls_porefr, ls_porefdt, ls_url, ls_docs, ls_infodtls, ls_expshipbno
+string ls_expshipbdt, ls_expport, ls_exprefclm, ls_expforcur, ls_expcntcode, ls_expduty, ls_transid, ls_transname, ls_transmode, ls_distance, ls_transdocno, ls_transdocdt, ls_vehno, ls_vehtype
+
+string ls_slno, ls_prddesc, ls_isservc, ls_hsncd, ls_barcde, ls_bchnm, ls_bchexpdt, ls_bchwrdt, ls_qty, ls_freeqty, ls_uom, ls_unitprice, ls_totamt, ls_discount, ls_pretaxval, ls_assamt, ls_gstrt, ls_igstamt, ls_cgstamt, ls_sgstamt
+string ls_cesrt, ls_cesamt, ls_cesnonadvlamt, ls_statecesrt, ls_statecesamt, ls_statecesnonadvlamt, ls_othchrg, ls_totitemval, ls_ordlineref, ls_orgcntry, ls_prdslno, ls_attnm, ls_attval
+string ls_cgstrt,ls_sgstrt,ls_igstrt
+
+string ls_totass,ls_totcgst,ls_totsgst,ls_totigst,ls_totces,ls_totstces,ls_totcesnonad,ls_totinv,ls_totothchrg,ls_totdis
+
+string ls_trandtls, ls_docdtls, ls_sellerdtls, ls_buyerdtls, ls_dispdtls, ls_shipdtls, ls_itemlist, ls_bchdtls, ls_attribdtls, ls_paydtls, ls_refdtls, ls_docperddtls, ls_predocdtls, ls_contrdtls, ls_addldocdtls, ls_expdtls, ls_ewbdtls
+
+string ls_json_string, ls_rec
+long li_filenum
+
+string ls_valdtl,ls_null
+
+select distinct VERSION, IRN, TAXSCH, SUPTYP, REGREV, ECMGSTIN, IGSTONINTRA, DOCTYP, DOCNO, to_char(DOCDT,'dd/mm/yyyy'), SGSTIN, SLGLNM, STRDNM, SADDR1, SADDR2, SLOC, to_char(SPIN), SSTCD, SPH, SEM, 
+	BGSTIN, BLGLNM, BTRDNM, BADDR1, BADDR2, BLOC, to_char(BPIN), BSTCD, BPOS, BPH, BEM, DISTRDNM, DISADDR1, DISADDR2, DISLOC, to_char(DISPIN), DISSTCD, SHIPGSTIN, SHIPLGLNM, SHIPTRDNM, 
+	SHIPADDR1, SHIPADDR2, SHIPLOC, to_char(SHIPPIN), SHIPSTCD, PAYNM, PAYACCTDET, PAYMODE, PAYFININSBR, PAYTERM, PAYINSTR, PAYCRTRN, PAYDIRDR, to_char(PAYCRDAY), to_char(PAYPAIDAMT), to_char(PAYPAYMTDUE),
+	REFINVRM, to_char(INVSTDT,'dd/mm/yyyy'), to_char(INVENDDT,'dd/mm/yyyy'), INVNO, to_char(INVDT,'dd/mm/yyyy'), OTHREFNO, RECADVREFR, to_char(RECADVDT,'dd/mm/yyyy'), TENDREFR, CONTRREFR, EXTREFR, PROJREFR, POREFR, to_char(POREFDT,'dd/mm/yyyy'), URL, DOCS, INFODTLS, EXPSHIPBNO,
+	 to_char(EXPSHIPBDT,'dd/mm/yyyy'), EXPPORT, EXPREFCLM, EXPFORCUR, EXPCNTCODE, to_char(EXPDUTY), TRANSID, TRANSNAME, TRANSMODE, to_char(DISTANCE), TRANSDOCNO, to_char(TRANSDOCDT,'dd/mm/yyyy'), VEHNO, VEHTYPE,
+	 to_char(TOTASSVAL),to_char(TOTCGSTVAL),to_char(TOTSGSTVAL),to_char(TOTIGSTVAL),to_char(TOTCESVAL),to_char(TOTSTCESVAL),'0' cesnonadval,to_char(TOTINVVAL),to_char(TOTOTHCHRG),to_char(TOTDISCOUNT)
+into :ls_version, :ls_irn, :ls_taxsch, :ls_suptyp, :ls_regrev, :ls_ecmgstin, :ls_igstonintra, :ls_doctyp, :ls_docno, :ls_docdt, :ls_sgstin, :ls_slglnm, :ls_strdnm, :ls_saddr1, :ls_saddr2, :ls_sloc, :ls_spin, :ls_sstcd, :ls_sph, :ls_sem,
+	:ls_bgstin, :ls_blglnm, :ls_btrdnm, :ls_baddr1, :ls_baddr2, :ls_bloc, :ls_bpin, :ls_bstcd, :ls_bpos, :ls_bph, :ls_bem, :ls_distrdnm, :ls_disaddr1, :ls_disaddr2, :ls_disloc, :ls_dispin, :ls_disstcd, :ls_shipgstin, :ls_shiplglnm, :ls_shiptrdnm,
+	:ls_shipaddr1, :ls_shipaddr2, :ls_shiploc, :ls_shippin, :ls_shipstcd, :ls_paynm, :ls_payacctdet, :ls_paymode, :ls_payfininsbr, :ls_payterm, :ls_payinstr, :ls_paycrtrn, :ls_paydirdr, :ls_paycrday, :ls_paypaidamt, :ls_paypaymtdue,
+	:ls_refinvrm, :ls_invstdt, :ls_invenddt, :ls_inv_no, :ls_invdt, :ls_othrefno, :ls_recadvrefr, :ls_recadvdt, :ls_tendrefr, :ls_contrrefr, :ls_extrefr, :ls_projrefr, :ls_porefr, :ls_porefdt, :ls_url, :ls_docs, :ls_infodtls, :ls_expshipbno,
+	:ls_expshipbdt, :ls_expport, :ls_exprefclm, :ls_expforcur, :ls_expcntcode, :ls_expduty, :ls_transid, :ls_transname, :ls_transmode, :ls_distance, :ls_transdocno, :ls_transdocdt, :ls_vehno, :ls_vehtype,
+	:ls_totass,:ls_totcgst,:ls_totsgst,:ls_totigst,:ls_totces,:ls_totstces,:ls_totcesnonad,:ls_totinv,:ls_totothchrg,:ls_totdis
+ from fb_einvoice
+ where docno = :fs_docno;
+
+ 
+ if sqlca.sqlcode = -1 then
+	messagebox('Error','Error occured while selecting header data : '+sqlca.sqlerrtext)
+	rollback using sqlca;
+	return -1;
+elseif sqlca.sqlcode = 100 then
+	messagebox('Warning','No invoice s found')
+	rollback using sqlca;
+	return -1;
+end if
+
+if isnull(ls_version) then 
+	ls_version = 'null';
+else
+	ls_version = '"'+ls_version+'"'
+end if
+
+if isnull(ls_irn) then 
+	ls_irn = 'null';
+else
+	ls_irn = '"'+ls_irn+'"'
+end if
+
+if isnull(ls_taxsch) then 
+	ls_taxsch = 'null';
+else
+	ls_taxsch = '"'+ls_taxsch+'"'
+end if
+
+if isnull(ls_suptyp) then 
+	ls_suptyp = 'null';
+else
+	ls_suptyp = '"'+ls_suptyp+'"'
+end if
+
+if isnull(ls_regrev) then 
+	ls_regrev = 'null';
+else
+	ls_regrev = '"'+ls_regrev+'"'
+end if
+
+if isnull(ls_ecmgstin) then 
+	ls_ecmgstin = 'null';
+else
+	ls_ecmgstin = '"'+ls_ecmgstin+'"'
+end if
+
+if isnull(ls_igstonintra) then 
+	ls_igstonintra = 'null';
+else
+	ls_igstonintra = '"'+ls_igstonintra+'"'
+end if
+
+if isnull(ls_doctyp) then 
+	ls_doctyp = 'null';
+else
+	ls_doctyp = '"'+ls_doctyp+'"'
+end if
+
+if isnull(ls_docno) then 
+	ls_docno = 'null';
+else
+	ls_docno = '"'+ls_docno+'"'
+end if
+
+if isnull(ls_docdt) then 
+	ls_docdt = 'null';
+else
+	ls_docdt = '"'+ls_docdt+'"'
+end if
+
+if isnull(ls_sgstin) then 
+	ls_sgstin = 'null';
+else
+	ls_sgstin = '"'+ls_sgstin+'"'
+end if
+ 
+if isnull(ls_slglnm) then 
+	ls_slglnm = 'null';
+else
+	ls_slglnm = '"'+ls_slglnm+'"'
+end if
+
+if isnull(ls_strdnm) then 
+	ls_strdnm = 'null';
+else
+	ls_strdnm = '"'+ls_strdnm+'"'
+end if
+
+if isnull(ls_saddr1) then 
+	ls_saddr1 = 'null';
+else
+	ls_saddr1 = '"'+ls_saddr1+'"'
+end if
+
+if isnull(ls_saddr2) then 
+	ls_saddr2 = 'null';
+else
+	ls_saddr2 = '"'+ls_saddr2+'"'
+end if
+
+if isnull(ls_sloc) then 
+	ls_sloc = 'null';
+else
+	ls_sloc = '"'+ls_sloc+'"'
+end if
+
+if isnull(ls_spin) then
+	ls_spin = 'null';
+else
+	ls_spin = '"'+ls_spin+'"'
+end if
+
+if isnull(ls_sstcd) then 
+	ls_sstcd = 'null';
+else
+	ls_sstcd = '"'+ls_sstcd+'"'
+end if
+
+if isnull(ls_sph) then 
+	ls_sph = 'null';
+else
+	ls_sph = '"'+ls_sph+'"'
+end if
+
+if isnull(ls_sem) then 
+	ls_sem = 'null';
+else
+	ls_sem = '"'+ls_sem+'"'
+end if
+
+if isnull(ls_bgstin) then 
+	ls_bgstin = 'null';
+else
+	ls_bgstin = '"'+ls_bgstin+'"'
+end if
+
+if isnull(ls_blglnm) then 
+	ls_blglnm = 'null';
+else
+	ls_blglnm = '"'+ls_blglnm+'"'
+end if
+
+if isnull(ls_btrdnm) then 
+	ls_btrdnm = 'null';
+else
+	ls_btrdnm = '"'+ls_btrdnm+'"'
+end if
+
+if isnull(ls_baddr1) then 
+	ls_baddr1 = 'null';
+else
+	ls_baddr1 = '"'+ls_baddr1+'"'
+end if
+
+if isnull(ls_baddr2) then 
+	ls_baddr2 = 'null';
+else
+	ls_baddr2 = '"'+ls_baddr2+'"'
+end if
+
+if isnull(ls_bloc) then 
+	ls_bloc = 'null';
+else
+	ls_bloc = '"'+ls_bloc+'"'
+end if
+
+if isnull(ls_bpin) then 
+	ls_bpin = 'null';
+else
+	ls_bpin = '"'+ls_bpin+'"'
+end if
+
+if isnull(ls_bstcd) then 
+	ls_bstcd = 'null';
+else
+	ls_bstcd = '"'+ls_bstcd+'"'
+end if
+
+if isnull(ls_bpos) then 
+	ls_bpos = 'null';
+else
+	ls_bpos = '"'+ls_bpos+'"'
+end if
+
+if isnull(ls_bph) then 
+	ls_bph = 'null';
+else
+	ls_bph = '"'+ls_bph+'"'
+end if
+
+if isnull(ls_bem) then 
+	ls_bem = 'null';
+else
+	ls_bem = '"'+ls_bem+'"'
+end if
+
+if isnull(ls_distrdnm) then 
+	ls_distrdnm = 'null';
+else
+	ls_distrdnm = '"'+ls_distrdnm+'"'
+end if
+
+if isnull(ls_disaddr1) then 
+	ls_disaddr1 = 'null';
+else
+	ls_disaddr1 = '"'+ls_disaddr1+'"'
+end if
+
+if isnull(ls_disaddr2) then 
+	ls_disaddr2 = 'null';
+else
+	ls_disaddr2 = '"'+ls_disaddr2+'"'
+end if
+
+if isnull(ls_disloc) then 
+	ls_disloc = 'null';
+else
+	ls_disloc = '"'+ls_disloc+'"'
+end if
+
+if isnull(ls_dispin) then ls_dispin = 'null';
+
+if isnull(ls_disstcd) then 
+	ls_disstcd = 'null';
+else
+	ls_disstcd = '"'+ls_disstcd+'"'
+end if
+
+if isnull(ls_shipgstin) then 
+	ls_shipgstin = 'null';
+else
+	ls_shipgstin = '"'+ls_shipgstin+'"'
+end if
+ 
+if isnull(ls_shiplglnm) then 
+	ls_shiplglnm = 'null';
+else
+	ls_shiplglnm = '"'+ls_shiplglnm+'"'
+end if 
+
+if isnull(ls_shiptrdnm) then 
+	ls_shiptrdnm = 'null';
+else
+	ls_shiptrdnm = '"'+ls_shiptrdnm+'"'
+end if
+
+if isnull(ls_shipaddr1) then 
+	ls_shipaddr1 = 'null';
+else
+	ls_shipaddr1 = '"'+ls_shipaddr1+'"'
+end if
+
+if isnull(ls_shipaddr2) then 
+	ls_shipaddr2 = 'null';
+else
+	ls_shipaddr2 = '"'+ls_shipaddr2+'"'
+end if
+ 
+if isnull(ls_shiploc) then 
+	ls_shiploc = 'null';
+else
+	ls_shiploc = '"'+ls_shiploc+'"'
+end if
+
+if isnull(ls_shippin) then ls_shippin = 'null';
+
+if isnull(ls_shipstcd) then 
+	ls_shipstcd = 'null';
+else
+	ls_shipstcd = '"'+ls_shipstcd+'"'
+end if
+
+if isnull(ls_paynm) then 
+	ls_paynm = 'null';
+else
+	ls_paynm = '"'+ls_paynm+'"'
+end if
+
+if isnull(ls_payacctdet) then 
+	ls_payacctdet = 'null';
+else
+	ls_payacctdet = '"'+ls_payacctdet+'"'
+end if
+
+if isnull(ls_paymode) then 
+	ls_paymode = 'null';
+else
+	ls_paymode = '"'+ls_paymode+'"'
+end if
+
+if isnull(ls_payfininsbr) then 
+	ls_payfininsbr = 'null';
+else
+	ls_payfininsbr = '"'+ls_payfininsbr+'"'
+end if
+
+if isnull(ls_payterm) then 
+	ls_payterm = 'null';
+else
+	ls_payterm = '"'+ls_payterm+'"'
+end if
+
+if isnull(ls_payinstr) then 
+	ls_payinstr = 'null';
+else
+	ls_payinstr = '"'+ls_payinstr+'"'
+end if
+
+if isnull(ls_paycrtrn) then 
+	ls_paycrtrn = 'null';
+else
+	ls_paycrtrn = '"'+ls_paycrtrn+'"'
+end if
+
+if isnull(ls_paydirdr) then 
+	ls_paydirdr = 'null';
+else
+	ls_paydirdr = '"'+ls_paydirdr+'"'
+end if
+
+if isnull(ls_paycrday) then ls_paycrday = '0';
+
+if isnull(ls_paypaidamt) then ls_paypaidamt = '0';
+
+if isnull(ls_paypaymtdue) then ls_paypaymtdue = '0';
+
+if isnull(ls_refinvrm) then 
+	ls_refinvrm = '"NOT NEEDED"';
+else
+	ls_refinvrm = '"'+ls_refinvrm+'"'
+end if
+
+if isnull(ls_invstdt) then 
+	ls_invstdt = 'null';
+else
+	ls_invstdt = '"'+ls_invstdt+'"'
+end if
+
+if isnull(ls_invenddt) then 
+	ls_invenddt = 'null';
+else
+	ls_invenddt = '"'+ls_invenddt+'"'
+end if
+
+if isnull(ls_inv_no) then 
+	ls_inv_no = 'null';
+else
+	ls_inv_no = '"'+ls_inv_no+'"'
+end if
+
+if isnull(ls_invdt) then 
+	ls_invdt = 'null';
+else
+	ls_invdt = '"'+ls_invdt+'"'
+end if
+
+if isnull(ls_othrefno) then 
+	ls_othrefno = 'null';
+else
+	ls_othrefno = '"'+ls_othrefno+'"'
+end if
+
+if isnull(ls_recadvrefr) then 
+	ls_recadvrefr = 'null';
+else
+	ls_recadvrefr = '"'+ls_recadvrefr+'"'
+end if
+
+if isnull(ls_recadvdt) then 
+	ls_recadvdt = 'null';
+else
+	ls_recadvdt = '"'+ls_recadvdt+'"'
+end if
+
+if isnull(ls_tendrefr) then 
+	ls_tendrefr = 'null';
+else
+	ls_tendrefr = '"'+ls_tendrefr+'"'
+end if
+
+if isnull(ls_contrrefr) then 
+	ls_contrrefr = 'null';
+else
+	ls_contrrefr = '"'+ls_contrrefr+'"'
+end if
+
+if isnull(ls_extrefr) then 
+	ls_extrefr = 'null';
+else
+	ls_extrefr = '"'+ls_extrefr+'"'
+end if
+
+if isnull(ls_projrefr) then 
+	ls_projrefr = 'null';
+else
+	ls_projrefr = '"'+ls_projrefr+'"'
+end if
+
+if isnull(ls_porefr) then 
+	ls_porefr = 'null';
+else
+	ls_porefr = '"'+ls_porefr+'"'
+end if
+
+if isnull(ls_porefdt) then 
+	ls_porefdt = 'null';
+else
+	ls_porefdt = '"'+ls_porefdt+'"'
+end if
+
+if isnull(ls_url) then 
+	ls_url = 'null';
+else
+	ls_url = '"'+ls_url+'"'
+end if
+
+if isnull(ls_docs) then 
+	ls_docs = 'null';
+else
+	ls_docs = '"'+ls_docs+'"'
+end if
+
+if isnull(ls_infodtls) then 
+	ls_infodtls = 'null';
+else
+	ls_infodtls = '"'+ls_infodtls+'"'
+end if
+
+if isnull(ls_expshipbno) then 
+	ls_expshipbno = 'null';
+else
+	ls_expshipbno = '"'+ls_expshipbno+'"'
+end if
+
+if isnull(ls_expshipbdt) then 
+	ls_expshipbdt = 'null';
+else
+	ls_expshipbdt = '"'+ls_expshipbdt+'"'
+end if
+
+if isnull(ls_expport) then 
+	ls_expport = 'null';
+else
+	ls_expport = '"'+ls_expport+'"'
+end if
+
+if isnull(ls_exprefclm) then 
+	ls_exprefclm = 'null';
+else
+	ls_exprefclm = '"'+ls_exprefclm+'"'
+end if
+
+if isnull(ls_expforcur) then 
+	ls_expforcur = 'null';
+else
+	ls_expforcur = '"'+ls_expforcur+'"'
+end if
+
+if isnull(ls_expcntcode) then 
+	ls_expcntcode = 'null';
+else
+	ls_expcntcode = '"'+ls_expcntcode+'"'
+end if
+
+if isnull(ls_expduty) then ls_expduty = '0';
+
+if isnull(ls_transid) then 
+	ls_transid = 'null';
+else
+	ls_transid = '"'+ls_transid+'"'
+end if
+
+//if isnull(ls_transname) then 
+//	ls_transname = 'null';
+//else
+//	ls_transname = '"'+ls_transname+'"'
+//end if
+
+ls_transname = 'null';
+
+if isnull(ls_transmode) then 
+	ls_transmode = 'null';
+else
+	ls_transmode = '"'+ls_transmode+'"'
+end if
+
+if isnull(ls_distance) then ls_distance = '0';
+
+if isnull(ls_transdocno) then 
+	ls_transdocno = 'null';
+else
+	ls_transdocno = '"'+ls_transdocno+'"'
+end if
+
+if isnull(ls_transdocdt) then 
+	ls_transdocdt = 'null';
+else
+	ls_transdocdt = '"'+ls_transdocdt+'"'
+end if
+
+if isnull(ls_vehno) then 
+	ls_vehno = 'null';
+else
+	ls_vehno = '"'+ls_vehno+'"'
+end if
+ 
+if isnull(ls_vehtype) then 
+	ls_vehtype = 'null';
+else
+	ls_vehtype = '"'+ls_vehtype+'"'
+end if
+
+if isnull(ls_totass) then ls_totass = '0';
+if isnull(ls_totcgst) then ls_totcgst = '0';
+if isnull(ls_totsgst) then ls_totsgst = '0';
+if isnull(ls_totigst) then ls_totigst = '0';
+if isnull(ls_totces) then ls_totces = '0';
+if isnull(ls_totstces) then ls_totstces = '0';
+if isnull(ls_totcesnonad) then ls_totcesnonad = '0';
+if isnull(ls_totinv) then ls_totinv = '0';
+if isnull(ls_totothchrg) then ls_totothchrg = '0';
+if isnull(ls_totdis) then ls_totdis = '0';
+ls_null='null'
+
+
+declare c2 cursor for
+	select SLNO, PRDDESC, ISSERVC, HSNCD, BARCDE, BCHNM, to_char(BCHEXPDT,'dd/mm/yyyy'), to_char(BCHWRDT,'dd/mm/yyyy'), to_char(QTY), to_char(FREEQTY), UNIT, to_char(UNITPRICE), to_char(TOTAMT), to_char(DISCOUNT), to_char(PRETAXVAL), to_char(ASSAMT), to_char(GSTRT), to_char(IGSTAMT), to_char(CGSTAMT), to_char(SGSTAMT), 
+	to_char(CESRT), to_char(CESAMT), to_char(CESNONADVLAMT), to_char(STATECESRT), to_char(STATECESAMT), to_char(STATECESNONADVLAMT), to_char(OTHCHRG), to_char(TOTITEMVAL), ORDLINEREF, ORGCNTRY, PRDSLNO, ATTNM, ATTVAL,
+	to_char(decode(CGSTAMT,0,0,GSTRT/2)) cgstrt,to_char(decode(SGSTAMT,0,0,GSTRT/2)) sgstrt,to_char(decode(IGSTAMT,0,0,GSTRT)) igstrt
+	from fb_einvoice
+	where docno = :fs_docno;
+	
+open c2;
+if sqlca.sqlcode = -1 then
+	messagebox('Error','Error occured while opening cursor c2 : '+sqlca.sqlerrtext)
+	rollback using sqlca;
+	return -1
+elseif sqlca.sqlcode = 0 then
+	setnull(ls_slno); setnull(ls_prddesc); setnull(ls_isservc); setnull(ls_hsncd); setnull(ls_barcde); setnull(ls_bchnm); setnull(ls_bchexpdt); setnull(ls_bchwrdt); setnull(ls_qty); setnull(ls_freeqty); setnull(ls_uom); setnull(ls_unitprice); setnull(ls_totamt); setnull(ls_discount); setnull(ls_pretaxval); setnull(ls_assamt); setnull(ls_gstrt); setnull(ls_igstamt); setnull(ls_cgstamt); setnull(ls_sgstamt); setnull(ls_cesrt); setnull(ls_cesamt); setnull(ls_cesnonadvlamt); setnull(ls_statecesrt); setnull(ls_statecesamt); setnull(ls_statecesnonadvlamt); setnull(ls_othchrg); setnull(ls_totitemval); setnull(ls_ordlineref); setnull(ls_orgcntry); setnull(ls_prdslno); setnull(ls_attnm); setnull(ls_attval);
+	setnull(ls_bchdtls); setnull(ls_attribdtls);setnull(ls_cgstrt);setnull(ls_sgstrt);setnull(ls_igstrt);
+	ls_itemlist = '['
+	fetch c2 into :ls_slno, :ls_prddesc, :ls_isservc, :ls_hsncd, :ls_barcde, :ls_bchnm, :ls_bchexpdt, :ls_bchwrdt, :ls_qty, :ls_freeqty, :ls_uom, :ls_unitprice, :ls_totamt, :ls_discount, :ls_pretaxval, :ls_assamt, :ls_gstrt, :ls_igstamt, :ls_cgstamt, :ls_sgstamt, :ls_cesrt, :ls_cesamt, :ls_cesnonadvlamt, :ls_statecesrt, :ls_statecesamt, :ls_statecesnonadvlamt, :ls_othchrg, :ls_totitemval, :ls_ordlineref, :ls_orgcntry, :ls_prdslno, :ls_attnm, :ls_attval, :ls_cgstrt, :ls_sgstrt, :ls_igstrt;
+	do while sqlca.sqlcode <> 100
+		
+		if isnull(ls_slno) then 
+			ls_slno = 'null';
+		else
+			ls_slno = '"'+ls_slno+'"'
+		end if
+		
+		if isnull(ls_prddesc) then 
+			ls_prddesc = 'null';
+		else
+			ls_prddesc = '"'+ls_prddesc+'"'
+		end if
+		
+		if isnull(ls_isservc) then 
+			ls_isservc = 'null';
+		else
+			ls_isservc = '"'+ls_isservc+'"'
+		end if
+		
+		if isnull(ls_hsncd) then 
+			ls_hsncd = 'null';
+		else
+			ls_hsncd = '"'+ls_hsncd+'"'
+		end if
+		
+		if isnull(ls_barcde) then 
+			ls_barcde = 'null';
+		else
+			ls_barcde = '"'+ls_barcde+'"'
+		end if
+		
+		if isnull(ls_bchnm) then 
+			ls_bchnm = 'null';
+		else
+			ls_bchnm = '"'+ls_bchnm+'"'
+		end if
+		
+		if isnull(ls_bchexpdt) then 
+			ls_bchexpdt = 'null';
+		else
+			ls_bchexpdt = '"'+ls_bchexpdt+'"'
+		end if
+
+		if isnull(ls_bchwrdt) then 
+			ls_bchwrdt = 'null';
+		else
+			ls_bchwrdt = '"'+ls_bchwrdt+'"'
+		end if
+		
+		if isnull(ls_qty) then ls_qty = '0';
+		
+		if isnull(ls_freeqty) then ls_freeqty = '0';
+			
+		if isnull(ls_uom) then 
+			ls_uom = 'null';
+		else
+			ls_uom = '"'+ls_uom+'"'
+		end if
+		
+		if isnull(ls_unitprice) then ls_unitprice = '0';
+		
+		if isnull(ls_totamt) then ls_totamt = '0';
+		
+		if isnull(ls_discount) then ls_discount = '0';
+		
+		if isnull(ls_pretaxval) then ls_pretaxval = '0';
+		
+		if isnull(ls_assamt) then ls_assamt = '0';
+		
+		if isnull(ls_gstrt) then ls_gstrt = '0';
+		
+		if isnull(ls_igstamt) then ls_igstamt = '0';
+		
+		if isnull(ls_cgstamt) then ls_cgstamt = '0';
+		
+		if isnull(ls_sgstamt) then ls_sgstamt = '0';
+		
+		if isnull(ls_cesrt) then ls_cesrt = '0';
+		
+		if isnull(ls_cgstrt) then ls_cgstrt = '0';
+		
+		if isnull(ls_sgstrt) then ls_sgstrt = '0';
+		
+		if isnull(ls_igstrt) then ls_igstrt = '0';
+				
+		if isnull(ls_cesamt) then ls_cesamt = '0';
+		
+		if isnull(ls_cesnonadvlamt) then ls_cesnonadvlamt = '0';
+		
+		if isnull(ls_statecesrt) then ls_statecesrt = '0';
+		
+		if isnull(ls_statecesamt) then ls_statecesamt = '0';
+		
+		if isnull(ls_statecesnonadvlamt) then ls_statecesnonadvlamt = '0';
+		
+		if isnull(ls_othchrg) then ls_othchrg = '0';
+		
+		if isnull(ls_totitemval) then ls_totitemval = '0';
+		
+		if isnull(ls_ordlineref) then 
+			ls_ordlineref = 'null';
+		else
+			ls_ordlineref = '"'+ls_ordlineref+'"'
+		end if
+		
+		if isnull(ls_orgcntry) then 
+			ls_orgcntry = 'null';
+		else
+			ls_orgcntry = '"'+ls_orgcntry+'"'
+		end if
+		
+		if isnull(ls_prdslno) then 
+			ls_prdslno = 'null';
+		else
+			ls_prdslno = '"'+ls_prdslno+'"'
+		end if
+		
+		if isnull(ls_attnm) then 
+			ls_attnm = 'null';
+		else
+			ls_attnm = '"'+ls_attnm+'"'
+		end if
+		
+		if isnull(ls_attval) then 
+			ls_attval = 'null';
+		else
+			ls_attval = '"'+ls_attval+'"'
+		end if		
+		
+
+		ls_itemlist = ls_itemlist + '{"prdnm": '+ls_prddesc+',"isservc": '+ls_isservc+',"hsncd": '+ls_hsncd+',"barcde": '+ls_barcde+',"qty": "'+ls_qty+'","freeqty": "'+ls_freeqty+'","uqc": '+ls_uom+',"unitrate": "'+ls_unitprice+'","grossamt": "'+ls_totamt+'","discount": "'+ls_discount+'","pretaxval": "'+ls_pretaxval+'","assamt": "'+ls_assamt+'","taxability": "TAX","cgstrt": "'+ls_cgstrt+'","cgstamt": "'+ls_cgstamt+'","sgstrt":"'+ls_sgstrt+'","sgstamt": "'+ls_sgstamt+'","igstrt":"'+ls_igstrt+'","igstamt": "'+ls_igstamt+'","cessrt": "'+ls_cesrt+'","cessamt": "'+ls_cesamt+'","cessnonadval": "'+ls_cesnonadvlamt+'","statecessrt": "'+ls_statecesrt+'","othchrg": "'+ls_othchrg+'","totitemval": "'+ls_totitemval+'","ordlineref": '+ls_ordlineref+',"orgcntry": '+ls_orgcntry+',"prdsino": '+ls_prdslno+'},';
+
+	
+		setnull(ls_slno); setnull(ls_prddesc); setnull(ls_isservc); setnull(ls_hsncd); setnull(ls_barcde); setnull(ls_bchnm); setnull(ls_bchexpdt); setnull(ls_bchwrdt); setnull(ls_qty); setnull(ls_freeqty); setnull(ls_uom); setnull(ls_unitprice); setnull(ls_totamt); setnull(ls_discount); setnull(ls_pretaxval); setnull(ls_assamt); setnull(ls_gstrt); setnull(ls_igstamt); setnull(ls_cgstamt); setnull(ls_sgstamt); setnull(ls_cesrt); setnull(ls_cesamt); setnull(ls_cesnonadvlamt); setnull(ls_statecesrt); setnull(ls_statecesamt); setnull(ls_statecesnonadvlamt); setnull(ls_othchrg); setnull(ls_totitemval); setnull(ls_ordlineref); setnull(ls_orgcntry); setnull(ls_prdslno); setnull(ls_attnm); setnull(ls_attval);
+		setnull(ls_bchdtls); setnull(ls_attribdtls);setnull(ls_cgstrt);setnull(ls_sgstrt);setnull(ls_igstrt);
+		fetch c2 into :ls_slno, :ls_prddesc, :ls_isservc, :ls_hsncd, :ls_barcde, :ls_bchnm, :ls_bchexpdt, :ls_bchwrdt, :ls_qty, :ls_freeqty, :ls_uom, :ls_unitprice, :ls_totamt, :ls_discount, :ls_pretaxval, :ls_assamt, :ls_gstrt, :ls_igstamt, :ls_cgstamt, :ls_sgstamt, :ls_cesrt, :ls_cesamt, :ls_cesnonadvlamt, :ls_statecesrt, :ls_statecesamt, :ls_statecesnonadvlamt, :ls_othchrg, :ls_totitemval, :ls_ordlineref, :ls_orgcntry, :ls_prdslno, :ls_attnm, :ls_attval,:ls_cgstrt,:ls_sgstrt,:ls_igstrt;
+	loop
+	close c2;
+	ls_itemlist = mid(ls_itemlist,1,len(ls_itemlist)-1) + ']';	
+end if
+
+ls_trandtls = '{"trancatg": '+ls_suptyp+',"reversecharge": '+ls_regrev+',"transactionmode": "REG"}'
+
+ls_docdtls = '{"document_type":'+ls_doctyp+',"docno": '+ls_docno+',"docdt": '+ls_docdt+'}'
+
+ls_sellerdtls = '{"supplier_gstin": '+ls_sgstin+',"supplier_lglnm": '+ls_slglnm+',"supplier_trdnm": '+ls_strdnm+',"supplier_bnm": '+ls_saddr1+',"supplier_flno": '+ls_saddr2+',"supplier_loc": '+ls_sloc+',"supplier_pin": '+ls_spin+',"supplier_state": '+ls_sstcd+',"supplier_phone": '+ls_sph+',"supplier_email": '+ls_sem+'}';
+
+ls_buyerdtls = '{"buyer_gstin": '+ls_bgstin+',"buyer_lglnm": '+ls_blglnm+',"buyer_trdnm": '+ls_btrdnm+',"buyer_bnm": '+ls_baddr1+',"buyer_flno": '+ls_baddr2+',"buyer_loc": '+ls_bloc+',"buyer_pin": '+ls_bpin+',"buyer_state": '+ls_bstcd+',"pos": '+ls_bpos+',"buyer_phone": '+ls_bph+',"buyer_email": '+ls_bem+'}' ;
+
+ls_ewbdtls = '{"ewayreq": "N","subsupplytype": '+ls_null+',"mode_of_transport": '+ls_null+',"transporter_id": '+ls_null+',"transporter_name": '+ls_null+',"transporter_doc_date":'+ls_null+',"veh_type": '+ls_null+',"veh_number": '+ls_null+'}';
+
+ls_valdtl ='{"ttlassval":"'+ls_totass+'","cgstval":"'+ls_totcgst+'","sgstval":"'+ls_totsgst+'","igstval":"'+ls_totigst+'","cesval":"'+ls_totces+'","stcesval":"'+ls_totstces+'","cesnonadval":"'+ls_totcesnonad+'","totinvval":"'+ls_totinv+'","othchrg":"'+ls_totothchrg+'","discval":"'+ls_totdis+'"}'
+
+ls_json_string = '{	"self_gstin": '+ls_sgstin+',"trandtl": '+ls_trandtls+',"docdtl": '+ls_docdtls+',"supplierdtl": '+ls_sellerdtls+',"buyerdtl": '+ls_buyerdtls+',"itemdtls": '+ls_itemlist+',"valdtl": '+ls_valdtl+',"irnreq":"Y","ewbdtl": '+ls_ewbdtls+'}';
+
+//--------------------------------------------------------------------------
+
+//if fileexists("c:\temp\"+"a"+string(today(),"_ddmmyy_")+string(now(),"hhmmss")+".json") = true then
+//	filedelete("c:\temp\"+"a"+string(today(),"-ddmmyy_")+string(now(),"hhmmss")+".json")
+//end if
+//
+//ls_file = "c:\temp\"+"a"+string(today(),"_ddmmyy_")+string(now(),"hhmmss")+".json"
+//
+//li_filenum =  fileopen(ls_file,linemode!,write!,lockreadwrite!,replace!)
+//
+//ls_rec = ls_json_string
+//
+//
+//filewrite(li_filenum,ls_rec)
+//fileclose(li_filenum) 
+//
+//--------------------------------------------------------------------------
+
+if isnull(ls_json_string) then
+	messagebox('Warning','JSON string is null')
+	rollback using sqlca;
+	return -1
+end if
+
+if wf_callapi_tcs(ls_json_string,fs_docno) = -1 then
+	rollback using sqlca;
+	return -1;
+end if
+
+
+end function
+
+public function integer wf_callapi_tcs (string fs_json_string, string fs_docno);Integer li_rc, li_StatusCode
+String ls_ContentType, ls_body, ls_string, ls_text, ls_json_string, ls_responsestring, ls_rec, ls_place
+long li_filenum
+HttpClient lnv_HttpClient
+lnv_HttpClient = Create HttpClient
+////// JSON response parsing
+String ls_Error, ls_response, ls_qrcode, ls_response_status, ls_errormessage, ls_ackno, ls_ackdt
+LONG ll_errorrecord, ll_errorrecordDET, ll_rootitem
+JsonPackage lnv_package
+JsonParser lnv_JsonParser 
+lnv_package = create JsonPackage
+lnv_JsonParser = Create JsonParser
+////// QR code
+Integer li_temp_qr
+String ls_qrdata,ls_signed_invoice
+Blob lblb_blob
+HttpClient lnv_HttpClient_QR
+lnv_HttpClient_QR = Create HttpClient
+string ls_token,ls_clientcode,ls_signed_qr,ls_doctype
+string ls_irn
+long ll_finalRoot	
+long ll_errArray
+long ll_errItem
+string ls_err_code, ls_err_desc		
+
+
+setnull(ls_token);setnull(ls_clientcode);
+select ACCESS_TOKEN into :ls_token from ltc.FB_EINV_TOKEN_MST;
+if sqlca.sqlcode = -1 then
+	messagebox('Error','Error occured while geting Access Token'+sqlca.sqlerrtext)
+	rollback using sqlca;
+	return 1;
+elseif sqlca.sqlcode = 100 then
+	messagebox('Warning',' Access token Not avilable Kindly contact IT ')
+	rollback using sqlca;
+	return 1;
+end if
+
+if isnull(ls_token)  then
+	messagebox('Warning','Access token Not avilable Kindly contact IT')
+	rollback using sqlca;
+	return 1;
+end if
+
+if gs_CO_ID='6' then
+	ls_clientcode='AAACT9812G'
+else
+	ls_clientcode='AAACT8466A'
+end if
+
+
+lnv_HttpClient.SetRequestHeader("Content-Type","application/json");
+lnv_HttpClient.SetRequestHeader("gstin",gs_gstnno);
+lnv_HttpClient.SetRequestHeader("Clientcode",ls_clientcode);
+lnv_HttpClient.SetRequestHeader("Authorization","Bearer " + ls_token);
+
+
+//li_rc = lnv_HttpClient.SendRequest("POST", "https://staging.tcsgsp.in/Tax-Tool-Core/services/auth/einvapi/geneinvandewaybill", fs_json_string, EncodingUTF8!)//test
+
+li_rc = lnv_HttpClient.SendRequest("POST", "https://g31.tcsgsp.in/Tax-Tool-Core/services/auth/einvapi/geneinvandewaybill", fs_json_string, EncodingUTF8!)//live
+
+// Obtain the response message
+if li_rc = 1 then
+ // Obtain the response status
+ li_StatusCode = lnv_HttpClient.GetResponseStatusCode()
+ 	if li_StatusCode = 200 then
+		// Obtain the header
+		ls_ContentType = lnv_HttpClient.GetResponseHeader("Content-Type") // Obtain the specifid header
+	
+		// Obtain the response data
+		//lnv_HttpClient.GetResponseBody(ls_string, EncodingUTF8!) // Encoding of the response data is known to be EncodingUTF8!.
+		lnv_HttpClient.GetResponseBody(ls_responsestring) // No encoding is specified, because encoding of the response data is unknown
+
+
+		Long ll_RootObject,ll_RootObject2,ll_RootObject3
+		
+		
+		string ls_main_data,ls_irn_root,ls_mainstatus,ls_status,ls_data
+		JSONParser jp, jp_data, jp_irn, jp_irn_data,jp_irn_details
+		
+		
+		jp = CREATE JSONParser
+		jp.LoadString(ls_responsestring)
+		ll_RootObject = jp.GetRootItem()
+		ls_mainstatus = jp.GetItemString(ll_RootObject, "status")
+		ls_main_data = jp.GetItemObjectJSONString(ll_RootObject, "data")
+		if ls_mainstatus='1' then
+			jp_data = CREATE JSONParser
+			jp_data.LoadString(ls_main_data)
+			ll_RootObject2 = jp_data.GetRootItem()
+			ls_irn_root = jp_data.GetItemObjectJSONString(ll_RootObject2, "irn")
+			
+			jp_irn_data= CREATE JSONParser
+			jp_irn_data.LoadString(ls_irn_root)
+			ll_RootObject3 = jp_irn_data.GetRootItem()
+			ls_status = jp_irn_data.GetItemString(ll_RootObject3, "status")
+			if ls_status='1' then
+				ls_data = jp_irn_data.GetItemObjectJSONString(ll_RootObject3, "data")					
+				jp_irn_details = CREATE JSONParser
+				jp_irn_details.LoadString(ls_data)
+				ll_finalRoot = jp_irn_details.GetRootItem()		
+				ls_irn            = jp_irn_details.GetItemString(ll_finalRoot, "irn")
+				ls_ackno          = jp_irn_details.GetItemString(ll_finalRoot, "ack_no")
+				ls_ackdt          = jp_irn_details.GetItemString(ll_finalRoot, "ack_dt")
+				ls_signed_invoice = jp_irn_details.GetItemString(ll_finalRoot, "signed_invoice")
+				ls_signed_qr      = jp_irn_details.GetItemString(ll_finalRoot, "signed_qrcode")
+				ls_doctype        = jp_irn_details.GetItemString(ll_finalRoot, "document_type")					
+			else				
+				 ll_errArray = jp_irn_data.GetItemArray(ll_RootObject3, "error")
+				 ll_errItem = jp_irn_data.GetChildItem(ll_errArray, 1)
+				 ls_err_code = jp_irn_data.GetItemString(ll_errItem, "error_code")
+				 ls_err_desc = jp_irn_data.GetItemString(ll_errItem, "error_desc")
+				 
+				 
+				 
+				 if fileexists("c:\temp\"+"response"+string(today(),"_ddmmyy_")+string(now(),"hhmmss")+".json") = true then
+						filedelete("c:\temp\"+"response"+string(today(),"-ddmmyy_")+string(now(),"hhmmss")+".json")
+				end if
+				
+				ls_file = "c:\temp\"+"response"+string(today(),"_ddmmyy_")+string(now(),"hhmmss")+".json"
+					
+				li_filenum =  fileopen(ls_file,linemode!,write!,lockreadwrite!,replace!)
+					
+				ls_rec = ls_responsestring
+					
+				filewriteex(li_filenum,ls_rec)
+				fileclose(li_filenum) 
+								 
+				 messagebox('Error While Generating E-Invoice',ls_err_code + ' ' + ls_err_desc)
+				 insert into ltc.fb_einv_error_log(EEL_UNIT_ID, EEL_DOCNUM, EEL_RESPONSE) values (:gs_unit,:fs_docno,:ls_responsestring);
+				 if sqlca.sqlcode = -1 then
+					messagebox('Warning','Error occured while inserting Error Log Table'+sqlca.sqlerrtext)			
+				end if	
+				return 1
+			end if
+		else
+			if fileexists("c:\temp\"+"response"+string(today(),"_ddmmyy_")+string(now(),"hhmmss")+".json") = true then
+						filedelete("c:\temp\"+"response"+string(today(),"-ddmmyy_")+string(now(),"hhmmss")+".json")
+				end if
+				
+				ls_file = "c:\temp\"+"response"+string(today(),"_ddmmyy_")+string(now(),"hhmmss")+".json"
+					
+				li_filenum =  fileopen(ls_file,linemode!,write!,lockreadwrite!,replace!)
+					
+				ls_rec = ls_responsestring
+					
+				filewriteex(li_filenum,ls_rec)
+				fileclose(li_filenum) 
+			//messagebox('Error While Generating E-Invoice Main','Contact IT')
+			rollback;
+			
+			insert into ltc.fb_einv_error_log(EEL_UNIT_ID, EEL_DOCNUM, EEL_RESPONSE) values (:gs_unit,:fs_docno,:ls_responsestring);
+			if sqlca.sqlcode = -1 then
+				messagebox('Warning','Error occured while inserting Error Log Table'+sqlca.sqlerrtext)			
+			end if	
+				commit;
+				setnull(ls_error);
+			select to_char(EEL_RESPONSE) into :ls_error from ltc.fb_einv_error_log where EEL_DOCNUM =:fs_docno order by 1 desc fetch first row only;	
+			
+			messagebox('Error While Generating E-Invoice Main',ls_error)
+				
+				
+			return 1
+			
+		end if
+		
+		/////////////// QR generation
+		
+		
+		////store responce
+		insert into fb_Garden_Ho_einvoice(ghe_docno,ghe_garden_snm,ghe_signed_qr,ghe_irn,ghe_ackno,ghe_ackdt,ghe_entry_date,ghe_entry_by,ghe_Remarks)
+								values (:fs_docno,:gs_garden_snm,:ls_signed_qr,:ls_irn,:ls_ackno,to_date(:ls_ackdt,'dd/mm/yyyy hh24:mi:ss') ,sysdate,:GS_USER,'SAVED');
+		if sqlca.sqlcode = -1 then
+			messagebox('Warning','Error occured while inserting IRN and QR Code in Dummy table'+sqlca.sqlerrtext)			
+		end if			
+		////
+		
+		//li_rc = lnv_HttpClient.SendRequest("GET", "http://chart.apis.google.com/chart?cht=qr&chs=230x230&chof=gif&&chl="+ls_qrcode+"&choe=UTF-8&")//stopped from 03042024 By Piyush
+		li_rc = lnv_HttpClient.SendRequest("GET", "https://luxmitea.com/PTUAPI/api/QrCodeConverter?sQrcode="+ls_signed_qr+"&sDocno="+fs_docno+"&sGardenShorName="+gs_garden_snm+"")//Live
+		
+		// Obtain the response message
+		if li_rc = 1 then
+			// Obtain the response status
+			li_StatusCode = lnv_HttpClient.GetResponseStatusCode()
+			if li_StatusCode = 200 then
+				// Obtain the header
+				ls_ContentType = lnv_HttpClient.GetResponseHeader("Content-Type") // Obtain the specifid header
+		
+				// Obtain the response data
+		
+				lnv_HttpClient.GetResponseBody(lblb_blob) // Obtain the response data and convert to a blob
+				update fb_einvoice set qr_code = :lblb_blob, irn = :ls_irn, ackno = :ls_ackno, ackdt =  to_date(:ls_ackdt,'dd/mm/yyyy hh24:mi:ss')  where docno = :fs_docno;
+				if sqlca.sqlcode = -1 then
+					messagebox('Error','Error occured while upting IRN and QR Code'+sqlca.sqlerrtext)
+					rollback using sqlca;
+					return 1;
+				end if
+				commit using sqlca;
+				messagebox('Message','E-Invoice has been successfully generate for Tax-Invoice No. : '+fs_docno)
+				dw_1.retrieve();
+				return 1
+			end if
+		elseif li_rc = -1 then
+			messagebox('Error','Error occured while API Posting : General Error')
+			return -1
+		elseif li_rc = -2 then
+			messagebox('Error','Error occured while API Posting : Invalid URL')
+			return -1
+		elseif li_rc = -3 then
+			messagebox('Error','Error occured while API Posting : Cannot connect to the Internet')
+			return -1
+		elseif li_rc = -4 then
+			messagebox('Error','Error occured while API Posting : Timed out')
+			return -1
+		elseif li_rc = -5 then
+			messagebox('Error','Error occured while API Posting : Code conversion failed')
+			return -1
+		elseif li_rc = -6 then
+			messagebox('Error','Error occured while API Posting : Unsupported character sets')
+			return -1		
+		else 
+			messagebox('Error','Error occured while API Posting : Unknown Error')
+			return -1
+		end if							
+		
+		/////////////// QR closing
+	else
+		messagebox('Error','Unsuccessful Response')
+		return -1
+	end if
+elseif li_rc = -1 then
+	messagebox('Error','Error occured while API Posting : General Error')
+	return -1
+elseif li_rc = -2 then
+	messagebox('Error','Error occured while API Posting : Invalid URL')
+	return -1
+elseif li_rc = -3 then
+	messagebox('Error','Error occured while API Posting : Cannot connect to the Internet')
+	return -1
+elseif li_rc = -4 then
+	messagebox('Error','Error occured while API Posting : Timed out')
+	return -1
+elseif li_rc = -5 then
+	messagebox('Error','Error occured while API Posting : Code conversion failed')
+	return -1
+elseif li_rc = -6 then
+	messagebox('Error','Error occured while API Posting : Unsupported character sets')
+	return -1
+else 
+	messagebox('Error','Error occured while API Posting : Unknown Error')
+	return -1
+end if
+
+
+end function
+
 on w_einv_dboard.create
+this.cb_5=create cb_5
+this.cb_3=create cb_3
 this.cb_1=create cb_1
 this.cbx_2=create cbx_2
 this.cb_6=create cb_6
 this.cb_4=create cb_4
 this.cb_2=create cb_2
 this.dw_1=create dw_1
-this.Control[]={this.cb_1,&
+this.Control[]={this.cb_5,&
+this.cb_3,&
+this.cb_1,&
 this.cbx_2,&
 this.cb_6,&
 this.cb_4,&
@@ -1549,6 +2583,8 @@ this.dw_1}
 end on
 
 on w_einv_dboard.destroy
+destroy(this.cb_5)
+destroy(this.cb_3)
 destroy(this.cb_1)
 destroy(this.cbx_2)
 destroy(this.cb_6)
@@ -1575,6 +2611,48 @@ IF KeyDown(KeyF2!) THEN
 	cb_2.triggerevent(clicked!)
 end if
 
+end event
+
+type cb_5 from commandbutton within w_einv_dboard
+integer x = 3502
+integer y = 8
+integer width = 343
+integer height = 100
+integer taborder = 50
+integer textsize = -9
+integer weight = 400
+fontcharset fontcharset = ansi!
+fontpitch fontpitch = variable!
+fontfamily fontfamily = roman!
+string facename = "Times New Roman"
+string text = "Discrepancy"
+end type
+
+event clicked;opensheetwithparm(w_einv_dboard_dis,this.tag,w_mdi,0,layered!)
+end event
+
+type cb_3 from commandbutton within w_einv_dboard
+boolean visible = false
+integer x = 1408
+integer y = 8
+integer width = 343
+integer height = 104
+integer taborder = 40
+integer textsize = -9
+integer weight = 400
+fontcharset fontcharset = ansi!
+fontpitch fontpitch = variable!
+fontfamily fontfamily = roman!
+string facename = "Times New Roman"
+boolean enabled = false
+string text = "Response"
+end type
+
+event clicked;string ls_error
+setnull(ls_error);
+			select to_char(EEL_RESPONSE) into :ls_error from ltc.fb_einv_error_log where EEL_DOCNUM ='NP/TI/202512-001' order by 1 desc fetch first row only;	
+			
+			messagebox('Error While Generating E-Invoice Main',ls_error)
 end event
 
 type cb_1 from commandbutton within w_einv_dboard
@@ -1749,18 +2827,21 @@ if dwo.name = 'einv_ind' and data = 'Y' then
 	setpointer(hourglass!)
 	ls_taxinv = dw_1.getitemstring(row,'docno')
 	if MessageBox("Generate E-invoice Alert", 'Do You Want To Generate E-invoice ....?' ,Exclamation!, YesNo!, 1) = 1 then
-		if wf_genjson(ls_taxinv) = -1 then
+		if wf_genjson_tcs(ls_taxinv) = -1 then
 			rollback using sqlca;
 			return 1;
 		end if
 	end if
 end if
+
+
+
 if dwo.name = 'cancel' and data = 'Y' then
 	setpointer(hourglass!)
 	ls_taxinv = dw_1.getitemstring(row,'docno')
 	if MessageBox("Cancel Invoice", 'Do You Want To Cancel ....?' ,Exclamation!, YesNo!, 1) = 1 then
-		
-	select distinct  'x' into :ls_temp  from fb_einvoice where docno=:ls_taxinv and irn is null;
+		setnull(ls_temp);
+	select distinct  FROM_NO into :ls_temp  from fb_einvoice where docno=:ls_taxinv and irn is null;
 		if sqlca.sqlcode = -1 then
 			messagebox('Error : While Getting Invoice detait !',sqlca.sqlerrtext)
 			return 1
@@ -1770,15 +2851,23 @@ if dwo.name = 'cancel' and data = 'Y' then
 				messagebox('Error : While Deleting From Einvoice',sqlca.sqlerrtext)
 				return 1
 			end if	
-			update fb_saleinvoice set SI_EINV_IND='' where SI_TAXINVNO=:ls_taxinv;
+			
+			
+			if ls_temp ='GTEDSF007' then
+				update fb_saleinvoice set SI_EINV_IND='' where SI_TAXINVNO=:ls_taxinv;
+			elseif ls_temp ='GTEDSF018' then
+				update  fb_misc_saleinvoice set SI_EINV_IND='' where SI_TAXINVNO=:ls_taxinv;
+			elseif ls_temp ='GTEDSF013' then
+				update  fb_creditnote_hdr set CNH_EINV_IND='' where CNH_TAXINVNO=:ls_taxinv;
+			end if		
 			if sqlca.sqlcode = -1 then
-				messagebox('Error : While Updating Sale Invoice Indicator',sqlca.sqlerrtext)
+				messagebox('Error : While Updating Sales Invoice Indicator',sqlca.sqlerrtext)
 				return 1
 			end if	
 			commit;
 			messagebox('Message','Invoice has been successfully Cancelled : '+ls_taxinv)
-				dw_1.retrieve();
-				return 1
+			dw_1.retrieve();
+			return 1
 		end if
 	end if
 end if

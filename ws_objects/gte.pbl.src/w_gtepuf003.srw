@@ -235,6 +235,12 @@ else
 	cb_3.enabled=false
 end if
 
+if gs_garden_snm ="KG" then
+		cb_1.enabled = true
+	else 
+		cb_1.enabled = false
+	end if
+
 end event
 
 event key;IF KeyDown(KeyEscape!) THEN
@@ -535,7 +541,11 @@ else
 	dw_1.Retrieve(gs_user,ls_ind)
 	dw_1.SetRedraw (TRUE)
 	cb_2.text = "&Query"
-	cb_1.enabled = true
+	if gs_garden_snm ="KG" then
+		cb_1.enabled = true
+	else 
+		cb_1.enabled = false
+	end if
 end if
 
 end event
@@ -552,6 +562,7 @@ fontcharset fontcharset = ansi!
 fontpitch fontpitch = variable!
 fontfamily fontfamily = roman!
 string facename = "Times New Roman"
+boolean enabled = false
 string text = "&New"
 end type
 

@@ -285,28 +285,7 @@ elseif sqlca.sqlcode = -1 then
 end if
 
 
-//	 		select :ls_LBP_ID,emp_id labid,
-//	 		 		0 workdays,sum(nvl(totearn,0)) grearn,
-//	 		 		decode(:ls_PERORNOT,'1',(round((sum(nvl(totearn,0)))*0.01*nvl(:ld_PUJAPER,0),2) + round((sum(nvl(totearn,0)))*0.01*nvl(:Ld_PAUSPER,0),2)+round((sum(nvl(totearn,0)))*0.01*nvl(:ld_FAGUAPER,0),2)),
-//													 ((sum(nvl(totearn,0))+1) * nvl(:ld_BONUSPER,0))  ) bonusamo,
-//	 		 		decode(:ls_PERORNOT,'1',round((sum(nvl(totearn,0)))*0.01*nvl(:ld_PUJAPER,0),2), 
-//			  										 ((sum(nvl(totearn,0))+1)*nvl(:ld_PUJAPER,0))) pujaamo, 
-//			 		decode(:ls_PERORNOT,'1',round((sum(nvl(totearn,0)))*0.01*nvl(:Ld_PAUSPER,0),2),
-//			 										 ((sum(nvl(totearn,0))+1)*nvl(:Ld_PAUSPER,0))) pausamo, 
-//			 	   	decode(:ls_PERORNOT,'1',round((sum(nvl(totearn,0)))*0.01*nvl(:ld_FAGUAPER,0),2),
-//			 										 ((sum(nvl(totearn,0))+1)*nvl(:ld_FAGUAPER,0))) faguaamo
-//			from  (select emp.emp_id,emp_name,
-//							(emp.ebs_basicamount +
-//							(nvl(emp.ebs_basicamount,0) * nvl(ead.ead_da,0) / 100) +
-//							(nvl(emp.ebs_basicamount,0) * nvl(ead.ead_vda,0) / 100) +
-//							(nvl(emp.ebs_basicamount,0) * nvl(ead.ead_hr,0) / 100) + nvl(emp.emp_adhoc,0)) totearn
-//					  from fb_employee emp,
-//							(select * from fb_empallowancededuction where (EAD_GRADE,(nvl(EAD_YEAR,0) * 100 + nvl(EAD_MONTH,0))) in
-//										(select EAD_GRADE,max(nvl(EAD_YEAR,0) * 100 + nvl(EAD_MONTH,0)) from fb_empallowancededuction group by EAD_GRADE)) ead
-//		  where emp.emp_grade=ead.ead_grade and ead.ead_validityflag='1' and emp.emp_active='1' and emp.emp_type = :ls_emp_ty)
-//		  group by :ls_bonusid,emp_id;
 
-//42000
 select sum(nvl(pd_value,0)) into :ld_bonus_limit
 from fb_param_detail 
 where pd_doc_type in ('BONUS') and to_date(:ls_frdt,'dd/mm/yyyy') between PD_PERIOD_FROM and nvl(PD_PERIOD_TO,trunc(sysdate));
@@ -316,7 +295,7 @@ if sqlca.sqlcode = -1 then
 	return -1
 end if;
 
-if isnull(ld_bonus_limit) or ld_bonus_limit = 0 then ld_bonus_limit = 84000;
+if isnull(ld_bonus_limit) or ld_bonus_limit = 0 then ld_bonus_limit = 7000;
 
 declare c1 cursor for
 select EBP_ID ,to_char(EBP_STARTDATE,'dd/mm/yyyy'),to_char(EBP_ENDDATE,'dd/mm/yyyy'),
@@ -336,56 +315,69 @@ end if
 	do while sqlca.sqlcode <> 100
 // Arrear Amount Added in bonus in case of matellie as earlier there was no provision in old system a new table create  FB_EMPARREAR and data provided in excell by garden inserted
 // and script modified for matellie.
-	if 	gs_garden_snm <> 'MT' then
-			insert into fb_empbonus(lbp_id,labour_id,lb_workdays,lb_grearn,lb_bonusamo,lb_pujaamo,lb_pausamo,lb_faguaamo)
-			select :ls_LBP_ID,emp_id labid,
-									sum(nvl(workdays,0)) workdays, round(sum(nvl(totearn,0)), 2) grearn,
-									decode(:ls_PERORNOT,'1',(round((sum(nvl(totearn,0)))*0.01*nvl(:ld_PUJAPER,0),2) + round((sum(nvl(totearn,0)))*0.01*nvl(:Ld_PAUSPER,0),2)+round((sum(nvl(totearn,0)))*0.01*nvl(:ld_FAGUAPER,0),2)),
-																												  round(((sum(nvl(totearn,0))) * 0.01 * nvl(:ld_BONUSPER,0)),2)  ) bonusamo,
-									decode(:ls_PERORNOT,'1',round((sum(nvl(totearn,0))) * 0.01 * nvl(:ld_PUJAPER,0),2), 
-																												 ((sum(nvl(totearn,0))) * 0.01 * nvl(:ld_PUJAPER,0))) pujaamo, 
-									decode(:ls_PERORNOT,'1',round((sum(nvl(totearn,0))) * 0.01 * nvl(:Ld_PAUSPER,0),2),
-																												  ((sum(nvl(totearn,0))) * 0.01 * nvl(:Ld_PAUSPER,0))) pausamo, 
-									decode(:ls_PERORNOT,'1',round((sum(nvl(totearn,0))) * 0.01 * nvl(:ld_FAGUAPER,0),2),
-																												  ((sum(nvl(totearn,0))) * 0.01 * nvl(:ld_FAGUAPER,0))) faguaamo
-							from  (select EMP_ID, decode(sign(sum(earn) - :ld_bonus_limit),-1,sum(earn),:ld_bonus_limit) totearn, sum(workdays) workdays from (
-									select ead.emp_id, sum(nvl(EP_BASICAMOUNT,0) + nvl(EP_DAAMOUNT,0) + nvl( EP_VDAAMOUNT,0)) earn, workdays
-												from fb_employee emp, fb_emppayment ead, (select emp_id, sum(1) workdays from fb_empattendance where EATTEN_DATE between to_date(:ls_frdt,'dd/mm/yyyy') and to_date(:ls_todt,'dd/mm/yyyy') and EATTEN_STATUS  = 'WK' group by emp_id) atten
-												where emp.emp_id = ead.emp_id and atten.emp_id = emp.emp_id and emp.emp_type = :ls_emp_ty and  ((nvl(EP_YEAR,0) * 100) + nvl(EP_MONTH,0)) between substr(:ls_frdt,7,4)||substr(:ls_frdt,4,2) and substr(:ls_todt,7,4)||substr(:ls_todt,4,2)
-									group by ead.EMP_ID,workdays
-									union all
-									select a.EMP_ID, sum(EA_AMOUNT) earn, 0
-									 from fb_emparrear a, fb_emp_arrearperiod b, fb_employee c where a.AP_ID = b.ap_id and a.emp_id = c.emp_id and c.emp_type = :ls_Emp_ty and AP_PAYDATE between to_date(:ls_frdt,'dd/mm/yyyy') and to_date(:ls_todt,'dd/mm/yyyy')
-									 group by a.emp_id )
-									 group by EMP_ID)
-			  group by :ls_bonusid,emp_id
-			  order by 2;
-			  
-
-//	elseif 	gs_garden_snm = 'MT' then
-//		
+	
+	// Piyush As bonus to be change to monthly basis slab 
 //			insert into fb_empbonus(lbp_id,labour_id,lb_workdays,lb_grearn,lb_bonusamo,lb_pujaamo,lb_pausamo,lb_faguaamo)
 //			select :ls_LBP_ID,emp_id labid,
-//											0 workdays,sum(nvl(totearn,0)) grearn,
-//											decode(:ls_PERORNOT,'1',(round((sum(nvl(totearn,0)))*0.01*nvl(:ld_PUJAPER,0),2) + round((sum(nvl(totearn,0)))*0.01*nvl(:Ld_PAUSPER,0),2)+round((sum(nvl(totearn,0)))*0.01*nvl(:ld_FAGUAPER,0),2)),
-//																																					round(((sum(nvl(totearn,0))+1) * 0.01 * nvl(:ld_BONUSPER,0)),2)  ) bonusamo,
-//											decode(:ls_PERORNOT,'1',round((sum(nvl(totearn,0))) * 0.01 * nvl(:ld_PUJAPER,0),2), 
-//																																				  ((sum(nvl(totearn,0))+1) * 0.01 * nvl(:ld_PUJAPER,0))) pujaamo, 
-//											decode(:ls_PERORNOT,'1',round((sum(nvl(totearn,0))) * 0.01 * nvl(:Ld_PAUSPER,0),2),
-//																																					((sum(nvl(totearn,0))+1) * 0.01 * nvl(:Ld_PAUSPER,0))) pausamo, 
-//											decode(:ls_PERORNOT,'1',round((sum(nvl(totearn,0))) * 0.01 * nvl(:ld_FAGUAPER,0),2),
-//																																					((sum(nvl(totearn,0))+1) * 0.01 * nvl(:ld_FAGUAPER,0))) faguaamo
-//								 from  (select ead.EMP_ID,emp_name, decode(sign(sum(nvl(EP_BASICAMOUNT,0) + nvl(EP_DAAMOUNT,0) + nvl( EP_VDAAMOUNT,0)) - :ld_bonus_limit),-1,sum(nvl(EP_BASICAMOUNT,0) + nvl(EP_DAAMOUNT,0) + nvl( EP_VDAAMOUNT,0)),:ld_bonus_limit) totearn
-//																			 from fb_employee emp, fb_emppayment ead 
-//																			 where emp.emp_id = ead.emp_id and emp.emp_type = :ls_emp_ty and  ((nvl(EP_YEAR,0) * 100) + nvl(EP_MONTH,0)) between substr(:ls_frdt,7,4)||substr(:ls_frdt,4,2) and substr(:ls_todt,7,4)||substr(:ls_todt,4,2)
-//													  group by ead.EMP_ID,emp_name
-//										  union all
-//										  select labour_id,emp_name, round((nvl(LA_AMOUNT,0) / 2),2) amt 
-//										  from FB_EMPARREAR a, fb_employee b 
-//										  where a.labour_id = b.emp_id and b.emp_type = :ls_emp_ty and AFS_ID = 'AFS0000000002')
+//									sum(nvl(workdays,0)) workdays, round(sum(nvl(totearn,0)), 2) grearn,
+//									decode(:ls_PERORNOT,'1',(round((sum(nvl(totearn,0)))*0.01*nvl(:ld_PUJAPER,0),2) + round((sum(nvl(totearn,0)))*0.01*nvl(:Ld_PAUSPER,0),2)+round((sum(nvl(totearn,0)))*0.01*nvl(:ld_FAGUAPER,0),2)),
+//																												  round(((sum(nvl(totearn,0))) * 0.01 * nvl(:ld_BONUSPER,0)),2)  ) bonusamo,
+//									decode(:ls_PERORNOT,'1',round((sum(nvl(totearn,0))) * 0.01 * nvl(:ld_PUJAPER,0),2), 
+//																												 ((sum(nvl(totearn,0))) * 0.01 * nvl(:ld_PUJAPER,0))) pujaamo, 
+//									decode(:ls_PERORNOT,'1',round((sum(nvl(totearn,0))) * 0.01 * nvl(:Ld_PAUSPER,0),2),
+//																												  ((sum(nvl(totearn,0))) * 0.01 * nvl(:Ld_PAUSPER,0))) pausamo, 
+//									decode(:ls_PERORNOT,'1',round((sum(nvl(totearn,0))) * 0.01 * nvl(:ld_FAGUAPER,0),2),
+//																												  ((sum(nvl(totearn,0))) * 0.01 * nvl(:ld_FAGUAPER,0))) faguaamo
+//							from  (select EMP_ID, decode(sign(sum(earn) - :ld_bonus_limit),-1,sum(earn),:ld_bonus_limit) totearn, sum(workdays) workdays from (
+//									select ead.emp_id, sum(nvl(EP_BASICAMOUNT,0) + nvl(EP_DAAMOUNT,0) + nvl( EP_VDAAMOUNT,0)) earn, workdays
+//												from fb_employee emp, fb_emppayment ead, (select emp_id, sum(1) workdays from fb_empattendance where EATTEN_DATE between to_date(:ls_frdt,'dd/mm/yyyy') and to_date(:ls_todt,'dd/mm/yyyy') and EATTEN_STATUS  = 'WK' group by emp_id) atten
+//												where emp.emp_id = ead.emp_id and atten.emp_id = emp.emp_id and emp.emp_type = :ls_emp_ty and  ((nvl(EP_YEAR,0) * 100) + nvl(EP_MONTH,0)) between substr(:ls_frdt,7,4)||substr(:ls_frdt,4,2) and substr(:ls_todt,7,4)||substr(:ls_todt,4,2)
+//									group by ead.EMP_ID,workdays
+//									union all
+//									select a.EMP_ID, sum(EA_AMOUNT) earn, 0
+//									 from fb_emparrear a, fb_emp_arrearperiod b, fb_employee c where a.AP_ID = b.ap_id and a.emp_id = c.emp_id and c.emp_type = :ls_Emp_ty and AP_PAYDATE between to_date(:ls_frdt,'dd/mm/yyyy') and to_date(:ls_todt,'dd/mm/yyyy')
+//									 group by a.emp_id )
+//									 group by EMP_ID)
 //			  group by :ls_bonusid,emp_id
-//			  order by 2;		
-	end if
+//			  order by 2;
+
+insert into fb_empbonus(lbp_id,labour_id,lb_workdays,lb_grearn,lb_bonusamo,lb_pujaamo,lb_pausamo,lb_faguaamo)
+select :ls_LBP_ID,emp_id labid,
+       sum(nvl(workdays,0)) workdays, round(sum(nvl(gross,0)), 2) grearn,
+       decode(:ls_PERORNOT,'1',(round((sum(nvl(totearn,0)))*0.01*nvl(:ld_PUJAPER,0),2) + round((sum(nvl(totearn,0)))*0.01*nvl(:Ld_PAUSPER,0),2)+round((sum(nvl(totearn,0)))*0.01*nvl(:ld_FAGUAPER,0),2)),
+                               round(((sum(nvl(totearn,0))) * 0.01 * nvl(:ld_BONUSPER,0)),2)  ) bonusamo,
+       decode(:ls_PERORNOT,'1',round((sum(nvl(totearn,0))) * 0.01 * nvl(:ld_PUJAPER,0),2), 
+                               ((sum(nvl(totearn,0))) * 0.01 * nvl(:ld_PUJAPER,0))) pujaamo, 
+       decode(:ls_PERORNOT,'1',round((sum(nvl(totearn,0))) * 0.01 * nvl(:Ld_PAUSPER,0),2),
+                               ((sum(nvl(totearn,0))) * 0.01 * nvl(:Ld_PAUSPER,0))) pausamo, 
+       decode(:ls_PERORNOT,'1',round((sum(nvl(totearn,0))) * 0.01 * nvl(:ld_FAGUAPER,0),2),
+                               ((sum(nvl(totearn,0))) * 0.01 * nvl(:ld_FAGUAPER,0))) faguaamo
+from  
+    (
+        select EMP_ID, sum(earn) totearn, sum(workdays) workdays ,sum(gross) gross
+        from 
+            (
+              select ead.emp_id, EP_YEAR||lpad(EP_MONTH,2,0),
+       (				case when sum(nvl(EP_BASICAMOUNT,0) + nvl(EP_DAAMOUNT,0) + nvl( EP_VDAAMOUNT,0)) >= :ld_bonus_limit then :ld_bonus_limit else sum(nvl(EP_BASICAMOUNT,0) + nvl(EP_DAAMOUNT,0) + nvl( EP_VDAAMOUNT,0)) end) earn, workdays,
+		 			sum(nvl(EP_BASICAMOUNT,0) + nvl(EP_DAAMOUNT,0) + nvl( EP_VDAAMOUNT,0)) gross
+			from 	fb_employee emp, fb_emppayment ead, 
+                  (select emp_id,to_char(EATTEN_DATE,'YYYYMM') yearmon, sum(1) workdays from fb_empattendance where EATTEN_DATE between to_date(:ls_frdt,'dd/mm/yyyy') and to_date(:ls_todt,'dd/mm/yyyy') and EATTEN_STATUS  = 'WK' group by emp_id,to_char(EATTEN_DATE,'YYYYMM')) atten
+              where emp.emp_id = ead.emp_id and atten.emp_id = emp.emp_id and atten.yearmon=EP_YEAR||lpad(EP_MONTH,2,0)
+              and emp.emp_type = :ls_emp_ty 
+                    and  ((nvl(EP_YEAR,0) * 100) + nvl(EP_MONTH,0)) between substr(:ls_frdt,7,4)||substr(:ls_frdt,4,2) and substr(:ls_todt,7,4)||substr(:ls_todt,4,2)
+              group by ead.EMP_ID,workdays,EP_YEAR||lpad(EP_MONTH,2,0)
+              union all
+              select a.EMP_ID,'', sum(EA_AMOUNT) earn, 0,sum(EA_AMOUNT)
+              from fb_emparrear a, fb_emp_arrearperiod b, fb_employee c 
+              where a.AP_ID = b.ap_id and a.emp_id = c.emp_id and c.emp_type = :ls_Emp_ty and AP_PAYDATE between to_date(:ls_frdt,'dd/mm/yyyy') and to_date(:ls_todt,'dd/mm/yyyy')
+              group by a.emp_id 
+             )
+         group by EMP_ID
+    )
+group by :ls_bonusid,emp_id
+order by 2;
+			  
+
 		  
 		if sqlca.sqlcode = -1 then
 			messagebox('Error', 'Error occured while inserting records : '+sqlca.sqlerrtext);

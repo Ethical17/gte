@@ -2,6 +2,16 @@
 forward
 global type w_gtelaf068 from window
 end type
+type st_2 from statictext within w_gtelaf068
+end type
+type st_1 from statictext within w_gtelaf068
+end type
+type ddlb_1 from dropdownlistbox within w_gtelaf068
+end type
+type em_1 from editmask within w_gtelaf068
+end type
+type cbx_2 from checkbox within w_gtelaf068
+end type
 type cbx_1 from checkbox within w_gtelaf068
 end type
 type cb_2 from commandbutton within w_gtelaf068
@@ -29,6 +39,11 @@ windowstate windowstate = maximized!
 long backcolor = 67108864
 string icon = "AppIcon!"
 event ue_option ( )
+st_2 st_2
+st_1 st_1
+ddlb_1 ddlb_1
+em_1 em_1
+cbx_2 cbx_2
 cbx_1 cbx_1
 cb_2 cb_2
 cb_1 cb_1
@@ -197,7 +212,7 @@ public function integer wf_cal_wages (double ld_measure1, double ld_measure2, do
 			messagebox('SQL ERROR: During Parametere checking ',sqlca.sqlerrtext)
 			return -1
 		end if;
- 		if gs_garden_snm = 'FB' or gs_garden_snm = 'MK' or gs_garden_snm = 'ME' or gs_garden_snm = 'KG' or gs_garden_snm = 'BE' or gs_garden_snm = 'MV' or gs_garden_snm = 'SP' then
+ 		if gs_garden_snm = 'FB' or gs_garden_snm = 'MK' or gs_garden_snm = 'ME' or gs_garden_snm = 'KG' or gs_garden_snm = 'BE' or gs_garden_snm = 'MV' or gs_garden_snm = 'SP' or gs_garden_snm = 'GP' then
 			If ld_labage <= ll_child Then //(144 months=12 years)
 	
 				select nvl(TASK_CHANGEPOINT,0), nvl(TASK_CHANGEPOINT2,0), nvl(TASK_CHANGEPOINT3,0), nvl(TASK_RATELOWER,0), nvl(TASK_RATELOWER2,0) , nvl(TASK_RATELOWER3,0) ,nvl(TASK_RATEUPPER,0), nvl(TASK_RATEUPPER2,0), nvl(TASK_RATEUPPER3,0)
@@ -409,13 +424,23 @@ end if
 end function
 
 on w_gtelaf068.create
+this.st_2=create st_2
+this.st_1=create st_1
+this.ddlb_1=create ddlb_1
+this.em_1=create em_1
+this.cbx_2=create cbx_2
 this.cbx_1=create cbx_1
 this.cb_2=create cb_2
 this.cb_1=create cb_1
 this.cb_4=create cb_4
 this.cb_3=create cb_3
 this.dw_1=create dw_1
-this.Control[]={this.cbx_1,&
+this.Control[]={this.st_2,&
+this.st_1,&
+this.ddlb_1,&
+this.em_1,&
+this.cbx_2,&
+this.cbx_1,&
 this.cb_2,&
 this.cb_1,&
 this.cb_4,&
@@ -424,6 +449,11 @@ this.dw_1}
 end on
 
 on w_gtelaf068.destroy
+destroy(this.st_2)
+destroy(this.st_1)
+destroy(this.ddlb_1)
+destroy(this.em_1)
+destroy(this.cbx_2)
 destroy(this.cbx_1)
 destroy(this.cb_2)
 destroy(this.cb_1)
@@ -461,6 +491,116 @@ IF KeyDown(KeyF3!) THEN
 	if dw_1.rowcount() > 0  then
 		cb_3.triggerevent(clicked!)
 	end if
+end if
+end event
+
+type st_2 from statictext within w_gtelaf068
+boolean visible = false
+integer x = 2674
+integer y = 44
+integer width = 210
+integer height = 60
+integer textsize = -9
+integer weight = 400
+fontcharset fontcharset = ansi!
+fontpitch fontpitch = variable!
+fontfamily fontfamily = roman!
+string facename = "Times New Roman"
+long textcolor = 33554432
+long backcolor = 67108864
+boolean enabled = false
+string text = "Kamjari"
+boolean focusrectangle = false
+end type
+
+type st_1 from statictext within w_gtelaf068
+boolean visible = false
+integer x = 2135
+integer y = 44
+integer width = 142
+integer height = 60
+integer textsize = -9
+integer weight = 400
+fontcharset fontcharset = ansi!
+fontpitch fontpitch = variable!
+fontfamily fontfamily = roman!
+string facename = "Times New Roman"
+long textcolor = 33554432
+long backcolor = 67108864
+boolean enabled = false
+string text = "Date"
+boolean focusrectangle = false
+end type
+
+type ddlb_1 from dropdownlistbox within w_gtelaf068
+boolean visible = false
+integer x = 2912
+integer y = 48
+integer width = 891
+integer height = 376
+integer taborder = 80
+integer textsize = -9
+integer weight = 400
+fontcharset fontcharset = ansi!
+fontpitch fontpitch = variable!
+fontfamily fontfamily = roman!
+string facename = "Times New Roman"
+long textcolor = 33554432
+boolean enabled = false
+borderstyle borderstyle = stylelowered!
+end type
+
+type em_1 from editmask within w_gtelaf068
+boolean visible = false
+integer x = 2318
+integer y = 32
+integer width = 352
+integer height = 104
+integer taborder = 70
+integer textsize = -9
+integer weight = 400
+fontcharset fontcharset = ansi!
+fontpitch fontpitch = variable!
+fontfamily fontfamily = roman!
+string facename = "Times New Roman"
+long textcolor = 33554432
+boolean enabled = false
+string text = "none"
+borderstyle borderstyle = stylelowered!
+maskdatatype maskdatatype = datemask!
+boolean dropdowncalendar = true
+end type
+
+type cbx_2 from checkbox within w_gtelaf068
+boolean visible = false
+integer x = 1774
+integer y = 44
+integer width = 343
+integer height = 76
+integer textsize = -9
+integer weight = 400
+fontcharset fontcharset = ansi!
+fontpitch fontpitch = variable!
+fontfamily fontfamily = roman!
+string facename = "Times New Roman"
+long textcolor = 33554432
+long backcolor = 67108864
+boolean enabled = false
+string text = "Multiple"
+end type
+
+event clicked;if cbx_2.checked = true then
+	st_1.visible=true
+	em_1.visible=true
+	st_2.visible=true
+	ddlb_1.visible=true
+	dw_1.reset()
+else
+	st_1.visible=false
+	em_1.visible=false
+	st_2.visible=false
+	ddlb_1.visible=false
+	dw_1.reset()
 end if
 end event
 
@@ -621,7 +761,13 @@ IF Net = 1 THEN
 	
 	for ll_ctr = 1 to dw_1.rowcount( ) 
 		
-		if dw_1.getitemstring(ll_ctr,'appr_ind') ='Y' then
+		if  dw_1.getitemstring(ll_ctr,'del_ind') ='Y' then
+			 dw_1.deleterow(ll_ctr)
+		end if
+		
+		
+		
+		if dw_1.getitemstring(ll_ctr,'appr_ind') ='Y'  then
 			ls_kam_id = dw_1.getitemstring(ll_ctr,'kamsub_id')
 			ls_labour_id = dw_1.getitemstring(ll_ctr,'labour_id')
 			ld_dt = dw_1.getitemdatetime(ll_ctr,'lda_date')
@@ -803,6 +949,12 @@ event itemchanged;if lb_query = false then
 			end if				
 			
 		end if
+		
+		if ld_wages < 0 then
+			messagebox('Warning..!!','Wages Cannot be Negative Setting Wages 0')
+			ld_wages = 0
+		end if
+		
 		dw_1.setitem(row,'lda_wages',ld_wages) 
 		if ld_mf_count1 > 0 then
 				wf_cal_wages(ld_mf_count1,ld_mf_count2,ld_mf_count3,row,ld_status)

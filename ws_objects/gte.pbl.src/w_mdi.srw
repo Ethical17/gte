@@ -4,6 +4,8 @@ global type w_mdi from window
 end type
 type mdi_1 from mdiclient within w_mdi
 end type
+type mditbb_1 from tabbedbar within w_mdi
+end type
 end forward
 
 global type w_mdi from window
@@ -22,13 +24,16 @@ long backcolor = 12639424
 string icon = "New Icon.ico"
 boolean toolbarvisible = false
 boolean center = true
+boolean tabbedview = true
 mdi_1 mdi_1
+mditbb_1 mditbb_1
 end type
 global w_mdi w_mdi
 
 type variables
 DataStore gds_userwisemenu_list
 
+string ls_type
 end variables
 
 forward prototypes
@@ -76,12 +81,15 @@ end function
 on w_mdi.create
 if this.MenuName = "m_main" then this.MenuID = create m_main
 this.mdi_1=create mdi_1
-this.Control[]={this.mdi_1}
+this.mditbb_1=create mditbb_1
+this.Control[]={this.mdi_1,&
+this.mditbb_1}
 end on
 
 on w_mdi.destroy
 if IsValid(MenuID) then destroy(MenuID)
 destroy(this.mdi_1)
+destroy(this.mditbb_1)
 end on
 
 event close; if f_acess_log(GS_USER,'GTE','LOGOFF') = -1 then
@@ -103,7 +111,7 @@ string ls_temp,ls_findstr
 	gds_userwisemenu_list.settransobject(sqlca)
 	
 	if gs_option = 'HO'  then
-		ll_ds_rowcnt = gds_userwisemenu_list.Retrieve(GS_USER)
+		ll_ds_rowcnt = gds_userwisemenu_list.Retrieve('PIYUSH')
 	else
 		ll_ds_rowcnt = gds_userwisemenu_list.Retrieve(GS_USER)
 	end if
@@ -114,30 +122,20 @@ string ls_temp,ls_findstr
 	
 	If ll_cnt_menu < 1 Then Halt
 	
-//if isnumber(gs_arg) and long(gs_arg) > 0 then
-//		
-//		select RS_SCREEN into :ls_temp from OBT_REPORT_SEARCH where RS_SRL_NO = to_number(:gs_arg);
-//		if sqlca.sqlcode = -1 then
-//			messagebox('SQL Error: During Screen Select ',sqlca.sqlerrtext)
-//			return 1
-//		end if
-//
-//		ls_FindStr = "rd_screen = '" + ls_temp + "'"
-//		
-//		If gds_userwisemenu_list.Find(ls_Findstr, 1, gds_userwisemenu_list.RowCount() ) < 1 Then
-//			MessageBox('Access Denied on Report','You Are Not Authorised to View This Report, Please Fill The User Access Form And Sent To IT Department')
-//			return 1
-//		else
-//			ll_rtn = of_get_menuobject( This.MenuId,ls_temp) 
-//		end if
-//else
+	
+	select user_exception into :ls_type from fb_login where upper(USER_ID) = upper(:gs_user);
+	if sqlca.sqlcode= -1 then
+			messagebox('Error', 'Error occured while Checking user_exception: '+sqlca.sqlerrtext)
+			return 1
+	end if
+	
+	if(ls_type='Y') then
+		opensheetwithparm(w_gtelar083,this.tag,w_mdi,0,layered!)
+	end if
+	
+	
+
 		ll_rtn = of_get_menuobject( This.MenuId,'ALL') 
-//end if
-//if upper(gs_loginuser) = 'MCOTE' then 
-//	this.icon = ""
-//else
-//	this.icon = "New Icon.ico"
-//end if
 
 this.setmicrohelp('Ready...!')
 end event
@@ -149,5 +147,12 @@ end event
 
 type mdi_1 from mdiclient within w_mdi
 long BackColor=268435456
+end type
+
+type mditbb_1 from tabbedbar within w_mdi
+int X=0
+int Y=0
+int Width=0
+int Height=104
 end type
 

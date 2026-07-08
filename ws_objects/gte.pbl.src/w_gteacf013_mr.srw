@@ -177,6 +177,19 @@ if f_check_mep(ls_ac_dt) = -1 then return 1
 
 ls_frmm=ddlb_1.text
 
+string ls_ac_yyyymm
+date   ld_ac_dt
+
+ld_ac_dt =date(ls_ac_dt)
+
+ls_ac_yyyymm = string(ld_ac_dt, "yyyymm")
+
+
+if ls_ac_yyyymm <> trim(ls_frmm) then
+     messagebox("Error", "Salary Year and Month are different for this Account Period Check..")
+	  return 1
+end if
+
 //if f_check_fin_yr(datetime(ls_ac_dt)) = -1 then;	return 1;end if;
 	if isnull(ls_ac_dt) =  false then		
 		if luo_fames.wf_salary_to_account_mr(ls_frmm,date(ls_ac_dt)) = -1 then 

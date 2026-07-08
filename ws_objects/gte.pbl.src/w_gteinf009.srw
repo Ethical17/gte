@@ -2,6 +2,8 @@
 forward
 global type w_gteinf009 from window
 end type
+type cb_11 from commandbutton within w_gteinf009
+end type
 type cb_10 from commandbutton within w_gteinf009
 end type
 type st_2 from statictext within w_gteinf009
@@ -50,6 +52,7 @@ windowstate windowstate = maximized!
 long backcolor = 67108864
 string icon = "AppIcon!"
 event ue_option ( )
+cb_11 cb_11
 cb_10 cb_10
 st_2 st_2
 cb_6 cb_6
@@ -74,7 +77,8 @@ long ll_last,ll_ctr,ll_user_level,ll_ctr2
 string ls_temp,ls_issuereq_id,ls_sp_id,ls_cons,ls_eachead_id,ls_esubachead_id,ls_appr_ind,ls_ac_dt,ls_div,ls_secid,ls_eccid ,ls_requ_id,ls_eacsubhead,ls_drqid,ls_spname
 boolean lb_neworder, lb_query
 double ld_old_val,ld_stock,ld_qnty,ld_req_qty,ld_tot_val,ld_efunit_price,ld_tot_issueqnty,ld_rate
-datetime ld_dt,ld_stock_dt
+datetime ld_dt,ld_stock_dt,ld_issue_date
+
 datawindowchild idw_prod,idw_eacsubhead,idw_costcentre,idw_requid
 end variables
 
@@ -233,6 +237,7 @@ return 1
 end function
 
 on w_gteinf009.create
+this.cb_11=create cb_11
 this.cb_10=create cb_10
 this.st_2=create st_2
 this.cb_6=create cb_6
@@ -249,7 +254,8 @@ this.cb_3=create cb_3
 this.cb_2=create cb_2
 this.cb_1=create cb_1
 this.dw_1=create dw_1
-this.Control[]={this.cb_10,&
+this.Control[]={this.cb_11,&
+this.cb_10,&
 this.st_2,&
 this.cb_6,&
 this.cbx_1,&
@@ -268,6 +274,7 @@ this.dw_1}
 end on
 
 on w_gteinf009.destroy
+destroy(this.cb_11)
 destroy(this.cb_10)
 destroy(this.st_2)
 destroy(this.cb_6)
@@ -343,6 +350,67 @@ IF KeyDown(KeyF3!) THEN
 		cb_3.triggerevent(clicked!)
 	end if
 end if
+end event
+
+type cb_11 from commandbutton within w_gteinf009
+boolean visible = false
+integer x = 2921
+integer y = 8
+integer width = 453
+integer height = 100
+integer taborder = 70
+integer textsize = -9
+integer weight = 400
+fontcharset fontcharset = ansi!
+fontpitch fontpitch = variable!
+fontfamily fontfamily = roman!
+string facename = "Times New Roman"
+string text = "&Delete UA Issue"
+end type
+
+event clicked;string ls_req_id
+
+	for ll_ctr = dw_1.rowcount() to 1 step -1
+		if dw_1.getitemstring(ll_ctr,'del_flag') = 'Y'  then
+			setnull(ls_req_id);
+			ls_req_id=dw_1.getitemstring(dw_1.getrow(),'pris_div_requid')
+			
+			
+			dw_2.reset()
+			dw_2.retrieve(dw_1.getitemstring(dw_1.getrow(),'pris_id'))
+			for ll_ctr2 = dw_2.rowcount() to 1 step -1				
+				dw_2.deleterow(ll_ctr2)
+				dw_2.update()
+			next
+			
+			update FB_PRODUCT_Requ set PR_ISSUE_IND = null where PR_ID = :ls_req_id;
+			if sqlca.sqlcode = 100 then
+				messagebox('Error .. While Updating Requistion--',sqlca.sqlerrtext)
+				rollback;
+				return 1;
+			end if
+			
+			
+			dw_1.deleterow(ll_ctr)
+	 		dw_1.update()
+			 
+			
+			
+			
+			
+		end if
+	next	
+	
+	dw_1.reset()
+	
+commit using sqlca;
+
+
+cb_3.visible=true
+cb_11.visible=false
+
+messagebox('Success','Un Aproved Issue has been Removed')
+
 end event
 
 type cb_10 from commandbutton within w_gteinf009
@@ -476,7 +544,7 @@ cb_6.enabled = false
 end event
 
 type st_2 from statictext within w_gteinf009
-integer x = 2866
+integer x = 2917
 integer y = 24
 integer width = 914
 integer height = 80
@@ -532,7 +600,7 @@ end if;
 		MESSAGEBOX('Error:','The Issue date Should be Less than equal to Current System Date i.e. '+string(today(),'dd/mm/yyyy'))
 		return 1;
 	end if;
-
+	
 select distinct 'x' into :ls_temp from FB_SERIAL_NO 
 where SN_DOC_TYPE in ('JV','CV','BV') and SN_ACCT_YEAR=to_char(to_date(:ls_ac_dt,'dd/mm/yyyy'),'yyyymm');
  
@@ -548,6 +616,8 @@ if f_check_fin_yr(datetime(ls_ac_dt)) = -1 then;	return 1;end if;
 	for ll_ctr = 1 to dw_1.rowcount() 
 		
 		
+		
+		
 		if (isnull(dw_1.getitemstring(ll_ctr,'pris_vou_no')) or len(dw_1.getitemstring(ll_ctr,'pris_vou_no')) = 0) then
 			ls_stkadj = 'Y'
 		else
@@ -556,6 +626,17 @@ if f_check_fin_yr(datetime(ls_ac_dt)) = -1 then;	return 1;end if;
 			
 		if (dw_1.getitemstring(ll_ctr,'appr_flag') = 'Y' and ls_stkadj ='Y') then
 			///update stock 
+			
+			setnull(ld_issue_date);
+			ld_issue_date=dw_1.getitemdatetime( ll_ctr, 'pris_date')
+		
+		if date(ld_issue_date)<>date(ls_ac_dt) then
+			messagebox('Warning','Issue Date And Account Process Date Is different, Please Check')
+				rollback using sqlca;
+				return 1;
+		end if
+			
+			
 			setnull(ls_issuereq_id)
 			ls_issuereq_id = dw_1.getitemstring(ll_ctr,'pris_id')
 			  
@@ -1268,6 +1349,9 @@ else
    	cb_8.enabled = true
    	cb_9.enabled = true
 	cb_1.enabled = true
+	cb_3.visible=true
+	cb_11.visible=false
+	
 	dw_1.settaborder('pris_id',0)
 	dw_1.settaborder('pris_reqdate',0)		
 end if
@@ -1535,6 +1619,34 @@ if dwo.name = 'appr_flag' then
 	if data = 'N' or isnull(data) then
 		cb_6.enabled = false
 	end if
+end if
+
+if dwo.name='del_flag' then
+	ls_temp=data
+	
+	
+	for ll_ctr = dw_1.rowcount() to 1 step -1
+		if(row = ll_ctr) then
+			if ls_temp='Y' then
+				cb_11.visible=true;
+				cb_3.visible=false;
+				return
+			else
+				cb_11.visible=false;
+				cb_3.visible=true;
+			end if		
+		else
+			if dw_1.getitemstring(ll_ctr,'del_flag')='Y' then 
+				cb_11.visible=true;
+				cb_3.visible=false;
+				return
+			else
+				cb_11.visible=false;
+				cb_3.visible=true;
+			end if
+		end if
+	next
+	
 end if
 
 //if lb_query = false then

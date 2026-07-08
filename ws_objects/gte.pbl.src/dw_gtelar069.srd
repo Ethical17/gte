@@ -39,10 +39,11 @@ select a.lda_Date,d.FIELD_ID,d.FIELD_NAME divisionname, c.EMP_ID labourid, c.EMP
        (nvl(LDA_MFJ_COUNT1,0) + nvl(LDA_MFJ_COUNT2,0) + nvl(LDA_MFJ_COUNT3,0))- task_changepoint  elpqty,LMA_NTWT1,LMA_NTWT2,LMA_NTWT3,lma_date      
 from fb_labourdailyattendance a, fb_task b,FB_EMPLOYEE c ,FB_FIELD d,FB_KAMSUBHEAD f, fb_expenseacsubhead g,
     (select (LMA_NTWT1)LMA_NTWT1,(LMA_NTWT2)LMA_NTWT2,(LMA_NTWT3)LMA_NTWT3,(LMA_NTWT4)LMA_NTWT4 ,LMA_WORKERID,lma_date
-         from fb_mobile_attendance where lma_date between  to_date(:ra_frdt,'dd/mm/yyyy') and to_date(:ra_todt,'dd/mm/yyyy') and LMA_KAMSUBHEADID='ESUB0163')h
+         from fb_mobile_attendance where lma_date between  to_date(:ra_frdt,'dd/mm/yyyy') and to_date(:ra_todt,'dd/mm/yyyy'))h
 Where lda_date   between to_date(:ra_frdt,'dd/mm/yyyy') AND to_date(:ra_todt,'dd/mm/yyyy')
-and lda_Date between task_dt_from and task_dt_to  and  LDA_TASKIND = 'Y' and c.emp_id=a.labour_id and c.FIELD_ID =d.FIELD_ID(+) and 
+and lda_Date between task_dt_from and task_dt_to and b.TASK_ID=a.KAMSUB_ID  and  LDA_TASKIND = 'Y' and c.emp_id=a.labour_id and c.FIELD_ID =d.FIELD_ID(+) and 
 A.KAMSUB_ID = f.KAMSUB_ID(+) and KAMSUB_ACTIVE_IND='Y' and f.KAMSUB_ID = g.EACSUBHEAD_ID and h.LMA_WORKERID=a.LABOUR_ID and h.lma_date=a.lda_Date  and d.FIELD_name= decode(nvl(:ra_field,'ALL'),'ALL',d.FIELD_name,:ra_field)
+and KAMSUB_TYPE ='PLUCK'
 union all
 select a.lda_Date,d.FIELD_ID,d.FIELD_NAME divisionname, c.EMP_ID labourid, c.EMP_NAME employeename, 
        c.EMP_PFNO pfno, f.KAMSUB_NAME kamjari, (nvl(LDA_MFJ_COUNT1,0) + nvl(LDA_MFJ_COUNT2,0) + nvl(LDA_MFJ_COUNT3,0)) totalquantity,
@@ -51,14 +52,15 @@ select a.lda_Date,d.FIELD_ID,d.FIELD_NAME divisionname, c.EMP_ID labourid, c.EMP
        0 elpqty,LMA_NTWT1,LMA_NTWT2,LMA_NTWT3 ,lma_date     
 from fb_labourdailyattendance a, FB_EMPLOYEE c ,FB_FIELD d,FB_KAMSUBHEAD f, fb_expenseacsubhead g,
     (select (LMA_NTWT1)LMA_NTWT1,(LMA_NTWT2)LMA_NTWT2,(LMA_NTWT3)LMA_NTWT3,(LMA_NTWT4)LMA_NTWT4 ,LMA_WORKERID,lma_date
-         from fb_mobile_attendance where lma_date between  to_date(:ra_frdt,'dd/mm/yyyy') and to_date(:ra_todt,'dd/mm/yyyy') and LMA_KAMSUBHEADID='ESUB0163')h
+         from fb_mobile_attendance where lma_date between  to_date(:ra_frdt,'dd/mm/yyyy') and to_date(:ra_todt,'dd/mm/yyyy'))h
 Where lda_date   between to_date(:ra_frdt,'dd/mm/yyyy') AND to_date(:ra_todt,'dd/mm/yyyy')
  and  nvl(LDA_TASKIND, 'N') = 'N' and c.emp_id=a.labour_id and c.FIELD_ID =d.FIELD_ID(+) and 
- A.KAMSUB_ID = f.KAMSUB_ID(+) and KAMSUB_ACTIVE_IND='Y' and f.KAMSUB_ID = g.EACSUBHEAD_ID and h.LMA_WORKERID=a.LABOUR_ID and h.lma_date=a.lda_Date
- and not exists (select * from fb_task where lda_date between task_dt_from and task_dt_to )  and d.FIELD_name= decode(nvl(:ra_field,'ALL'),'ALL',d.FIELD_name,:ra_field)
+ A.KAMSUB_ID = f.KAMSUB_ID(+) and KAMSUB_ACTIVE_IND='Y' and f.KAMSUB_ID = g.EACSUBHEAD_ID and h.LMA_WORKERID=a.LABOUR_ID and h.lma_date=a.lda_Date and KAMSUB_TYPE ='PLUCK'
+ and not exists (select * from fb_task where lda_date between task_dt_from and task_dt_to and TASK_ID = a.KAMSUB_ID)  and d.FIELD_name= decode(nvl(:ra_field,'ALL'),'ALL',d.FIELD_name,:ra_field)
 )
 group by FIELD_ID, divisionname, labourid, employeename,pfno,  kamjari,KAMSUB_TYPE,  kamjariid, EACSUBHEAD_NAME,
-to_char(to_date(:ra_frdt,'dd/mm/yyyy'),'dd-MON-yyyy') , to_char(to_date(:ra_todt,'dd/mm/yyyy'),'dd-MON-yyyy') " arguments=(("ra_frdt", string),("ra_todt", string),("ra_field", string))  sort="fb_field_field_id A labourid A fb_labourdailyattendance_kamjariid A " )
+to_char(to_date(:ra_frdt,'dd/mm/yyyy'),'dd-MON-yyyy') , to_char(to_date(:ra_todt,'dd/mm/yyyy'),'dd-MON-yyyy') 
+" arguments=(("ra_frdt", string),("ra_todt", string),("ra_field", string))  sort="fb_field_field_id A labourid A fb_labourdailyattendance_kamjariid A " )
 group(level=1 header.height=64 trailer.height=72 by=("fb_field_field_id" ) header.color="536870912" header.transparency="0" header.gradient.color="8421504" header.gradient.transparency="0" header.gradient.angle="0" header.brushmode="0" header.gradient.repetition.mode="0" header.gradient.repetition.count="0" header.gradient.repetition.length="100" header.gradient.focus="0" header.gradient.scale="100" header.gradient.spread="100" trailer.color="536870912" trailer.transparency="0" trailer.gradient.color="8421504" trailer.gradient.transparency="0" trailer.gradient.angle="0" trailer.brushmode="0" trailer.gradient.repetition.mode="0" trailer.gradient.repetition.count="0" trailer.gradient.repetition.length="100" trailer.gradient.focus="0" trailer.gradient.scale="100" trailer.gradient.spread="100" )
 compute(band=header alignment="2" expression="/*  divisionname +' - ' + labourtype + ' - '+ gender + ' ~~r Book No. ('+  string(paybookno) + ') - '+  manid */"border="0" color="33554432" x="0" y="0" height="8" width="9" format="[GENERAL]" html.valueishtml="0"  name=compute_2 visible="1"  font.face="Times New Roman" font.height="-8" font.weight="700"  font.family="1" font.pitch="2" font.charset="0" background.mode="2" background.color="1073741824" background.transparency="0" background.gradient.color="8421504" background.gradient.transparency="0" background.gradient.angle="0" background.brushmode="0" background.gradient.repetition.mode="0" background.gradient.repetition.count="0" background.gradient.repetition.length="100" background.gradient.focus="0" background.gradient.scale="100" background.gradient.spread="100" tooltip.backcolor="134217752" tooltip.delay.initial="0" tooltip.delay.visible="32000" tooltip.enabled="0" tooltip.hasclosebutton="0" tooltip.icon="0" tooltip.isbubble="0" tooltip.maxwidth="0" tooltip.textcolor="134217751" tooltip.transparency="0" transparency="0" )
 line(band=header x1="0" y1="324" x2="3383" y2="324"  name=l_1 visible="1" pen.style="0" pen.width="5" pen.color="33554432"  background.mode="2" background.color="1073741824" background.transparency="0" background.gradient.color="8421504" background.gradient.transparency="0" background.gradient.angle="0" background.brushmode="0" background.gradient.repetition.mode="0" background.gradient.repetition.count="0" background.gradient.repetition.length="100" background.gradient.focus="0" background.gradient.scale="100" background.gradient.spread="100" tooltip.backcolor="134217752" tooltip.delay.initial="0" tooltip.delay.visible="32000" tooltip.enabled="0" tooltip.hasclosebutton="0" tooltip.icon="0" tooltip.isbubble="0" tooltip.maxwidth="0" tooltip.textcolor="134217751" tooltip.transparency="0" )
